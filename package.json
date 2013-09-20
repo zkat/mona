@@ -1,0 +1,69 @@
+{
+  "name": "mona",
+  "version": "0.0.0",
+  "description": "Composable parser combinators",
+  "main": "src/mona.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zkat/mona"
+  },
+  "keywords": [
+    "parser",
+    "parsing",
+    "monads",
+    "parser-combinators"
+  ],
+  "author": "Kat Marchán <kzm@sykosomatic.org>",
+  "licenses": [
+    {
+      "type": "CC0",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/zkat/mona/issues"
+  },
+  "files": [
+    "Makefile",
+    "README.md",
+    "src/*.js",
+    "build/",
+    "docs/",
+    "test/*.js"
+  ],
+  "devDependencies": {
+    "browserify": "~2.28.0",
+    "uglify-js": "~2.3.6",
+    "jsdoc": "~3.2.0",
+    "jshint": "~2.1.10",
+    "mocha": "~1.12.0"
+  },
+  "readmeFilename": "README.md",
+  "scripts": {
+    "prepublish": "make",
+    "test": "make test"
+  },
+  "testling": {
+    "browsers": [
+      "iexplore/7.0",
+      "iexplore/8.0",
+      "iexplore/9.0",
+      "iexplore/10.0",
+      "chrome/25.0",
+      "firefox/19.0",
+      "opera/12.0",
+      "firefox/nightly",
+      "opera/next",
+      "chrome/canary",
+      "iphone/6.0",
+      "ipad/6.0",
+      "safari/6.0",
+      "android-browser/4.2"
+    ],
+    "harness": "mocha",
+    "files": "test/*.js"
+  }
+}

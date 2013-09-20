@@ -1,0 +1,17 @@
+* archive [0/0]
+* backlog [0/0]
+* active [0/9]
+** TODO Publish to NPM and Bower                                       :meta:
+** TODO Set up testling and travis                                     :meta:
+** TODO Unit tests for all parsers                                     :test:
+** TODO Improve the run() interface                                     :API:
+   It kinda sucks that you get this weird object that you have to grab .val
+   from, and that you can't get all the results in an ambiguous parse from
+   it. There's also no real point in exposing input to the outside, I don't
+   think.
+** TODO Error reporting from parsers                                :parsing:
+   There should be an easy way to report parse errors, and they should be helpful.
+** TODO Test mona with node-fibers                                     :test:
+** TODO Extract examples/date.js into a new project                    :meta:
+** TODO Document API                                                    :doc:
+** TODO Make sure docs properly end up in docjs docs                    :doc:
