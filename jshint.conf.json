@@ -1,0 +1,17 @@
+{
+  "undef": true,
+  "unused": true,
+  "globalstrict": true,
+  "node": true,
+  "maxlen": 80,
+  "trailing": true,
+  "quotmark": true,
+  "newcap": true,
+  "indent": 2,
+  "immed": true,
+  "forin": true,
+  "eqeqeq": true,
+  "curly": false,
+  "camelcase": false, // eventually should be true
+  "es3": false // Eventually should be true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "mona",
+  "homepage": "https://github.com/zkat/mona.js",
+  "authors": [
+    "Kat Marchán <kzm@sykosomatic.org>"
+  ],
+  "description": "Composable parser combinators",
+  "main": "src/mona.js",
+  "keywords": [
+    "parser",
+    "parsing",
+    "monads",
+    "parser-combinators"
+  ],
+  "license": "CC0"
+}
