@@ -30,6 +30,7 @@ source-map = $(build-dir)/mona.js.src
 jsdoc-config = jsdoc.conf.json
 linter-config = jshint.conf.json
 readme = README.md
+test-files = $(shell find src/ -type f -iname "*test.js")
 
 #
 # Targets
@@ -78,16 +79,16 @@ clean:
 test: test-spec
 
 .PHONY: test-spec
-test-spec: $(source-files)
-	$(mocha) --reporter spec
+test-spec: $(source-files) $(test-files)
+	$(mocha) --reporter spec $(test-files)
 
 .PHONY: test-quiet
-test-quiet: $(source-files)
-	$(mocha) --reporter dot
+test-quiet: $(source-files) $(test-files)
+	$(mocha) --reporter dot $(test-files)
 
 .PHONY: test-watch
-test-watch: $(source-files)
-	$(mocha) --reporter min --watch
+test-watch: $(source-files) $(test-files)
+	$(mocha) --reporter min --watch $(test-files)
 
 .PHONY: lint
 lint: $(source-files) $(linter-config)
