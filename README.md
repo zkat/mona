@@ -21,6 +21,56 @@ free to do whatever you want with it.
 or
 `$ bower install mona`
 
+### Example
+
+```
+function sexp() {
+  // Matches a list or ana atom.
+  // Returns the value resulting from whichever matched.
+  return mona.or(list(), atom());
+}
+
+function atom() {
+  // Matches a valid integer and returns the integer itself.
+  return mona.integer();
+}
+
+function list() {
+  // Helpful syntax for sequencing operations.
+  // s() must be called on each parser you wish to apply.
+  // The entire sequence fails if any of them fail unexpectedly.
+  return mona.sequence(function(s) {
+    s(mona.character("("));
+    // s() returns the parser's returned value.
+    var values = s(mona.separatedBy(sexp(), mona.spaces()));
+    s(mona.character(")"));
+    // A parser such as mona.value() must be used in the return.
+    return mona.value(values);
+  });
+}
+mona.parse(sexp(), "(1 2 (3 4) 5)") => [1, 2, [3, 4], 5]
+```
+
+# Introduction
+
+`mona` is a monadic parser combinator library, which is just a really fancy
+term for a parsing library that makes it really easy to write simple or
+complex parsers, and compose them together easily to generate even more
+complex parsers.
+
+`mona` supports unbounded lookahead and makes a best effort to report what went
+wrong and where it happened when parser failures occur.
+
+`mona` is based on [smug](https://github.com/drewc/smug), and Haskell's
+[Parser](http://www.haskell.org/haskellwiki/Parsec) library.
+
+### Documentation
+
+The API is fully documented, and there's a full test suite available for
+reference. You can generate the JSDoc docs by calling `make docs`.
+
+### Building
+
 The `npm` version includes a build/ directory with both pre-built and
 minified [UMD](https://github.com/umdjs/umd) versions of `mona` which
 are loadable by both [AMD](http://requirejs.org/docs/whyamd.html) and
@@ -35,20 +85,3 @@ $ make
 ```
 
 And use `build/mona` or `build/mona.min.js` in your application.
-
-### Example
-
-```
-Look at examples/date.js :)
-```
-
-# Introduction
-
-`mona` is a monadic parser combinator library, which is just a really fancy
-term for a parsing library that makes it really easy to write simple or
-complex parsers, and compose them together easily to generate even more
-complex parsers.
-
-`mona` is based on [smug](https://github.com/drewc/smug), which in turn is
-somewhat based on Haskell's
-[Parser](http://www.haskell.org/haskellwiki/Parsec) library.
