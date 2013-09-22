@@ -17,9 +17,9 @@ free to do whatever you want with it.
 `mona` is available through both [NPM](http://npmjs.org) and
 [Bower](http://bower.io).
 
-`$ npm install mona`
+`$ npm install mona-parser`
 or
-`$ bower install mona`
+`$ bower install mona-parser`
 
 ### Example
 
