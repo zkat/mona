@@ -62,7 +62,7 @@ complex parsers.
 wrong and where it happened when parser failures occur.
 
 `mona` is based on [smug](https://github.com/drewc/smug), and Haskell's
-[Parser](http://www.haskell.org/haskellwiki/Parsec) library.
+[Parsec](http://www.haskell.org/haskellwiki/Parsec) library.
 
 ### Documentation
 
