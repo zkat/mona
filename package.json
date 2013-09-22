@@ -1,5 +1,5 @@
 {
-  "name": "mona",
+  "name": "mona-parser",
   "version": "0.1.0",
   "description": "Composable parser combinators",
   "main": "src/mona.js",
