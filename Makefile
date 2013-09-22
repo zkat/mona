@@ -43,7 +43,7 @@ compile: $(min-file) $(source-map)
 
 .PHONY: release-%
 release-%: all
-	npm version $* -m "Upgrading mona.js to %s" ;
+	npm version $* -m "Upgrading mona to %s" ;
 	git checkout master ; \
 	git merge develop --ff-only ; \
 	git checkout develop
