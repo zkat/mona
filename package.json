@@ -1,9 +1,10 @@
 {
   "name": "mona",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Composable parser combinators",
   "main": "src/mona.js",
   "scripts": {
+    "prepublish": "make",
     "test": "make test"
   },
   "repository": {
@@ -42,10 +43,6 @@
     "mocha": "~1.12.0"
   },
   "readmeFilename": "README.md",
-  "scripts": {
-    "prepublish": "make",
-    "test": "make test"
-  },
   "testling": {
     "browsers": [
       "iexplore/7.0",
