@@ -368,7 +368,7 @@ function stringOf(parser) {
  * Returns a parser that tries to consume and return a single character matching
  * `x`.
  *
- * @param {String} x - A single-character string to match against the next token.
+ * @param {String} x - single-character string to match against the next token.
  * @returns {Parser}
  */
 function character(x) {
