@@ -23,7 +23,7 @@ or
 
 ### Example
 
-```
+```javascript
 function sexp() {
   // Matches a list or ana atom.
   // Returns the value resulting from whichever matched.
