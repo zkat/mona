@@ -67,7 +67,8 @@ wrong and where it happened when parser failures occur.
 ### Documentation
 
 The API is fully documented, and there's a full test suite available for
-reference. You can generate the JSDoc docs by calling `make docs`.
+reference. After building, the documentation will be available by visiting
+`docs/index.html`
 
 ### Building
 
@@ -84,4 +85,4 @@ $ npm install
 $ make
 ```
 
-And use `build/mona` or `build/mona.min.js` in your application.
+And use `build/mona.js` or `build/mona.min.js` in your application.
