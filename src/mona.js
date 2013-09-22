@@ -281,6 +281,22 @@ function followedBy(parser) {
 }
 
 /**
+ * Returns a parser that returns an array of results that have been successfully
+ * parsed by `parser`, which were separated by `separator`.
+ *
+ * @param {Parser} parser - Parser for matching and collecting results.
+ * @param {Parser} separator - Parser for the separator
+ * @returns {Parser}
+ */
+function separatedBy(parser, separator) {
+  return sequence(function(s) {
+    var x = s(parser);
+    var xs = s(zeroOrMore(and(separator, parser)));
+    return mona.value([x].concat(xs));
+  });
+}
+
+/**
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`.
  *
@@ -508,6 +524,7 @@ var mona = module.exports = {
   unless: unless,
   sequence: sequence,
   followedBy: followedBy,
+  separatedBy: separatedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   // String-related parsers

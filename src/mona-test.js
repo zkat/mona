@@ -192,6 +192,13 @@ describe("mona", function() {
                      "fail");
       });
     });
+    describe("separatedBy", function() {
+      it("returns an array of values separated by a separator", function() {
+        assert.deepEqual(
+          parse(mona.separatedBy(mona.token(), mona.character(".")), "a.b.c.d"),
+          ["a", "b", "c", "d"]);
+      });
+    });
     describe("zeroOrMore", function() {
       it("returns zero or more matches for a given parser", function() {
         var parser = mona.zeroOrMore(mona.token());
