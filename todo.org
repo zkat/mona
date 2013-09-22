@@ -1,6 +1,4 @@
-* archive [0/0]
-* backlog [0/0]
-* active [3/13]
+* archive [9/9]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -12,16 +10,31 @@
    think.
 ** DONE Port all the old parsers over to new API                    :parsing:
    CLOSED: [2013-09-22 Sun 01:20]
-** TODO Fix the stupid parserFoo naming scheme                          :API:
+** DONE Document API                                                    :doc:
+   CLOSED: [2013-09-22 Sun 13:39]
+** DONE Fix the stupid parserFoo naming scheme                          :API:
+   CLOSED: [2013-09-22 Sun 13:39]
+** DONE Unit tests for all parsers                                     :test:
+   CLOSED: [2013-09-22 Sun 14:19]
+** DONE Write a more helpful README.md                                 :meta:
+   CLOSED: [2013-09-22 Sun 15:52]
+** DONE Set up testling and travis                                     :meta:
+   CLOSED: [2013-09-22 Sun 15:53]
+** DONE Make sure docs properly end up in docjs docs                    :doc:
+   CLOSED: [2013-09-22 Sun 15:53]
+* backlog [0/0]
+* active [0/8]
+** TODO Publish to NPM and Bower                                       :meta:
+** TODO Update examples/date.js                                    :examples:
+** TODO Improve sequence error reporting                                :API:
+   "whatever isn't a function. ohnoes!"
+** TODO Write an 'expected' parser that spits out useful messages   :parsing:
 ** TODO Bring over all the important functions from Parsec          :parsing:
    Write mona equivalents for all the stuff that matters from Prim, Combinator,
    and Char. Not sure if I care enough to port over Perm. Maybe add a separate
    todo for that.
-** TODO Unit tests for all parsers                                     :test:
+** TODO Support userState                                               :API:
+** TODO Split mona up into multiple modules                             :API:
+   Could still export all of mona from just the mona module, but it might be
+   nicer for documentation and code organization if there's topic-based modules.
 ** TODO Bring back nondeterministic parsing                         :parsing:
-** TODO Publish to NPM and Bower                                       :meta:
-** TODO Set up testling and travis                                     :meta:
-** TODO Test mona with node-fibers                                     :test:
-** TODO Extract examples/date.js into a new project                    :meta:
-** TODO Document API                                                    :doc:
-** TODO Make sure docs properly end up in docjs docs                    :doc:
