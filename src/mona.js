@@ -449,14 +449,14 @@ function spaces() {
 }
 
 /**
- * Returns a parser that collects one or more tokens matching `parser`. Thim
+ * Returns a parser that collects zero or more tokens matching `parser`. Thim
  * result is returned as a single string.
  *
  * @param {Parser} [parser=token()] - Parser to use to collect thim results.
  */
 function text(parser) {
   parser = parser || token();
-  return stringOf(oneOrMore(parser));
+  return stringOf(zeroOrMore(parser));
 }
 
 /*
