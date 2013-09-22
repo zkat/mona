@@ -230,5 +230,110 @@ describe("mona", function() {
         assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
       });
     });
+    describe("oneOf", function() {
+      it("succeeds if the next token is present in the char bag", function() {
+        assert.equal(parse(mona.oneOf("abc"), "b"), "b");
+        assert.throws(function() {
+          parse(mona.oneOf("abc"), "d");
+        });
+      });
+      it("reports that it expected one of the given characters on failure");
+    });
+    describe("noneOf", function() {
+      it("succeeds if the next token is not in the char bag", function() {
+        assert.equal(parse(mona.noneOf("abc"), "d"), "d");
+        assert.throws(function() {
+          parse(mona.noneOf("abc"), "b");
+        });
+      });
+    });
+    describe("string", function() {
+      it("succeeds if the string matches a string in the input", function() {
+        assert.equal(parse(mona.string("foo"), "foo"), "foo");
+        assert.equal(parse(mona.string("foo"), "foobarbaz"), "foo");
+        assert.throws(function() {
+          parse(mona.string("bar"), "foobarbaz");
+        });
+      });
+    });
+    describe("digitCharacter", function() {
+      it("succeeds if the next token is a digit character", function() {
+        assert.equal(parse(mona.digitCharacter(), "1"), "1");
+        assert.throws(function() {
+          parse(mona.digitCharacter(), "z");
+        });
+      });
+      it("accepts an optional base/radix argument", function() {
+        assert.equal(parse(mona.digitCharacter(16), "f"), "f");
+      });
+      it("defaults to base 10", function() {
+        assert.equal(parse(mona.digitCharacter(), "0"), "0");
+        assert.equal(parse(mona.digitCharacter(), "9"), "9");
+        assert.throws(function() {
+          parse(mona.digitCharacter(), "a");
+        });
+      });
+    });
+    describe("space", function() {
+      it("consumes a single whitespace character from input", function() {
+        assert.equal(parse(mona.space(), " "), " ");
+        assert.equal(parse(mona.space(), "\n"), "\n");
+        assert.equal(parse(mona.space(), "\t"), "\t");
+        assert.equal(parse(mona.space(), "\r"), "\r");
+        assert.throws(function() {
+          parse(mona.space(), "");
+        });
+        assert.throws(function() {
+          parse(mona.space(), "hi");
+        });
+      });
+    });
+    describe("spaces", function() {
+      it("consumes one or more whitespace characters", function() {
+        var parser = mona.and(mona.spaces(),
+                              mona.token());
+        assert.equal(parse(parser, "     a"), "a");
+        assert.equal(parse(parser, "   \r  \n\t a"), "a");
+      });
+      it("returns a single space as its success value", function() {
+        assert.equal(parse(mona.spaces(), "\r \n\t   \r\t\t\n"), " ");
+      });
+    });
+    describe("text", function() {
+      it("Collects one or more parser results into a string", function() {
+        assert.equal(parse(mona.text(mona.character("a")), "aaaab"), "aaaa");
+      });
+      it("defaults to token()", function() {
+        assert.equal(parse(mona.text(), "abcde"), "abcde");
+      });
+    });
+  });
+  describe("number-related parsers", function() {
+    describe("digit", function() {
+      it("matches a single digit and returns it as a number", function() {
+        assert.equal(parse(mona.digit(), "1"), 1);
+      });
+      it("accepts a base/radix argument");
+      it("defaults to base 10");
+    });
+    describe("naturalNumber", function() {
+      it("matches a natural number without a sign", function() {
+        assert.equal(parse(mona.naturalNumber(), "1234"), 1234);
+        assert.throws(function() {
+          parse(mona.naturalNumber(), "-123");
+        });
+      });
+      it("accepts a base/radix argument");
+      it("defaults to base 10");
+    });
+    describe("integer", function() {
+      it("matches a positive or negative possibly-signed integer", function() {
+        assert.equal(parse(mona.integer(), "1234"), 1234);
+        assert.equal(parse(mona.integer(), "+1234"), 1234);
+        assert.equal(parse(mona.integer(), "-1234"), -1234);
+      });
+      it("accepts a base/radix argument");
+      it("defaults to base 10");
+    });
   });
 });
