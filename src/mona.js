@@ -289,11 +289,12 @@ function followedBy(parser) {
  */
 function zeroOrMore(parser) {
   return function(parserState) {
-    for (var s = parser(parserState), res = []; !s.error; s = parser(s)) {
+    var prev = parserState, s = parserState, res =[];
+    while (s = parser(s), !s.error) {
       res.push(s.value);
+      prev = s;
     }
-    console.log(res);
-    return value(res)(s);
+    return value(res)(prev);
   };
 }
 
