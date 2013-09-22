@@ -10,7 +10,7 @@ free to do whatever you want with it.
 
 ### Browser support
 
-[![browser support](http://ci.testling.com/zkat/mona.png)](http://ci.testling.com/zkat/genfun.js)
+[![browser support](http://ci.testling.com/zkat/mona.png)](http://ci.testling.com/zkat/mona)
 
 ### Install
 
