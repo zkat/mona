@@ -1,4 +1,4 @@
-# Mona [![Build Status](https://travis-ci.org/zkat/mona.js.png)](https://travis-ci.org/zkat/mona) ![Dependencies Status](https://www.david-dm.org/zkat/mona.png)
+# Mona [![Build Status](https://travis-ci.org/zkat/mona.png)](https://travis-ci.org/zkat/mona) ![Dependencies Status](https://www.david-dm.org/zkat/mona.png)
 
 `mona` is
 [hosted at Github](http://github.com/zkat/mona). `mona` is a
