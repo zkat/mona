@@ -1,16 +1,26 @@
 * archive [0/0]
 * backlog [0/0]
-* active [0/9]
-** TODO Publish to NPM and Bower                                       :meta:
-** TODO Set up testling and travis                                     :meta:
-** TODO Unit tests for all parsers                                     :test:
-** TODO Improve the run() interface                                     :API:
+* active [3/13]
+** DONE Error reporting from parsers                                :parsing:
+   CLOSED: [2013-09-21 Sat 22:46]
+   There should be an easy way to report parse errors, and they should be helpful.
+** DONE Improve the run() interface                                     :API:
+   CLOSED: [2013-09-21 Sat 22:46]
    It kinda sucks that you get this weird object that you have to grab .val
    from, and that you can't get all the results in an ambiguous parse from
    it. There's also no real point in exposing input to the outside, I don't
    think.
-** TODO Error reporting from parsers                                :parsing:
-   There should be an easy way to report parse errors, and they should be helpful.
+** DONE Port all the old parsers over to new API                    :parsing:
+   CLOSED: [2013-09-22 Sun 01:20]
+** TODO Fix the stupid parserFoo naming scheme                          :API:
+** TODO Bring over all the important functions from Parsec          :parsing:
+   Write mona equivalents for all the stuff that matters from Prim, Combinator,
+   and Char. Not sure if I care enough to port over Perm. Maybe add a separate
+   todo for that.
+** TODO Unit tests for all parsers                                     :test:
+** TODO Bring back nondeterministic parsing                         :parsing:
+** TODO Publish to NPM and Bower                                       :meta:
+** TODO Set up testling and travis                                     :meta:
 ** TODO Test mona with node-fibers                                     :test:
 ** TODO Extract examples/date.js into a new project                    :meta:
 ** TODO Document API                                                    :doc:
