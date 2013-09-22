@@ -1,5 +1,9 @@
 "use strict";
 
+/*
+ * WARNING: this module is bitrotted. It'll be updated soon!
+ */
+
 var mona = require("../src/mona"),
     moment = require("moment");
 
