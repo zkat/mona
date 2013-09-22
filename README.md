@@ -19,7 +19,7 @@ free to do whatever you want with it.
 
 `$ npm install mona-parser`
 or
-`$ bower install mona-parser`
+`$ bower install mona`
 
 ### Example
 
