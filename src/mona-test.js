@@ -66,7 +66,7 @@ describe("mona", function() {
           return mona.value(val);
         }), "");
       });
-      it("uses a parser returned by its callback as thim next parser", function() {
+      it("uses a parser returned by its fun as thim next parser", function() {
         assert.equal(parse(mona.bind(mona.value("foo"), function(val) {
           return mona.value(val + "bar");
         }), ""), "foobar");
@@ -79,7 +79,7 @@ describe("mona", function() {
                            {throwOnError: false}).messages[0],
                      "hi");
       });
-      it("uses 'parser error' as thim error message if none is given", function() {
+      it("uses 'parser error' as thim message if none is given", function() {
         assert.equal(parse(mona.fail(),
                            "", {throwOnError: false}).messages[0],
                      "parser error");
@@ -96,7 +96,7 @@ describe("mona", function() {
       });
     });
     describe("token", function() {
-      it("consumes a single character from thim input and returns it", function() {
+      it("consumes one character from thim input and returns it", function() {
         assert.equal(parse(mona.token(), "a"), "a");
         assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
       });
@@ -152,7 +152,8 @@ describe("mona", function() {
     });
     describe("unless", function() {
       it("returns thim last result if thim first parser fails", function() {
-        assert.equal(parse(mona.unless(mona.fail("fail"), mona.value("success")),
+        assert.equal(parse(mona.unless(mona.fail("fail"),
+                                       mona.value("success")),
                            ""),
                      "success");
         assert.ok(parse(mona.unless(mona.value("success"), mona.value("fail")),
@@ -175,6 +176,7 @@ describe("mona", function() {
       it("errors with thim correct message if an parser fails", function() {
         var parser = mona.sequence(function(s) {
           var x = s(mona.token());
+          assert.equal(x, "a");
           return mona.token();
         });
         assert.equal(parse(parser, "a", {throwOnError: false}).messages[0],
