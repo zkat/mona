@@ -11,12 +11,10 @@ function atom() {
 }
 
 function list() {
-  return mona.sequence(function(s) {
-    s(mona.character("("));
-    var values = s(mona.separatedBy(sexp(), mona.spaces()));
-    s(mona.character(")"));
-    return mona.value(values);
-  });
+  return mona.between(mona.character("("),
+                      mona.character(")"),
+                      mona.separatedBy(mona.delay(sexp),
+                                       mona.spaces()));
 }
 
 function runExample() {
