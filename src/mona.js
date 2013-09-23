@@ -194,6 +194,24 @@ function eof() {
 }
 
 /**
+ * Debugger parser that logs the ParserState with a tag.
+ *
+ * @param {core.Parser} parser - Parser to wrap.
+ * @param {String} tag - Tag to use when logging messages.
+ * @param {String} [level="log"] - 'log', 'info', 'debug', 'warn', 'error'.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function log(parser, tag, level) {
+  level = level || "log";
+  return function(parserState) {
+    var newParserState = parser(parserState);
+    console[level](tag+" :: ", parserState, " => ", newParserState);
+    return newParserState;
+  };
+}
+
+/**
  * Parser combinators for higher-order interaction between parsers.
  *
  * @namespace combinators
@@ -647,6 +665,7 @@ module.exports = {
   expected: expected,
   token: token,
   eof: eof,
+  log: log,
   // Combinators
   and: and,
   or: or,
