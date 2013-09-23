@@ -17,8 +17,7 @@ function csv() {
 }
 
 function line() {
-  return mona.or(mona.separatedBy(cell(), mona.character(",")),
-                 mona.value([]));
+  return mona.separatedBy(cell(), mona.character(","));
 }
 
 function cell() {
@@ -57,12 +56,13 @@ function parseCSV(text) {
 }
 
 function runExample() {
-  console.log(parseCSV("l1c1,l1c2\nl2c1,l2c2\n"));
   var csvText = ('"Product","Price"\n'+
                  '"O\'Reilly Socks",10\n'+
                  '"Shirt with ""Haskell"" text",20\n'+
                  '"Shirt, ""O\'Reilly"" version",20\n'+
-                 '"Haskell Caps",15');
-  console.log(parseCSV(csvText));
+                 '"Haskell Caps",15\r\n'+
+                 ',\n');
+  console.log("Parsing:\n", csvText,
+              "=>\n", parseCSV(csvText));
 }
 if (module.id === ".") runExample();
