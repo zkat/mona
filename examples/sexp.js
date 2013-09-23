@@ -20,6 +20,7 @@ function list() {
 }
 
 function runExample() {
-  console.log(mona.parse(sexp(), "(1 23 (345 6) 789 10)", {throwOnError: false}));
+  var text = "(1 23 (345 6) () 789 10)";
+  console.log("Parsing ", text, " => ", mona.parse(sexp(), text));
 }
 if (module.id === ".") runExample();
