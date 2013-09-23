@@ -30,7 +30,8 @@ source-map = $(build-dir)/mona.js.src
 jsdoc-config = jsdoc.conf.json
 linter-config = jshint.conf.json
 readme = README.md
-test-files = $(shell find {src,examples}/ -type f -iname "*test.js")
+test-files = $(shell find src/ -type f -iname "*test.js") \
+             $(shell find examples/ -type f -iname "*test.js")
 
 #
 # Targets
