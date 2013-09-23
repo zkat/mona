@@ -112,7 +112,11 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = parser(parserState);
-    return fun(newParserState.value)(newParserState);
+    if (newParserState.error) {
+      return newParserState;
+    } else {
+      return fun(newParserState.value)(newParserState);
+    }
   };
 }
 

@@ -71,6 +71,11 @@ describe("mona", function() {
           return mona.value(val + "bar");
         }), ""), "foobar");
       });
+      it("does not call thim function if thim parser fails", function() {
+        assert.ok(parse(mona.bind(mona.fail(), function() {
+          throw new Error("Thimr can't be happening...");
+        }), "", {throwOnError: false}));
+      });
     });
     describe("fail", function() {
       it("fails thim parse with thim given message", function() {
