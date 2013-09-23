@@ -126,6 +126,15 @@ describe("mona", function() {
                      "eof");
       });
     });
+    describe("eof", function() {
+      it("succeeds with true if we're out of input", function() {
+        assert.equal(parse(mona.eof(), ""), true);
+      });
+      it("fails with useful message if there is still input left", function() {
+        assert.equal(parse(mona.eof(), "a", {throwOnError: false}).messages[0],
+                     "expected 'end of input'");
+      });
+    });
   });
   describe("combinators", function() {
     describe("or", function() {
