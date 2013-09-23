@@ -352,6 +352,30 @@ function oneOrMore(parser) {
   });
 }
 
+/**
+ * Returns a parser that results in a value between an opening and closing
+ * parser.
+ *
+ * @param {core.Parser} open - Opening parser.
+ * @param {core.Parser} close - Closing parser.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function between(open, close, parser) {
+  return and(open, followedBy(parser, close));
+}
+
+/**
+ * Returns a parser that skips input until `parser` stops matching.
+ *
+ * @param {core.Parser} parser - Determines whether to continue skipping.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function skip(parser) {
+  return and(zeroOrMore(parser), value());
+}
+
 /*
  * Strings
  */

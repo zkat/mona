@@ -261,6 +261,33 @@ describe("mona", function() {
         assert.equal(parse(parser, "a").length, 1);
       });
     });
+    describe("between", function() {
+      it("returns a value in between two other parsers", function() {
+        var parser = mona.between(mona.character("("),
+                                  mona.character(")"),
+                                  mona.integer());
+        assert.equal(parse(parser, "(123)"), 123);
+        assert.throws(function() {
+          parse(parser, "123)");
+        });
+        assert.throws(function() {
+          parse(parser, "(123");
+        });
+        assert.throws(function() {
+          parse(parser, "()");
+        });
+        var maybeParser = mona.between(mona.character("("),
+                                       mona.character(")"),
+                                       mona.maybe(mona.integer()));
+        assert.equal(parse(maybeParser, "()"), undefined);
+      });
+    });
+    describe("skip", function() {
+      it("skips input until parser stops matching", function() {
+        var parser = mona.and(mona.skip(mona.character("a")), mona.token());
+        assert.equal(parse(parser, "aaaaaaaaaaab"), "b");
+      });
+    });
   });
   describe("string-related parsers", function() {
     describe("satisfies", function() {
