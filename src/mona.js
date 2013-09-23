@@ -140,7 +140,7 @@ function eof() {
     if (!parserState.restOfInput) {
       return attr(parserState, "value", true);
     } else {
-      return fail("expected an eof", "expectation");
+      return expected("end of input")(parserState);
     }
   };
 }
