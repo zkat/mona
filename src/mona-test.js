@@ -137,6 +137,15 @@ describe("mona", function() {
     });
   });
   describe("combinators", function() {
+    describe("and", function() {
+      it("returns the last result if all previous ones succeed",  function() {
+        assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
+        assert.equal(parse(mona.and(mona.token()), "ab"), "a");
+        assert.throws(function() {
+          parse(mona.and(), "ab");
+        });
+      });
+    });
     describe("or", function() {
       it("returns the result of the first parser that succeeds", function() {
         assert.equal(parse(mona.or(mona.value("foo"), mona.value("bar")), ""),
