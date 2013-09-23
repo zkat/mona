@@ -1,7 +1,8 @@
 "use strict";
 
-/*
- * API
+/**
+ * Parser execution api
+ * @namespace api
  */
 
 /**
@@ -13,7 +14,8 @@
  * @param {Boolean} [opts.throwOnError=true] - If truthy, throws a ParseError if
  *                                             the parser fails.
  * @param {String} [opts.fileName] - filename to use for error messages.
- * @returns {value|ParseError}
+ * @returns {value|api.ParseError}
+ * @memberof api
  */
 function parse(parser, string, opts) {
   opts = opts || {
@@ -31,8 +33,47 @@ function parse(parser, string, opts) {
   }
 }
 
-/*
+/**
+ * Represents a source location.
+ * @typedef {Object} SourcePosition
+ * @property {String} name - Optional sourcefile name.
+ * @property {integer} line - Line number, starting from 1.
+ * @property {integer} column - Column number in the line, starting from 1.
+ * @memberof api
+ */
+function SourcePosition(name, line, column) {
+  this.name = name;
+  this.line = line || 1;
+  this.column = column || 1;
+}
+
+/**
+ * Information about a parsing failure.
+ * @typedef {Object} ParseError
+ * @property {api.SourcePosition} position - Source position for the error.
+ * @property {Array} messages - Array containing relevant error messages.
+ * @property {String} type - The type of parsing error.
+ * @memberof api
+ */
+function ParseError(pos, messages, type) {
+  this.position = pos;
+  this.messages = messages;
+  this.type = type;
+  this.message = ("ParseError of type " + this.type +
+                  " (line "+ this.position.line +
+                  ", column "+this.position.column+"): "+
+                  this.messages.join("\n "));
+  Error.call(this, this.message);
+}
+ParseError.prototype.name = "ParseError";
+ParseError.prototype = new Error();
+ParseError.prototype.constructor = ParseError;
+
+
+/**
  * Core parsers
+ *
+ * @namespace core
  */
 
 /**
@@ -41,13 +82,15 @@ function parse(parser, string, opts) {
  * @callback {Function} Parser
  * @param {ParserState} state - Current parser state.
  * @returns {ParserState} state' - Transformed parser state.
+ * @memberof core
  */
 
 /**
  * Returns a parser that always succeeds without consuming input.
  *
  * @param [val=undefined] - value to use as this parser's value.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function value(val) {
   return function(parserState) {
@@ -60,10 +103,11 @@ function value(val) {
  * `parser` on the current parsing state. Fails without executing `fun` if
  * `parser` fails.
  *
- * @param {Parser} parser - The parser to execute.
+ * @param {core.Parser} parser - The parser to execute.
  * @param {Function} fun - Function called with the resulting value of
  *                         `parser`. Must return a parser.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function bind(parser, fun) {
   return function(parserState) {
@@ -78,7 +122,8 @@ function bind(parser, fun) {
  *
  * @param {String} msg - Message to report with the failure.
  * @param {String} type - A type to apply to the ParseError.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function fail(msg, type) {
   msg = msg || "parser error";
@@ -95,7 +140,8 @@ function fail(msg, type) {
  * Returns a parser that will fail and report that `descriptor` was expected.
  *
  * @param {String} descriptor - A string describing what was expected.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function expected(descriptor) {
   return fail("expected '"+descriptor+"'", "expectation");
@@ -105,7 +151,8 @@ function expected(descriptor) {
  * Returns a parser that consumes a single item from the input, or fails with an
  * unexpected eof error if there is no input left.
  *
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function token() {
   return function(parserState) {
@@ -133,7 +180,8 @@ function token() {
  * Returns a parser that succeeds with a value of `true` if there is no more
  * input to consume.
  *
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof core
  */
 function eof() {
   return function(parserState) {
@@ -145,17 +193,19 @@ function eof() {
   };
 }
 
-/*
- * Combinators
+/**
+ * Parser combinators for higher-order interaction between parsers.
  *
+ * @namespace combinators
  */
 
 /**
  * Returns a parser that succeeds if all the parsers given to it succeed. The
  * returned parser uses the value of the last successful parser.
  *
- * @param {...Parser} parsers - One or more parsers to execute.
- * @returns {Parser}
+ * @param {...core.Parser} parsers - One or more parsers to execute.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function and(firstParser) {
   var moreParsers = [].slice.call(arguments, 1);
@@ -170,8 +220,9 @@ function and(firstParser) {
  * Returns a parser that succeeds if one of the parsers given to it
  * suceeds. Uses the value of the first successful parser.
  *
- * @param {...Parser} parsers - One or more parsers to execute.
- * @returns {Parser}
+ * @param {...core.Parser} parsers - One or more parsers to execute.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function or() {
   function orHelper() {
@@ -192,8 +243,9 @@ function or() {
  * Returns a parser that returns the result of `parser` if it succeeds,
  * otherwise succeeds with a value of `undefined` without consuming input.
  *
- * @param {Parser} parser - Parser to try.
- * @returns {Parser}
+ * @param {core.Parser} parser - Parser to try.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function maybe(parser) {
   return or(parser, value());
@@ -202,8 +254,9 @@ function maybe(parser) {
 /**
  * Returns a parser that succeeds if `parser` fails. Does not consume.
  *
- * @param {Parser} parser - parser to test.
- * @returns {Parser}
+ * @param {core.Parser} parser - parser to test.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function not(parser) {
   return function(parserState) {
@@ -218,9 +271,10 @@ function not(parser) {
  * to it succeeds. Like `and`, it returns the value of the last successful
  * parser.
  *
- * @param {Parser} notParser - If this parser succeeds, `unless` will fail.
- * @param {...Parser} moreParsers - Rest of the parses to test.
- * @returns {Parser}
+ * @param {core.Parser} notParser - If this parser succeeds, `unless` will fail.
+ * @param {...core.Parser} moreParsers - Rest of the parses to test.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function unless(parser) {
   var moreParsers = [].slice.call(arguments, 1);
@@ -240,7 +294,8 @@ function unless(parser) {
  * reason.
  *
  * @param {Function} fun - A sequence callback to execute.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof combinators
  *
  * @example
  * mona.sequence(function(s) {
@@ -276,10 +331,12 @@ function sequence(fun) {
  * Returns a parser that returns the result of its first parser if it succeeds,
  * but fails if any of the following parsers fail.
  *
- * @param {Parser} parser - The value of this parser is returned if it succeeds.
- * @param {...Parser} moreParsers - These parsers must succeed in order for
- *                                  `followedBy` to succeed.
- * @returns {Parser}
+ * @param {core.Parser} parser - The value of this parser is returned if it
+ *                               succeeds.
+ * @param {...core.Parser} moreParsers - These parsers must succeed in order for
+ *                                       `followedBy` to succeed.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function followedBy(parser) {
   var parsers = [].slice.call(arguments, 1);
@@ -294,10 +351,11 @@ function followedBy(parser) {
  * Returns a parser that returns an array of results that have been successfully
  * parsed by `parser`, which were separated by `separator`.
  *
- * @param {Parser} parser - Parser for matching and collecting results.
- * @param {Parser} separator - Parser for the separator
+ * @param {core.Parser} parser - Parser for matching and collecting results.
+ * @param {core.Parser} separator - Parser for the separator
  * @param {integer} [minimum=0] - Minimum length of the resulting array.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function separatedBy(parser, separator, minimum) {
   minimum = typeof minimum === "undefined" ? 0 : minimum;
@@ -323,8 +381,9 @@ function separatedBy(parser, separator, minimum) {
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`.
  *
- * @param {Parser} parser - The parser to try to apply.
- * @returns {Parser}
+ * @param {core.Parser} parser - The parser to try to apply.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function zeroOrMore(parser) {
   return function(parserState) {
@@ -341,8 +400,9 @@ function zeroOrMore(parser) {
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`. The parser must succeed at least once.
  *
- * @param {Parser} parser - The parser to collect results for.
- * @returns {Parser}
+ * @param {core.Parser} parser - The parser to collect results for.
+ * @returns {core.Parser}
+ * @memberof combinators
  */
 function oneOrMore(parser) {
   return sequence(function(s) {
@@ -376,8 +436,10 @@ function skip(parser) {
   return and(zeroOrMore(parser), value());
 }
 
-/*
- * Strings
+/**
+ * String-related parsers and combinators.
+ *
+ * @namespace strings
  */
 
 /**
@@ -387,7 +449,8 @@ function skip(parser) {
  *
  * @param {Function} predicate - Called with a single token. Should return a
  *                               truthy value if the token should be accepted.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function satisfies(predicate) {
   return bind(token(), function(c) {
@@ -404,8 +467,9 @@ function satisfies(predicate) {
  * `parser`. `parser` must be a combinator that returns an array of string parse
  * results.
  *
- * @param {Parser} parser - Parser that results in an array of strings.
- * @returns {Parser}
+ * @param {core.Parser} parser - Parser that results in an array of strings.
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function stringOf(parser) {
   return bind(parser, function(xs) { return value(xs.join("")); });
@@ -416,12 +480,13 @@ function stringOf(parser) {
  * `x`.
  *
  * @param {String} x - single-character string to match against the next token.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function character(x) {
   return or(satisfies(function(y) {
     return x === y;
-  }), expected("character"));
+  }), expected("character '"+x+"'"));
 }
 
 /**
@@ -430,7 +495,8 @@ function character(x) {
  *
  * @param {String|Array|Array-like} chars - Character bag to match the next
  *                                          token against.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function oneOf(chars) {
   return or(satisfies(function(x) { return ~chars.indexOf(x); }),
@@ -442,10 +508,12 @@ function oneOf(chars) {
  * `chars`.
  *
  * @param {String|Array|Array-like} chars - Character bag to match against.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function noneOf(chars) {
-  return satisfies(function(x) { return !~chars.indexOf(x); });
+  return or(satisfies(function(x) { return !~chars.indexOf(x); }),
+            expected("none of "+chars));
 }
 
 /**
@@ -453,7 +521,8 @@ function noneOf(chars) {
  * consuming the string and returning it as a value.
  *
  * @param {String} str - String to match against.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function string(str) {
   return !str.length ?
@@ -469,17 +538,20 @@ function string(str) {
  * Returns a parser that parses a single digit character token from the input.
  *
  * @param {integer} [base=10] - Optional base for the digit.
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function digitCharacter(base) {
   base = base || 10;
-  return satisfies(function(x) { return !isNaN(parseInt(x, base)); });
+  return or(satisfies(function(x) { return !isNaN(parseInt(x, base)); }),
+            expected("digitCharacter"));
 }
 
 /**
  * Returns a parser that matches one whitespace character.
  *
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function space() {
   return oneOf(" \t\n\r");
@@ -490,25 +562,29 @@ function space() {
  * single space character as its result, regardless of which whitespace
  * characters were matched.
  *
- * @returns {Parser}
+ * @returns {core.Parser}
+ * @memberof strings
  */
 function spaces() {
-  return and(oneOrMore(space()), value(" "));
+  return and(skip(space()), value(" "));
 }
 
 /**
  * Returns a parser that collects zero or more tokens matching `parser`. The
  * result is returned as a single string.
  *
- * @param {Parser} [parser=token()] - Parser to use to collect the results.
+ * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
+ * @memberof strings
  */
 function text(parser) {
   parser = parser || token();
   return stringOf(zeroOrMore(parser));
 }
 
-/*
- * Numbers
+/**
+ * Number-related parsers and combinators
+ *
+ * @namespace numbers
  */
 
 /**
@@ -516,6 +592,8 @@ function text(parser) {
  * number represented by that digit as its value.
  *
  * @param {integer} [base=10] - Base to use when parsing the digit.
+ * @returns {core.Parser}
+ * @memberof numbers
  */
 function digit(base) {
   base = base || 10;
@@ -531,6 +609,8 @@ function digit(base) {
  * positive/negative sign or decimal places, and returns a positive integer.
  *
  * @param {integer} [base=10] - Base to use when parsing the number.
+ * @returns {core.Parser}
+ * @memberof numbers
  */
 function naturalNumber(base) {
   base = base || 10;
@@ -544,6 +624,8 @@ function naturalNumber(base) {
  * Returns a parser that matches an integer, with an optional + or - sign.
  *
  * @param {integer} [base=10] - Base to use when parsing the integer.
+ * @returns {core.Parser}
+ * @memberof numbers
  */
 function integer(base) {
   base = base || 10;
@@ -576,6 +658,8 @@ module.exports = {
   separatedBy: separatedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
+  between: between,
+  skip: skip,
   // String-related parsers
   satisfies: satisfies,
   stringOf: stringOf,
@@ -619,40 +703,6 @@ function attr(obj, name, arg) {
     return newObj;
   }
 }
-
-/**
- * Represents a source location.
- * @typedef {Object} SourcePosition
- * @property {String} name - Optional sourcefile name.
- * @property {integer} line - Line number, starting from 1.
- * @property {integer} column - Column number in the line, starting from 1.
- */
-function SourcePosition(name, line, column) {
-  this.name = name;
-  this.line = line || 1;
-  this.column = column || 1;
-}
-
-/**
- * Information about a parsing failure.
- * @typedef {Object} ParseError
- * @property {SourcePosition} position - Source position for the error.
- * @property {Array} messages - Array containing relevant error messages.
- * @property {String} type - The type of parsing error.
- */
-function ParseError(pos, messages, type) {
-  this.position = pos;
-  this.messages = messages;
-  this.type = type;
-  this.message = ("ParseError of type " + this.type +
-                  " (line "+ this.position.line +
-                  ", column "+this.position.column+"): "+
-                  this.messages.join("\n "));
-  Error.call(this, this.message);
-}
-ParseError.prototype.name = "ParseError";
-ParseError.prototype = new Error();
-ParseError.prototype.constructor = ParseError;
 
 function mergeErrors(err1, err2) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
