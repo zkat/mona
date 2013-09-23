@@ -1,4 +1,4 @@
-* archive [9/9]
+* archive [12/12]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -22,17 +22,34 @@
    CLOSED: [2013-09-22 Sun 15:53]
 ** DONE Make sure docs properly end up in docjs docs                    :doc:
    CLOSED: [2013-09-22 Sun 15:53]
+** DONE Publish to NPM and Bower                                       :meta:
+   CLOSED: [2013-09-22 Sun 20:34]
+** DONE Write an 'expected' parser that spits out useful messages   :parsing:
+   CLOSED: [2013-09-22 Sun 20:37]
+** DONE Update examples/date.js                                    :examples:
+   CLOSED: [2013-09-22 Sun 21:27]
 * backlog [0/0]
-* active [0/8]
-** TODO Publish to NPM and Bower                                       :meta:
-** TODO Update examples/date.js                                    :examples:
-** TODO Improve sequence error reporting                                :API:
-   "whatever isn't a function. ohnoes!"
-** TODO Write an 'expected' parser that spits out useful messages   :parsing:
+* active [0/9]
 ** TODO Bring over all the important functions from Parsec          :parsing:
    Write mona equivalents for all the stuff that matters from Prim, Combinator,
    and Char. Not sure if I care enough to port over Perm. Maybe add a separate
    todo for that.
+** TODO Better error messages                                       :parsing:
+   Look more into how error messages get collected and combined.
+** TODO Print errors properly in node                                   :API:
+   For some reason, node just says Error when a parser error is thrown, even
+   though it has a 'message' field, a name, and it inherits from Error. I'm not
+   sure what else needs to be done!
+** TODO Check that parsers are functions and return a new state         :API:
+   I guess this is one thing that having types could have really helped
+   with. :). The errors kinda suck right now when someone randomly forgets to
+   `return mona.value(foo)`
+** TODO Write cardinal and ordinal number parsers                   :parsing:
+   Including the english counterparts:
+   ordinals: 1st, 2nd, third, fourth...
+   cardinals: 1, 2, three, four...
+** TODO Improve sequence error reporting                                :API:
+   "whatever isn't a function. ohnoes!"
 ** TODO Support userState                                               :API:
 ** TODO Split mona up into multiple modules                             :API:
    Could still export all of mona from just the mona module, but it might be
