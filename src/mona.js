@@ -395,9 +395,9 @@ function stringOf(parser) {
  * @returns {Parser}
  */
 function character(x) {
-  return satisfies(function(y) {
+  return or(satisfies(function(y) {
     return x === y;
-  });
+  }), expected("character"));
 }
 
 /**
@@ -409,7 +409,8 @@ function character(x) {
  * @returns {Parser}
  */
 function oneOf(chars) {
-  return satisfies(function(x) { return ~chars.indexOf(x); });
+  return or(satisfies(function(x) { return ~chars.indexOf(x); }),
+            expected("one of "+chars));
 }
 
 /**
@@ -619,7 +620,14 @@ function ParseError(pos, messages, type) {
   this.position = pos;
   this.messages = messages;
   this.type = type;
+  this.message = ("ParseError of type "+this.type + " (line "+this.position.line+
+                  ", column "+this.position.column+"): "+
+                  this.messages.join("\n "));
+  Error.call(this, this.message);
 }
+ParseError.prototype.name = "ParseError";
+ParseError.prototype = new Error();
+ParseError.prototype.constructor = ParseError;
 
 function mergeErrors(err1, err2) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
@@ -627,7 +635,9 @@ function mergeErrors(err1, err2) {
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
-    return new ParseError(err1.pos, err1.messages.concat(err2.messages));
+    return new ParseError(err1.position,
+                          err1.messages.concat(err2.messages),
+                          err1.type || err2.type);
   }
 }
 
