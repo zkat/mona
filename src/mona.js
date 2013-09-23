@@ -198,6 +198,22 @@ function eof() {
 }
 
 /**
+ * Delays calling of a parser constructor function until parse-time. Useful for
+ * recursive parsers that would otherwise blow the stack at construction time.
+ *
+ * @param {Function} constructor - A function that returns a core.Parser.
+ * @param {...Any} args - Arguments to apply to the constructor.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function delay(constructor) {
+  var args = [].slice.call(arguments, 1);
+  return function(parserState) {
+    return constructor.apply(null, args)(parserState);
+  };
+}
+
+/**
  * Debugger parser that logs the ParserState with a tag.
  *
  * @param {core.Parser} parser - Parser to wrap.
@@ -670,6 +686,7 @@ module.exports = {
   token: token,
   eof: eof,
   log: log,
+  delay: delay,
   // Combinators
   and: and,
   or: or,

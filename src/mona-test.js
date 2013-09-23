@@ -140,6 +140,18 @@ describe("mona", function() {
                      "expected 'end of input'");
       });
     });
+    describe("delay", function() {
+      it("delays calling a parser constructor until parse-time", function() {
+        var parser = mona.delay(function() {
+          throw new Error("Parser explosion");
+        });
+        assert.throws(function() { parse(parser, ""); });
+      });
+      it("returns a parser with the arguments applied", function() {
+        var parser = mona.delay(mona.integer, 16);
+        assert.equal(parse(parser, "deadbeef"), 0xdeadbeef);
+      });
+    });
   });
   describe("combinators", function() {
     describe("and", function() {
