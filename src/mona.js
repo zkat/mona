@@ -92,6 +92,16 @@ function fail(msg, type) {
 }
 
 /**
+ * Returns a parser that will fail and report that `descriptor` was expected.
+ *
+ * @param {String} descriptor - A string describing what was expected.
+ * @returns {Parser}
+ */
+function expected(descriptor) {
+  return fail("expected '"+descriptor+"'", "expectation");
+}
+
+/**
  * Returns a parser that consumes a single item from the input, or fails with an
  * unexpected eof error if there is no input left.
  *
@@ -527,6 +537,7 @@ module.exports = {
   value: value,
   bind: bind,
   fail: fail,
+  expected: expected,
   token: token,
   eof: eof,
   // Combinators
