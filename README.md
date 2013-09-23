@@ -63,8 +63,8 @@ wrong and where it happened when parser failures occur.
 ### Documentation
 
 The API is fully documented, and there's a full test suite available for
-reference. After building, the documentation will be available by visiting
-`docs/index.html`
+reference. If you installed from `npm`, documentation should be available at
+`docs/index.html`. Otherwise, run `npm install && make docs` to generate them.
 
 ### Building
 
