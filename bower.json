@@ -4,13 +4,15 @@
   "authors": [
     "Kat Marchán <kzm@sykosomatic.org>"
   ],
-  "description": "Composable parser combinators",
+  "description": "Composable parsers",
   "main": "src/mona.js",
   "keywords": [
     "parser",
     "parsing",
     "monads",
-    "parser-combinators"
+    "parser-combinators",
+    "functional",
+    "fp"
   ],
   "license": "CC0"
 }

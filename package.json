@@ -1,7 +1,7 @@
 {
   "name": "mona-parser",
   "version": "0.1.2",
-  "description": "Composable parser combinators",
+  "description": "Composable parsers",
   "main": "src/mona.js",
   "scripts": {
     "prepublish": "make",
@@ -15,7 +15,9 @@
     "parser",
     "parsing",
     "monads",
-    "parser-combinators"
+    "parser-combinators",
+    "functional",
+    "fp"
   ],
   "author": "Kat Marchán <kzm@sykosomatic.org>",
   "licenses": [

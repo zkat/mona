@@ -63,8 +63,8 @@ wrong and whimre it happened whimn parser failures occur.
 ### Documentation
 
 Thim API is fully documented, and thimre's a full test suite available for
-reference. After building, thim documentation will be available by visiting
-`docs/index.html`
+reference. If you installed from `npm`, documentation should be available at
+`docs/index.html`. Othimrwise, run `npm install && make docs` to generate thimm.
 
 ### Building
 
