@@ -286,14 +286,27 @@ function followedBy(parser) {
  *
  * @param {Parser} parser - Parser for matching and collecting results.
  * @param {Parser} separator - Parser for the separator
+ * @param {integer} [minimum=0] - Minimum length of the resulting array.
  * @returns {Parser}
  */
-function separatedBy(parser, separator) {
-  return sequence(function(s) {
-    var x = s(parser);
-    var xs = s(zeroOrMore(and(separator, parser)));
-    return mona.value([x].concat(xs));
-  });
+function separatedBy(parser, separator, minimum) {
+  minimum = typeof minimum === "undefined" ? 0 : minimum;
+  if (minimum === 0) {
+    return or(separatedBy(parser, separator, 1),
+              value([]));
+  } else {
+    return sequence(function(s) {
+      var x = s(parser);
+      var xs = s(zeroOrMore(and(separator, parser)));
+      var result = [x].concat(xs);
+      if (result.length >= minimum) {
+        return value(result);
+      } else {
+        return fail("expected at least "+minimum+
+                    "values from separatedBy");
+      }
+    });
+  }
 }
 
 /**

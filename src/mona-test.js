@@ -200,6 +200,19 @@ describe("mona", function() {
           parse(mona.separatedBy(mona.token(), mona.character(".")), "a.b.c.d"),
           ["a", "b", "c", "d"]);
       });
+      it("returns an empty array if it fails", function() {
+        assert.deepEqual(parse(mona.separatedBy(mona.character("a"),
+                                                mona.character(".")),
+                               "b.c.d"),
+                         []);
+      });
+      it("accepts a minimum count as a third argument", function() {
+        var parser = mona.separatedBy(mona.token(), mona.character("."), 3);
+        assert.deepEqual(parse(parser, "a.b.c"), ["a", "b", "c"]);
+        assert.throws(function() {
+          parse(parser, "a.b");
+        });
+      });
     });
     describe("zeroOrMore", function() {
       it("returns zero or more matches for a given parser", function() {
