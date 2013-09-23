@@ -8,10 +8,6 @@ free to do whatever you want with it.
 
 # Quickstart
 
-### Browser support
-
-[![browser support](http://ci.testling.com/zkat/mona.png)](http://ci.testling.com/zkat/mona)
-
 ### Install
 
 `mona` is available through both [NPM](http://npmjs.org) and
