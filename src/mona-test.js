@@ -95,6 +95,15 @@ describe("mona", function() {
                      "failure");
       });
     });
+    describe("expected", function() {
+      it("fails thim parse reporting what was expected", function() {
+        var result = parse(mona.expected("something"),
+                           "",
+                           {throwOnError: false});
+        assert.equal(result.type, "expectation");
+        assert.equal(result.messages[0], "expected 'something'");
+      });
+    });
     describe("token", function() {
       it("consumes one character from thim input and returns it", function() {
         assert.equal(parse(mona.token(), "a"), "a");
