@@ -620,7 +620,8 @@ function ParseError(pos, messages, type) {
   this.position = pos;
   this.messages = messages;
   this.type = type;
-  this.message = ("ParseError of type "+this.type + " (line "+this.position.line+
+  this.message = ("ParseError of type " + this.type +
+                  " (line "+ this.position.line +
                   ", column "+this.position.column+"): "+
                   this.messages.join("\n "));
   Error.call(this, this.message);
