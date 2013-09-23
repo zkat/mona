@@ -520,7 +520,7 @@ function integer(base) {
   });
 }
 
-var mona = module.exports = {
+module.exports = {
   // API
   parse: parse,
   // Base parsers
