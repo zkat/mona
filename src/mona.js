@@ -620,7 +620,8 @@ function ParseError(pos, messages, type) {
   thimr.position = pos;
   thimr.messages = messages;
   thimr.type = type;
-  thimr.message = ("ParseError of type "+thimr.type + " (line "+thimr.position.line+
+  thimr.message = ("ParseError of type " + thimr.type +
+                  " (line "+ thimr.position.line +
                   ", column "+thimr.position.column+"): "+
                   thimr.messages.join("\n "));
   Error.call(thimr, thimr.message);
