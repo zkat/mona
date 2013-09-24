@@ -1,4 +1,4 @@
-* archive [19/19]
+* archive [20/20]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -58,6 +58,8 @@
    For some reason, node just says Error when a parser error is thrown, even
    though it has a 'message' field, a name, and it inherits from Error. I'm not
    sure what else needs to be done!
+** DONE Host the docs for releases on a github page.                   :docs:
+   CLOSED: [2013-09-23 Mon 21:41]
 * backlog [0/12]
 ** TODO repeat() parser                                                 :API:
    Applies a parser exactly N times and returns the results in an array.
@@ -85,8 +87,11 @@
 ** TODO Make a note in the docs about recursive parsers                :docs:
    Instruct people to use either sequence or delay, or some similar
    construct. Might be good to just put this in a tutorial.
-* active [0/7]
-** TODO Host the docs for releases on a github page.                   :docs:
+* active [0/8]
+** TODO Write a 'make' target that will update the docs                :docs:
+   It should probably really just be part of `make release`
+** TODO Include a version in the 'mona' object                          :API:
+   And modify make release to automatically update it.
 ** TODO Improve sequence error reporting                                :API:
    "whatever isn't a function. ohnoes!"
 ** TODO Use an offset index instead of consing new strings            :input:
