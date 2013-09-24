@@ -332,12 +332,13 @@ function unless(parser) {
  * heavily-nested `bind` calls.
  *
  * The `fun` callback will receive a function `s` which should be called with
- * each parser that will be executed, which will update the internal parseState.
+ * each parser that will be executed, which will update the internal
+ * parseState. The return value of the callback must be a parser.
  *
- * If any of the parsers fail, the entire sequence will fail with that parser's
- * reason.
+ * If any of the parsers fail, sequence will exit immediately, and the entire
+ * sequence will fail with that parser's reason.
  *
- * @param {Function} fun - A sequence callback to execute.
+ * @param {SequenceFn} fun - A sequence callback function to execute.
  * @returns {core.Parser}
  * @memberof combinators
  *
@@ -370,6 +371,27 @@ function sequence(fun) {
     }
   };
 }
+
+/**
+ * Called by `sequence` to handle sequential syntax for parsing. Called with an
+ * `s()` function that must be called each time a parser should be applied. The
+ * `s()` function will return the unwrapped value returned by the parser. If any
+ * of the `s()` calls fail, this callback will exit with an appropriate failure
+ * message, and none of the subsequent code will execute.
+ *
+ * Note that this callback may be called multiple times during parsing, and many
+ * of those calls might partially fail, so side-effects should be done with
+ * care.
+ *
+ * A `sequence` callback *must* return a `core.Parser`.
+ *
+ * @callback {Function} SequenceFn
+ * @param {Function} s - Sequencing function. Must be wrapped around a parser.
+ * @returns {core.Parser} parser - The final parser to apply before resolving
+ *                                 `sequence`.
+ * @memberof combinators
+ */
+
 
 /**
  * Returns a parser that returns the result of its first parser if it succeeds,
@@ -649,7 +671,7 @@ function spaces() {
  * result is returned as a single string.
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
- * @param {String} parserName - name for `parser`. Used for error reporting.
+ * @param {String} [parserName] - name for `parser`. Used for error reporting.
  * @memberof strings
  */
 function text(parser, parserName) {
