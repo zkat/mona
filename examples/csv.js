@@ -30,7 +30,7 @@ function quotedCell() {
     s(mona.character('"'));
     var content = s(mona.text(quotedChar()));
     s(mona.or(mona.character('"'),
-              mona.fail("expected quote at the end of cell")));
+              mona.expected("closing quote at the end of cell")));
     return mona.value(content);
   });
 }

@@ -60,7 +60,7 @@ function now() {
   return mona.and(
     mona.or(mona.string("today"),
             mona.string("now")),
-    mona.value(moment().startOf("day")));
+    mona.value(moment().startOf("day").toDate()));
 }
 
 /**
@@ -69,7 +69,7 @@ function now() {
 function yesterday() {
   return mona.and(
     mona.string("yesterday"),
-    mona.value(moment().subtract("day", 1).startOf("day")));
+    mona.value(moment().subtract("day", 1).startOf("day").toDate()));
 }
 
 /**
@@ -252,7 +252,7 @@ function runExample() {
   logExample("2 weeks ago");
   logExample("1 month from 2 days from today");
   logExample("Aug 27, 2013");
-  logExample("Aug 27");
+  logExample("August 27");
   logExample("Aug 2011");
   logExample("1 month from 2 days before Aug 30");
 }
