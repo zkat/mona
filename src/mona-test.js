@@ -309,16 +309,16 @@ describe("mona", function() {
   describe("string-related parsers", function() {
     describe("satisfies", function() {
       it("parses a token matching a predicate", function() {
-        var parser = mona.character("\n");
+        var parser = mona.satisfies(function(t) {
+          return t === "\n";
+        });
         assert.equal(parse(parser, "\n"), "\n");
         assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
       });
     });
     describe("character", function() {
       it("succeeds if the next token matches the given character", function() {
-        var parser = mona.satisfies(function(t) {
-          return t === "\n";
-        });
+        var parser = mona.character("\n");
         assert.equal(parse(parser, "\n"), "\n");
         assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
       });
