@@ -574,9 +574,11 @@ function string(str) {
   return !str.length ?
     value("") :
     sequence(function(s) {
-      s(character(str[0]));
-      s(string(str.substr(1)));
-      return value(str);
+      if (str === s(token(str.length))) {
+        return value(str);
+      } else {
+        return expected("string matching {"+str+"}");
+      }
     });
 }
 
