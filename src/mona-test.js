@@ -328,6 +328,17 @@ describe("mona", function() {
         assert.equal(parse(parser, "\n"), "\n");
         assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
       });
+      it("optionally does a case-insensitive match", function() {
+        assert.equal(parse(mona.character("a", false), "A"), "A");
+        assert.equal(parse(mona.or(mona.character("a", true),
+                                   mona.value("fail")), "A"),
+                     "fail");
+      });
+      it("defaults to being case-sensitive", function() {
+        assert.equal(parse(mona.or(mona.character("a"),
+                                   mona.value("fail")), "A"),
+                     "fail");
+      });
     });
     describe("oneOf", function() {
       it("succeeds if the next token is present in the char bag", function() {
@@ -336,7 +347,17 @@ describe("mona", function() {
           parse(mona.oneOf("abc"), "d");
         });
       });
-      it("reports that it expected one of the given characters on failure");
+      it("optionally does a case-insensitive match", function() {
+        assert.equal(parse(mona.oneOf("abc", false), "B"), "B");
+        assert.equal(parse(mona.or(mona.oneOf("abc", true),
+                                   mona.value("fail")), "B"),
+                     "fail");
+      });
+      it("defaults to being case-sensitive", function() {
+        assert.equal(parse(mona.or(mona.oneOf("abc"),
+                                   mona.value("fail")), "B"),
+                     "fail");
+      });
     });
     describe("noneOf", function() {
       it("succeeds if the next token is not in the char bag", function() {
@@ -344,6 +365,17 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.noneOf("abc"), "b");
         });
+      });
+      it("optionally does a case-insensitive match", function() {
+        assert.equal(parse(mona.noneOf("abc", true), "B"), "B");
+        assert.equal(parse(mona.or(mona.noneOf("abc", false),
+                                   mona.value("fail")), "B"),
+                     "fail");
+      });
+      it("defaults to being case-sensitive", function() {
+        assert.equal(parse(mona.or(mona.noneOf("abc"),
+                                   mona.value("fail")), "b"),
+                     "fail");
       });
     });
     describe("string", function() {
@@ -353,6 +385,17 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.string("bar"), "foobarbaz");
         });
+      });
+      it("optionally does a case-insensitive match", function() {
+        assert.equal(parse(mona.string("abc", false), "AbC"), "AbC");
+        assert.equal(parse(mona.or(mona.string("abc", true),
+                                   mona.value("fail")), "AbC"),
+                     "fail");
+      });
+      it("defaults to being case-sensitive", function() {
+        assert.equal(parse(mona.or(mona.string("abc"),
+                                   mona.value("fail")), "AbC"),
+                     "fail");
       });
     });
     describe("digitCharacter", function() {

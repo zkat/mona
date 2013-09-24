@@ -526,11 +526,15 @@ function stringOf(parser) {
  * `x`.
  *
  * @param {String} x - single-character string to match against the next token.
+ * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @returns {core.Parser}
  * @memberof strings
  */
-function character(x) {
+function character(x, caseSensitive) {
+  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
+  x = caseSensitive ? x : x.toLowerCase();
   return or(satisfies(function(y) {
+    y = caseSensitive ? y : y.toLowerCase();
     return x === y;
   }), expected("character {"+x+"}"));
 }
@@ -539,27 +543,37 @@ function character(x) {
  * Returns a parser that succeeds if the next token is one of the provided
  * `chars`.
  *
- * @param {String|Array|Array-like} chars - Character bag to match the next
+ * @param {String|Array} chars - Character bag to match the next
  *                                          token against.
+ * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @returns {core.Parser}
  * @memberof strings
  */
-function oneOf(chars) {
-  return or(satisfies(function(x) { return ~chars.indexOf(x); }),
-            expected("one of {"+chars+"}"));
+function oneOf(chars, caseSensitive) {
+  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
+  chars = caseSensitive ? chars : chars.toLowerCase();
+  return or(satisfies(function(x) {
+    x = caseSensitive ? x : x.toLowerCase();
+    return ~chars.indexOf(x);
+  }), expected("one of {"+chars+"}"));
 }
 
 /**
  * Returns a parser that fails if the next token matches any of the provided
  * `chars`.
  *
- * @param {String|Array|Array-like} chars - Character bag to match against.
+ * @param {String|Array} chars - Character bag to match against.
+ * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @returns {core.Parser}
  * @memberof strings
  */
-function noneOf(chars) {
-  return or(satisfies(function(x) { return !~chars.indexOf(x); }),
-            expected("none of {"+chars+"}"));
+function noneOf(chars, caseSensitive) {
+  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
+  chars = caseSensitive ? chars : chars.toLowerCase();
+  return or(satisfies(function(x) {
+    x = caseSensitive ? x : x.toLowerCase();
+    return !~chars.indexOf(x);
+  }), expected("none of {"+chars+"}"));
 }
 
 /**
@@ -567,19 +581,25 @@ function noneOf(chars) {
  * consuming the string and returning it as a value.
  *
  * @param {String} str - String to match against.
+ * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @returns {core.Parser}
  * @memberof strings
  */
-function string(str) {
-  return !str.length ?
-    value("") :
-    sequence(function(s) {
-      if (str === s(token(str.length))) {
-        return value(str);
-      } else {
-        return expected("string matching {"+str+"}");
-      }
-    });
+function string(str, caseSensitive) {
+  // TODO - use "".indexOf(str) to make this more efficient. Once we switch to
+  //        indexes instead of substrings, the second argument can be used to
+  //        work with the offset.
+  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
+  str = caseSensitive ? str : str.toLowerCase();
+  return sequence(function(s) {
+    var tokens = s(token(str.length)),
+        matchTokens = caseSensitive ? tokens : tokens.toLowerCase();
+    if (str === matchTokens) {
+      return value(tokens);
+    } else {
+      return expected("string matching {"+str+"}");
+    }
+  });
 }
 
 /**
