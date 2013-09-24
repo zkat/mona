@@ -84,6 +84,22 @@
 ** TODO Streaming support                                           :parsing:
    Support fast, buffered streamed parsing. Try and support at least node's
    async API, but see if promises can also be supported.
+
+   Because of the way parsing works (potentially backtracking by a lot), it
+   might be wise to make the streaming system support dividing the parse into
+   separate chunks, with a callback to execute for each successful chunk
+   received from the stream. The chunking parser would still keep track of the
+   position in the stream and report it properly during errors.
+
+   For example:
+   var parser = parseChunks(csvLine(), function(err, line) {
+     if (err) { console.error(err); } else { console.log("Got a csv line: ", line); }
+   });
+   var stream = fs.createReadStream(filename);
+   stream.on("data", parser.ondata);
+   stream.on("error", parser.onerror);
+   stream.on("end", parser.onend);
+
 ** TODO Make a note in the docs about recursive parsers                :docs:
    Instruct people to use either sequence or delay, or some similar
    construct. Might be good to just put this in a tutorial.
