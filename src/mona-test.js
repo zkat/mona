@@ -114,12 +114,18 @@ describe("mona", function() {
         assert.equal(parse(mona.token(), "a"), "a");
         assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
       });
+      it("optionally accepts a count of items to consume", function() {
+        assert.equal(parse(mona.token(5), "abcde"), "abcde");
+      });
       it("fails if there is no more input", function() {
         assert.throws(function() {
           parse(mona.token(), "");
         });
         assert.throws(function() {
           parse(mona.and(mona.token(), mona.token()), "a");
+        });
+        assert.throws(function() {
+          parse(mona.and(mona.token(5)), "abcd");
         });
       });
       it("reports the error as 'unexpected eof' if it fails", function() {

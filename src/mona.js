@@ -157,23 +157,27 @@ function expected(descriptor) {
  * Returns a parser that consumes a single item from the input, or fails with an
  * unexpected eof error if there is no input left.
  *
+ * @param {integer} [count=1] - number of tokens to consume. Must be > 0.
  * @returns {core.Parser}
  * @memberof core
  */
-function token() {
+function token(count) {
+  count = count || 1; // force 0 to 1, as well.
   return function(parserState) {
     var input = parserState.restOfInput;
-    if (input.length) {
+    if (input.length >= count) {
       var newParserState = copy(parserState),
           newPosition = copy(parserState.position);
-      if (input[0] === "\n") {
-        newPosition.column = 1;
-        newPosition.line += 1;
-      } else {
-        newPosition.column += 1;
+      for (var i = 0; i < count; i++) {
+        if (input[i] === "\n") {
+          newPosition.column = 1;
+          newPosition.line += 1;
+        } else {
+          newPosition.column += 1;
+        }
       }
-      newParserState.value = input[0];
-      newParserState.restOfInput = input.slice(1);
+      newParserState.value = input.slice(0, count);
+      newParserState.restOfInput = input.slice(count);
       newParserState.position = newPosition;
       return newParserState;
     } else {
