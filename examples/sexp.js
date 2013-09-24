@@ -7,7 +7,15 @@ function sexp() {
 }
 
 function atom() {
-  return mona.integer();
+  return mona.or(mona.integer(), symbol());
+}
+
+function symbol() {
+  return mona.text(symbolToken());
+}
+
+function symbolToken() {
+  return mona.noneOf("() \n\t\r");
 }
 
 function list() {
@@ -17,8 +25,36 @@ function list() {
                                        mona.spaces()));
 }
 
+function read(string) {
+  return mona.parse(sexp(), string);
+}
+module.exports.read = read;
+
 function runExample() {
-  var text = "(1 23 (345 6) () 789 10)";
-  console.log("Parsing ", text, " => ", mona.parse(sexp(), text));
+  var text = "(1 23 (foo 6) () bar! -10 baz)";
+  console.log("Parsing ", text, " => ", read(text));
+
+  // Defining a mini-lisp evaluator
+  function add() {
+    return [].reduce.call(arguments, function(acc, x) {
+      return acc + x;
+    }, 0);
+  };
+  function mult() {
+    return [].reduce.call(arguments, function(acc, x) {
+      return acc * x;
+    }, 1);
+  };
+  var magicMultiplier = 2;
+  function lispEval(code) {
+    if (({}).toString.call(code) === "[object Array]") {
+      return eval(code[0]).apply(null, code.slice(1).map(lispEval));
+    } else {
+      return eval(code);
+    }
+  }
+
+  var lisp = "(add 2 (mult 8 magicMultiplier 2) 8)";
+  console.log("Lisping ", lisp, " => ", lispEval(read(lisp)));
 }
 if (module.id === ".") runExample();
