@@ -515,17 +515,17 @@ function skip(parser) {
  *
  * @param {Function} predicate - Called with a single token. Should return a
  *                               truthy value if the token should be accepted.
+ * @param {String} [predicateName="predicate"] - Name to use with fail message.
  * @returns {core.Parser}
  * @memberof strings
  */
-function satisfies(predicate) {
+function satisfies(predicate, predicateName) {
+  predicateName = predicateName || "predicate";
   return bind(token(), function(c) {
     if (predicate(c)) {
       return value(c);
     } else {
-      return fail("token does not match '"+
-                  (predicate.name || "predicate")+
-                  "'");
+      return fail("token does not satisfy "+predicateName);
     }
   });
 }
