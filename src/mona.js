@@ -497,7 +497,9 @@ function satisfies(predicate) {
     if (predicate(c)) {
       return value(c);
     } else {
-      return fail("token does not match predicate");
+      return fail("token does not match '"+
+                  (predicate.name || "predicate")+
+                  "'");
     }
   });
 }
@@ -526,7 +528,7 @@ function stringOf(parser) {
 function character(x) {
   return or(satisfies(function(y) {
     return x === y;
-  }), expected("character '"+x+"'"));
+  }), expected("character {"+x+"}"));
 }
 
 /**
@@ -540,7 +542,7 @@ function character(x) {
  */
 function oneOf(chars) {
   return or(satisfies(function(x) { return ~chars.indexOf(x); }),
-            expected("one of "+chars));
+            expected("one of {"+chars+"}"));
 }
 
 /**
@@ -553,7 +555,7 @@ function oneOf(chars) {
  */
 function noneOf(chars) {
   return or(satisfies(function(x) { return !~chars.indexOf(x); }),
-            expected("none of "+chars));
+            expected("none of {"+chars+"}"));
 }
 
 /**
@@ -594,7 +596,7 @@ function digitCharacter(base) {
  * @memberof strings
  */
 function space() {
-  return oneOf(" \t\n\r");
+  return or(oneOf(" \t\n\r"), expected("space"));
 }
 
 /**
@@ -606,7 +608,7 @@ function space() {
  * @memberof strings
  */
 function spaces() {
-  return and(skip(space()), value(" "));
+  return or(and(space(), skip(space()), value(" ")), expected("spaces"));
 }
 
 /**
@@ -616,9 +618,15 @@ function spaces() {
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
  * @memberof strings
  */
-function text(parser) {
-  parser = parser || token();
-  return stringOf(zeroOrMore(parser));
+function text(parser, parserName) {
+  if (!parser) {
+    parserName = "token";
+    parser = token();
+  }
+  return or(stringOf(oneOrMore(parser)),
+            expected("text"+ (typeof parserName !== "undefined" ?
+                              " of {"+parserName+"}" :
+                              "")));
 }
 
 /**
