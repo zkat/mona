@@ -64,7 +64,7 @@ function ParseError(pos, messages, type) {
   this.messages = messages;
   this.type = type;
   this.message = ("(line "+ this.position.line +
-                  ", column "+this.position.column+"): "+
+                  ", column "+this.position.column+") "+
                   this.messages.join("\n "));
 }
 ParseError.prototype = new Error();
@@ -150,7 +150,7 @@ function fail(msg, type) {
  * @memberof core
  */
 function expected(descriptor) {
-  return fail("expected '"+descriptor+"'", "expectation");
+  return fail("expected "+descriptor, "expectation");
 }
 
 /**
@@ -518,7 +518,14 @@ function satisfies(predicate) {
  * @memberof strings
  */
 function stringOf(parser) {
-  return bind(parser, function(xs) { return value(xs.join("")); });
+  return bind(parser, function(xs) {
+    if (xs.hasOwnProperty("length") &&
+        xs.join) {
+      return value(xs.join(""));
+    } else {
+      return expected("an array-like from parser");
+    }
+  });
 }
 
 /**
@@ -642,6 +649,7 @@ function spaces() {
  * result is returned as a single string.
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
+ * @param {String} parserName - name for `parser`. Used for error reporting.
  * @memberof strings
  */
 function text(parser, parserName) {

@@ -50,14 +50,17 @@ describe("mona", function() {
           result = parse(parser, "\na\nbcde", {throwOnError: false});
       assert.equal(result.position.column, 2);
     });
-    it("toStrings to a human-readable error message");
   });
   describe("base parsers", function() {
     describe("value", function() {
       it("parses to the given value", function() {
         assert.equal(parse(mona.value("foo"), ""), "foo");
       });
-      it("does not consume input");
+      it("does not consume input", function() {
+        assert.equal(parse(mona.followedBy(mona.value("foo"), mona.token()),
+                           "a"),
+                     "foo");
+      });
     });
     describe("bind", function() {
       it("calls a function with the result of a parser", function() {
@@ -106,7 +109,7 @@ describe("mona", function() {
                            "",
                            {throwOnError: false});
         assert.equal(result.type, "expectation");
-        assert.equal(result.messages[0], "expected 'something'");
+        assert.equal(result.messages[0], "expected something");
       });
     });
     describe("token", function() {
@@ -143,7 +146,7 @@ describe("mona", function() {
       });
       it("fails with useful message if there is still input left", function() {
         assert.equal(parse(mona.eof(), "a", {throwOnError: false}).messages[0],
-                     "expected 'end of input'");
+                     "expected end of input");
       });
     });
     describe("delay", function() {
@@ -176,7 +179,14 @@ describe("mona", function() {
         assert.equal(parse(mona.or(mona.fail("nope"), mona.value("yup")), ""),
                      "yup");
       });
-      it("returns the last error if no parsers succeed");
+      it("returns the last error if no parsers succeed", function() {
+        var result = parse(mona.or(mona.fail("foo"),
+                                   mona.fail("bar"),
+                                   mona.fail("baz")),
+                           "", {throwOnError: false});
+        assert.equal(result.message,
+                     "(line 1, column 1) baz");
+      });
     });
     describe("maybe", function() {
       it("returns the result of the parser, if it succeeds", function() {
@@ -455,8 +465,10 @@ describe("mona", function() {
       it("matches a single digit and returns it as a number", function() {
         assert.equal(parse(mona.digit(), "1"), 1);
       });
-      it("accepts a base/radix argument");
-      it("defaults to base 10");
+      it("accepts a base/radix argument", function() {
+        assert.equal(parse(mona.digit(16), "F"), 0xf);
+        assert.equal(parse(mona.digit(2), "1"), 1);
+      });
     });
     describe("naturalNumber", function() {
       it("matches a natural number without a sign", function() {
@@ -465,8 +477,12 @@ describe("mona", function() {
           parse(mona.naturalNumber(), "-123");
         });
       });
-      it("accepts a base/radix argument");
-      it("defaults to base 10");
+      it("accepts a base/radix argument", function() {
+        assert.equal(parse(mona.naturalNumber(2), "101110"),
+                     parseInt("101110", 2));
+        assert.equal(parse(mona.naturalNumber(16), "deadbeef"),
+                     0xdeadbeef);
+      });
     });
     describe("integer", function() {
       it("matches a positive or negative possibly-signed integer", function() {
@@ -474,8 +490,11 @@ describe("mona", function() {
         assert.equal(parse(mona.integer(), "+1234"), 1234);
         assert.equal(parse(mona.integer(), "-1234"), -1234);
       });
-      it("accepts a base/radix argument");
-      it("defaults to base 10");
+      it("accepts a base/radix argument", function() {
+        assert.equal(parse(mona.integer(2), "101110"), parseInt("101110", 2));
+        assert.equal(parse(mona.integer(16), "deadbeef"), 0xdeadbeef);
+        assert.equal(parse(mona.integer(16), "-deadbeef"), -0xdeadbeef);
+      });
     });
   });
 });
