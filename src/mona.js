@@ -56,14 +56,16 @@ function SourcePosition(name, line, column) {
  * @memberof api
  */
 function ParseError(pos, messages, type) {
+  if (Error.captureStackTrace) {
+    // For pretty-printing errors on node.
+    Error.captureStackTrace(this, this);
+  }
   this.position = pos;
   this.messages = messages;
   this.type = type;
-  this.message = ("ParseError of type " + this.type +
-                  " (line "+ this.position.line +
+  this.message = ("(line "+ this.position.line +
                   ", column "+this.position.column+"): "+
                   this.messages.join("\n "));
-  Error.call(this, this.message);
 }
 ParseError.prototype = new Error();
 ParseError.prototype.constructor = ParseError;
