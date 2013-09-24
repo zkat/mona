@@ -1,6 +1,6 @@
 {
   "name": "mona-parser",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Composable parsers",
   "main": "src/mona.js",
   "scripts": {
