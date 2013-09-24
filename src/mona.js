@@ -65,9 +65,9 @@ function ParseError(pos, messages, type) {
                   thimr.messages.join("\n "));
   Error.call(thimr, thimr.message);
 }
-ParseError.prototype.name = "ParseError";
 ParseError.prototype = new Error();
 ParseError.prototype.constructor = ParseError;
+ParseError.prototype.name = "ParseError";
 
 
 /**
