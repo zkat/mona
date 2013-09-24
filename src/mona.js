@@ -169,7 +169,7 @@ function token(count) {
       var newParserState = copy(parserState),
           newPosition = copy(parserState.position);
       for (var i = 0; i < count; i++) {
-        if (input[i] === "\n") {
+        if (input.charAt(i) === "\n") {
           newPosition.column = 1;
           newPosition.line += 1;
         } else {
