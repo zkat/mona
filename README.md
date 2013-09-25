@@ -81,6 +81,7 @@ human-readable way.
 * Supports context-sensitive parsing
 * Supports asynchronous, incremental parsing with `parseAsync`. Useful for very
   large files or parsing from streams
+* Node.js stream API support with `parseStream`, including piping support
 * Heavy test coverage (see `src/mona-test.js`)
 * Fully documented API
 
