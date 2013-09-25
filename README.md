@@ -71,6 +71,19 @@ human-readable way.
 `mona` is based on [smug](https://github.com/drewc/smug), and Haskell's
 [Parsec](http://www.haskell.org/haskellwiki/Parsec) library.
 
+### Features
+
+* Short, readable, composable parsers
+* Includes a library of useful parsers and combinators
+* Returns arbitrary data from parsers, not necessarily a plain parse tree
+* Human-readable error messages with source locations
+* Facilities for improving your own parsers' error reports
+* Supports context-sensitive parsing
+* Supports asynchronous, incremental parsing with `parseAsync`. Useful for very
+  large files or parsing from streams
+* Heavy test coverage (see `src/mona-test.js`)
+* Fully documented API
+
 ### Documentation
 
 Documentation of the latest released version is
