@@ -325,6 +325,38 @@ function log(parser, tag, level) {
 }
 
 /**
+ * Returns a parser that transforms the resulting value of a successful
+ * application of its given parser. This function is a lot like `bind`, except
+ * it always succeeds if its parser succeeds, and is expected to return a
+ * transformed value, instead of another parser.
+ *
+ * @param {core.Parser} parser - Parser that will yield the input value.
+ * @param {Function} transformer - Function called on `parser`'s value. Its
+ *                                 return value will be used as the `map`
+ *                                 parser's value.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function map(parser, transformer) {
+  return bind(parser, function(result) {
+    return value(transformer(result));
+  });
+}
+
+/**
+ * Returns a parser that returns an object with a single key whose value is the
+ * result of the given parser.
+ *
+ * @param {core.Parser} parser - Parser whose value will be tagged.
+ * @param {String} tag - String to use as the object's key.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function tag(parser, key) {
+  return map(parser, function(x) { var ret = {}; ret[key] = x; return ret; });
+}
+
+/**
  * Parser combinators for higher-order interaction between parsers.
  *
  * @namespace combinators
@@ -845,6 +877,8 @@ module.exports = {
   log: log,
   delay: delay,
   // Combinators
+  map: map,
+  tag: tag,
   and: and,
   or: or,
   maybe: maybe,

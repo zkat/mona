@@ -248,6 +248,24 @@ describe("mona", function() {
         assert.equal(parse(parser, ""), "foo");
       });
     });
+    describe("map", function() {
+      it("transforms a parser's result", function() {
+        assert.equal(parse(mona.map(mona.text(), function(txt) {
+          return txt.toUpperCase();
+        }), "abc"),  "ABC");
+      });
+      it("does not call function if the parser fails", function() {
+        var parser = mona.map(mona.token(), function(x) {throw x;});
+        assert.equal(parse(parser, "", {throwOnError: false}).message,
+                     "(line 1, column 0) unexpected eof");
+      });
+    });
+    describe("wrap", function() {
+      it("wraps a parser's output with a tagging object", function() {
+        assert.deepEqual(parse(mona.tag(mona.text(), "txt"), "foo"),
+                         {txt: "foo"});
+      });
+    });
   });
   describe("combinators", function() {
     describe("and", function() {
