@@ -66,7 +66,7 @@ function parseAsync(parser, callback, opts) {
     }
     var res;
     try {
-      res = parse(parser, buffer, opts);
+      res = parse(oneOrMore(parser), buffer, opts);
       opts.position = res.position;
       buffer = res.input.slice(res.offset);
     } catch (e) {
@@ -75,7 +75,9 @@ function parseAsync(parser, callback, opts) {
       }
       return false;
     }
-    callback(null, res.value);
+    res.value.forEach(function(val) {
+      callback(null, val);
+    });
     return true;
   }
   function errIfDone(cb) {

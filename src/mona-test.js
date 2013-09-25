@@ -51,7 +51,8 @@ describe("mona", function() {
           if (step > 4) {
             throw new Error("It was never supposed to be like this!");
           }
-          assert.ok(err);
+          assert.equal(err.message,
+                       "(line 1, column 10) expected string matching {foo}");
           done();
         }
       });
