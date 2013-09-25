@@ -170,7 +170,9 @@ ParseError.prototype.name = "ParseError";
  */
 function value(val) {
   return function(parserState) {
-    return attr(parserState, "value", val);
+    var newState = copy(parserState);
+    newState.value = val;
+    return newState;
   };
 }
 
@@ -209,7 +211,8 @@ function fail(msg, type, replaceError) {
   msg = msg || "parser error";
   type = type || "failure";
   return function(parserState) {
-    parserState = attr(parserState, "failed", true);
+    parserState = copy(parserState);
+    parserState.failed = true;
     var newError = new ParseError(parserState.position, [msg],
                                   type, type === "eof");
     parserState.error = mergeErrors(parserState.error, newError, replaceError);
@@ -271,7 +274,7 @@ function token(count) {
 function eof() {
   return function(parserState) {
     if (!parserState.restOfInput) {
-      return attr(parserState, "value", true);
+      return value(true)(parserState);
     } else {
       return expected("end of input")(parserState);
     }
@@ -349,8 +352,8 @@ function or() {
     return function(parserState) {
       var res = parsers[0](parserState);
       if (res.failed) {
-        parserState = attr(parserState, "error",
-                           mergeErrors(parserState.error, res.error));
+        parserState = copy(parserState);
+        parserState.error = mergeErrors(parserState.error, res.error);
       }
       if (res.failed && parsers[1]) {
         return orHelper.apply(null, parsers.slice(1))(parserState);
@@ -865,20 +868,6 @@ function copy(obj) {
     }
   }
   return newObj;
-}
-
-function attr(obj, name, arg) {
-  if (arguments.length < 2) {
-    return copy(obj);
-  } else if (arguments.length < 3) {
-    return obj[name];
-  } else {
-    var newObj = copy(obj);
-    newObj[name] = (typeof arg === "function") ?
-      arg(obj[name]) :
-      arg;
-    return newObj;
-  }
 }
 
 function mergeErrors(err1, err2, replaceError) {
