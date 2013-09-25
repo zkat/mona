@@ -1,4 +1,4 @@
-* archive [20/20]
+* archive [29/29]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -60,8 +60,50 @@
    sure what else needs to be done!
 ** DONE Host the docs for releases on a github page.                   :docs:
    CLOSED: [2013-09-23 Mon 21:41]
+** DONE Streaming support                                           :parsing:
+   CLOSED: [2013-09-24 Tue 10:21]
+   Support fast, buffered streamed parsing. Try and support at least node's
+   async API, but see if promises can also be supported.
+
+   Because of the way parsing works (potentially backtracking by a lot), it
+   might be wise to make the streaming system support dividing the parse into
+   separate chunks, with a callback to execute for each successful chunk
+   received from the stream. The chunking parser would still keep track of the
+   position in the stream and report it properly during errors.
+
+   For example:
+   var parser = parseAsync(csvLine(), function(err, line) {
+     if (err) { console.error(err); } else { console.log("Got a csv line: ", line); }
+   });
+   var stream = fs.createReadStream(filename);
+   stream.on("data", parser.data);
+   stream.on("error", parser.error);
+   stream.on("end", parser.done);
+
+** DONE parseAsync handles should return the handle                     :API:
+   CLOSED: [2013-09-24 Tue 18:10]
+   Would make it nicer for chaining, and there's nothing else worth returning
+   from these 'methods'.
+** DONE Fix remaining tests                                           :tests:
+   CLOSED: [2013-09-24 Tue 21:19]
+** DONE Get rid of attr()                                          :internal:
+   CLOSED: [2013-09-24 Tue 21:25]
+   Just copy() the objects and side-effect them to reduce consing.
+** DONE Fix whatever is causing source positions to be wrong.        :errors:
+   CLOSED: [2013-09-24 Tue 21:25]
+** DONE Better error messages                                        :errors:
+   CLOSED: [2013-09-24 Tue 21:27]
+   Look more into how error messages get collected and combined.
+** DONE Improve sequence error reporting                                :API:
+   CLOSED: [2013-09-24 Tue 21:32]
+   "whatever isn't a function. ohnoes!"
+** DONE Use an offset index instead of consing new strings            :input:
+   CLOSED: [2013-09-24 Tue 22:11]
+** DONE Properly support node's stream API                              :API:
+   CLOSED: [2013-09-25 Wed 01:22]
+   http://nodejs.org/api/stream.html#stream_class_stream_transform_1
 * backlog [0/12]
-** TODO repeat() parser                                                 :API:
+** TODO times() parser                                                  :API:
    Applies a parser exactly N times and returns the results in an array.
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
@@ -79,46 +121,25 @@
 ** TODO Split mona up into multiple modules                             :API:
    Could still export all of mona from just the mona module, but it might be
    nicer for documentation and code organization if there's topic-based modules.
-** TODO Bring back nondeterministic parsing                         :parsing:
 ** TODO Support userState                                               :API:
-** TODO Streaming support                                           :parsing:
-   Support fast, buffered streamed parsing. Try and support at least node's
-   async API, but see if promises can also be supported.
-
-   Because of the way parsing works (potentially backtracking by a lot), it
-   might be wise to make the streaming system support dividing the parse into
-   separate chunks, with a callback to execute for each successful chunk
-   received from the stream. The chunking parser would still keep track of the
-   position in the stream and report it properly during errors.
-
-   For example:
-   var parser = parseChunks(csvLine(), function(err, line) {
-     if (err) { console.error(err); } else { console.log("Got a csv line: ", line); }
-   });
-   var stream = fs.createReadStream(filename);
-   stream.on("data", parser.ondata);
-   stream.on("error", parser.onerror);
-   stream.on("end", parser.onend);
-
 ** TODO Make a note in the docs about recursive parsers                :docs:
    Instruct people to use either sequence or delay, or some similar
    construct. Might be good to just put this in a tutorial.
+** TODO Bring back nondeterministic parsing                         :parsing:
+** TODO Benchmark tests                                               :tests:
 * active [0/8]
+** TODO Support parsing binary buffers                                  :API:
+** TODO Add a streaming CSV parser example                         :examples:
+** TODO Add a zip file parser                                      :examples:
+** TODO Write a streaming unzipping csv parser                     :examples:
+   This would be fairly impressive, so you could do:
+   parseAsync(zipChunk(csvLine()), function(err, line) { ... }).data(....)
 ** TODO Write a 'make' target that will update the docs                :docs:
    It should probably really just be part of `make release`
 ** TODO Include a version in the 'mona' object                          :API:
    And modify make release to automatically update it.
-** TODO Improve sequence error reporting                                :API:
-   "whatever isn't a function. ohnoes!"
-** TODO Use an offset index instead of consing new strings            :input:
 ** TODO Make the docs prettier                                         :docs:
 ** TODO Optimize!                                                   :parsing:
    The way things are done right now involves a LOT of consing, including a lot
    of unnecessary consing. Look into memoizing some of the built-in pure
    parsers for speed.
-** TODO Better error messages                                        :errors:
-   Look more into how error messages get collected and combined.
-** TODO Check that parsers are functions and return a new state      :errors:
-   I guess this is one thing that having types could have really helped
-   with. :). The errors kinda suck right now when someone randomly forgets to
-   `return mona.value(foo)`
