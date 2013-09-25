@@ -22,7 +22,9 @@ function parse(parser, string, opts) {
     throwOnError: true
   };
   var parseState = parser(
-    new ParserState(undefined, string,
+    new ParserState(undefined,
+                    string,
+                    0,
                     opts.userState,
                     opts.position || new SourcePosition(opts.fileName),
                     false));
@@ -66,7 +68,7 @@ function parseAsync(parser, callback, opts) {
     try {
       res = parse(parser, buffer, opts);
       opts.position = res.position;
-      buffer = res.restOfInput;
+      buffer = res.input.slice(res.offset);
     } catch (e) {
       if (!e.wasEof || done) {
         callback(e);
@@ -245,11 +247,13 @@ function expected(descriptor) {
 function token(count) {
   count = count || 1; // force 0 to 1, as well.
   return function(parserState) {
-    var input = parserState.restOfInput;
-    if (input.length >= count) {
+    var input = parserState.input,
+        offset = parserState.offset,
+        newOffset = offset + count;
+    if (input.length >= newOffset) {
       var newParserState = copy(parserState),
           newPosition = copy(parserState.position);
-      for (var i = 0; i < count; i++) {
+      for (var i = offset; i < newOffset; i++) {
         if (input.charAt(i) === "\n") {
           newPosition.column = 0;
           newPosition.line += 1;
@@ -257,8 +261,8 @@ function token(count) {
           newPosition.column += 1;
         }
       }
-      newParserState.value = input.slice(0, count);
-      newParserState.restOfInput = input.slice(count);
+      newParserState.value = input.slice(offset, newOffset);
+      newParserState.offset = newOffset;
       newParserState.position = newPosition;
       return newParserState;
     } else {
@@ -276,7 +280,7 @@ function token(count) {
  */
 function eof() {
   return function(parserState) {
-    if (!parserState.restOfInput) {
+    if (parserState.input.length === parserState.offset) {
       return value(true)(parserState);
     } else {
       return expected("end of input")(parserState);
@@ -898,10 +902,11 @@ function mergeErrors(err1, err2, replaceError) {
   }
 }
 
-function ParserState(value, restOfInput, userState,
+function ParserState(value, input, offset, userState,
                      position, hasConsumed, error, failed) {
   this.value = value;
-  this.restOfInput = restOfInput;
+  this.input = input;
+  this.offset = offset;
   this.position = position;
   this.userState = userState;
   this.failed = failed;
