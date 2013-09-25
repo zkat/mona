@@ -160,6 +160,11 @@ describe("mona", function() {
           throw new Error("This can't be happening...");
         }), "", {throwOnError: false}));
       });
+      it("throws an error if a parser returns the wrong thing", function() {
+        assert.throws(function() {
+          parse(mona.bind(function() { return "nope"; }), "");
+        }, /Parsers must return a parser state object/);
+      });
     });
     describe("fail", function() {
       it("fails the parse with the given message", function() {
@@ -323,6 +328,14 @@ describe("mona", function() {
         });
         assert.equal(parse(parser, "a", {throwOnError: false}).messages[0],
                      "unexpected eof");
+      });
+      it("throws an error if callback fails to return a parser", function() {
+        assert.throws(function() {
+          parse(mona.sequence(function() { return "nope"; }), "");
+        }, /must return a parser/);
+        assert.throws(function() {
+          parse(mona.sequence(function() { return function() {}; }), "");
+        }, /must return a parser/);
       });
     });
     describe("followedBy", function() {
