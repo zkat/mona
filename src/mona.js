@@ -22,15 +22,88 @@ function parse(parser, string, opts) {
     throwOnError: true
   };
   var parseState = parser(
-    new ParserState(undefined, string, opts.userState,
-                    new SourcePosition(opts.fileName), false));
-  if (parseState.error && opts.throwOnError) {
+    new ParserState(undefined, string,
+                    opts.userState,
+                    opts.position || new SourcePosition(opts.fileName),
+                    false));
+  if (parseState.failed && opts.throwOnError) {
     throw parseState.error;
-  } else if (parseState.error && !opts.throwOnError) {
+  } else if (parseState.failed && !opts.throwOnError) {
     return parseState.error;
+  } else if (opts.returnState) {
+    return parseState;
   } else {
     return parseState.value;
   }
+}
+
+/**
+ * Executes a parser asynchronously, returning an object that can be used to
+ * manage the parser state. Unless the parser given tries to match eof(),
+ * parsing will continue until the parser's done() function is called.
+ *
+ * @param {Function} parser - The parser to execute.
+ * @param {AsyncParserCallback} callback - node-style 2-arg callback executed
+ *                                         once per successful application of
+ *                                         `parser`.
+ * @param {Object} [opts] - Options object.
+ * @param {String} [opts.fileName] - filename to use for error messages.
+ * @returns {AsyncParserHandle}
+ * @memberof api
+ */
+function parseAsync(parser, callback, opts) {
+  opts = copy(opts || {});
+  // Force the matter in case someone gets clever.
+  opts.throwOnError = true;
+  opts.returnState = true;
+  var done = false,
+      buffer = "";
+  function exec() {
+    if (done && !buffer.length) {
+      return false;
+    }
+    var res;
+    try {
+      res = parse(parser, buffer, opts);
+      opts.position = res.position;
+      buffer = res.restOfInput;
+    } catch (e) {
+      if (!e.wasEof || done) {
+        callback(e);
+      }
+      return false;
+    }
+    callback(null, res.value);
+    return true;
+  }
+  function errIfDone(cb) {
+    return function() {
+      if (done) {
+        throw new Error("AsyncParser closed");
+      } else {
+        return cb.apply(null, arguments);
+      }
+    };
+  }
+  var handle = {
+    done: errIfDone(function() {
+      done = true;
+      buffer = "";
+      while(exec()){}
+      return handle;
+    }),
+    data: errIfDone(function(data) {
+      buffer += data;
+      while(exec()){}
+      return handle;
+    }),
+    error: errIfDone(function(error) {
+      done = true;
+      callback(error);
+      return handle;
+    })
+  };
+  return handle;
 }
 
 /**
@@ -750,6 +823,7 @@ function integer(base) {
 module.exports = {
   // API
   parse: parse,
+  parseAsync: parseAsync,
   // Base parsers
   value: value,
   bind: bind,
