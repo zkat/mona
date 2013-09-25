@@ -21,7 +21,7 @@ describe("stream", function() {
       handle.write("a");
     });
     it("pipes data to another stream", function(done) {
-      var handle = parseStream(mona.text()),
+      var handle = parseStream(mona.token()),
           source = __dirname + "/mona.js",
           destination = "/tmp/mona-test-stream.js";
       fs.createReadStream(source, {encoding: "utf8"})
