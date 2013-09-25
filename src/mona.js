@@ -694,20 +694,11 @@ function noneOf(chars, caseSensitive) {
  * @memberof strings
  */
 function string(str, caseSensitive) {
-  // TODO - use "".indexOf(str) to make this more efficient. Once we switch to
-  //        indexes instead of substrings, the second argument can be used to
-  //        work with the offset.
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  str = caseSensitive ? str : str.toLowerCase();
-  return sequence(function(s) {
-    var tokens = s(token(str.length)),
-        matchTokens = caseSensitive ? tokens : tokens.toLowerCase();
-    if (str === matchTokens) {
-      return value(tokens);
-    } else {
-      return expected("string matching {"+str+"}");
-    }
-  });
+  return or(sequence(function(s) {
+    var x = s(character(str.charAt(0), caseSensitive));
+    var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
+    return value(x+xs);
+  }), expected("string matching {"+str+"}"));
 }
 
 /**
