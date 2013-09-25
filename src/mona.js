@@ -44,7 +44,7 @@ function parse(parser, string, opts) {
 function SourcePosition(name, line, column) {
   this.name = name;
   this.line = line || 1;
-  this.column = column || 1;
+  this.column = column || 0;
 }
 
 /**
@@ -55,7 +55,7 @@ function SourcePosition(name, line, column) {
  * @property {String} type - The type of parsing error.
  * @memberof api
  */
-function ParseError(pos, messages, type) {
+function ParseError(pos, messages, type, wasEof) {
   if (Error.captureStackTrace) {
     // For pretty-printing errors on node.
     Error.captureStackTrace(this, this);
@@ -63,9 +63,10 @@ function ParseError(pos, messages, type) {
   this.position = pos;
   this.messages = messages;
   this.type = type;
+  this.wasEof = wasEof;
   this.message = ("(line "+ this.position.line +
                   ", column "+this.position.column+") "+
-                  this.messages.join("\n "));
+                  this.messages.join("\n"));
 }
 ParseError.prototype = new Error();
 ParseError.prototype.constructor = ParseError;
@@ -114,7 +115,7 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = parser(parserState);
-    if (newParserState.error) {
+    if (newParserState.failed) {
       return newParserState;
     } else {
       return fun(newParserState.value)(newParserState);
@@ -131,14 +132,15 @@ function bind(parser, fun) {
  * @returns {core.Parser}
  * @memberof core
  */
-function fail(msg, type) {
+function fail(msg, type, replaceError) {
   msg = msg || "parser error";
   type = type || "failure";
   return function(parserState) {
-    return attr(parserState, "error", function(oldErr) {
-      return mergeErrors(
-        oldErr, new ParseError(parserState.position, [msg], type));
-    });
+    parserState = attr(parserState, "failed", true);
+    var newError = new ParseError(parserState.position, [msg],
+                                  type, type === "eof");
+    parserState.error = mergeErrors(parserState.error, newError, replaceError);
+    return parserState;
   };
 }
 
@@ -150,7 +152,7 @@ function fail(msg, type) {
  * @memberof core
  */
 function expected(descriptor) {
-  return fail("expected "+descriptor, "expectation");
+  return fail("expected "+descriptor, "expectation", true);
 }
 
 /**
@@ -170,7 +172,7 @@ function token(count) {
           newPosition = copy(parserState.position);
       for (var i = 0; i < count; i++) {
         if (input.charAt(i) === "\n") {
-          newPosition.column = 1;
+          newPosition.column = 0;
           newPosition.line += 1;
         } else {
           newPosition.column += 1;
@@ -273,7 +275,11 @@ function or() {
     var parsers = [].slice.call(arguments);
     return function(parserState) {
       var res = parsers[0](parserState);
-      if (res.error && parsers[1]) {
+      if (res.failed) {
+        parserState = attr(parserState, "error",
+                           mergeErrors(parserState.error, res.error));
+      }
+      if (res.failed && parsers[1]) {
         return orHelper.apply(null, parsers.slice(1))(parserState);
       } else {
         return res;
@@ -304,7 +310,7 @@ function maybe(parser) {
  */
 function not(parser) {
   return function(parserState) {
-    return parser(parserState).error ?
+    return parser(parserState).failed ?
       value(true)(parserState) :
       fail("expected parser to fail")(parserState);
   };
@@ -354,7 +360,7 @@ function sequence(fun) {
     var state = parserState, failwhale = {};
     function s(parser) {
       state = parser(state);
-      if (state.error) {
+      if (state.failed) {
         throw failwhale;
       } else {
         return state.value;
@@ -454,7 +460,7 @@ function separatedBy(parser, separator, minimum) {
 function zeroOrMore(parser) {
   return function(parserState) {
     var prev = parserState, s = parserState, res =[];
-    while (s = parser(s), !s.error) {
+    while (s = parser(s), !s.failed) {
       res.push(s.value);
       prev = s;
     }
@@ -521,13 +527,13 @@ function skip(parser) {
  */
 function satisfies(predicate, predicateName) {
   predicateName = predicateName || "predicate";
-  return bind(token(), function(c) {
+  return or(bind(token(), function(c) {
     if (predicate(c)) {
       return value(c);
     } else {
-      return fail("token does not satisfy "+predicateName);
+      return fail();
     }
-  });
+  }), expected("token matching "+predicateName));
 }
 
 /**
@@ -540,14 +546,14 @@ function satisfies(predicate, predicateName) {
  * @memberof strings
  */
 function stringOf(parser) {
-  return bind(parser, function(xs) {
+  return or(bind(parser, function(xs) {
     if (xs.hasOwnProperty("length") &&
         xs.join) {
       return value(xs.join(""));
     } else {
-      return expected("an array-like from parser");
+      return fail();
     }
-  });
+  }), expected("an array-like from parser"));
 }
 
 /**
@@ -810,23 +816,29 @@ function attr(obj, name, arg) {
   }
 }
 
-function mergeErrors(err1, err2) {
+function mergeErrors(err1, err2, replaceError) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
     return err2;
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
+    var newMessages = replaceError ? err2.messages :
+          (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
+            return (~acc.indexOf(x)) ? acc : acc.concat([x]);
+          }, []);
     return new ParseError(err1.position,
-                          err1.messages.concat(err2.messages),
-                          err1.type || err2.type);
+                          newMessages,
+                          err1.type || err2.type,
+                          err1.wasEof || err2.wasEof);
   }
 }
 
 function ParserState(value, restOfInput, userState,
-                     position, hasConsumed, error) {
+                     position, hasConsumed, error, failed) {
   this.value = value;
   this.restOfInput = restOfInput;
   this.position = position;
   this.userState = userState;
+  this.failed = failed;
   this.error = error;
 }

@@ -39,16 +39,16 @@ describe("mona", function() {
     it("reports the column in which an error happened", function() {
       assert.equal(
         parse(mona.fail(), "", {throwOnError:false}).position.column,
-        1);
+        0);
       assert.equal(
-        parse(mona.and(mona.token(), mona.fail()),
+        parse(mona.and(mona.character("a"), mona.character("a")),
               "ab",
               {throwOnError:false}).position.column,
         2);
       var parser = mona.and(mona.token(), mona.token(), mona.token(),
                             mona.token(), mona.fail()),
           result = parse(parser, "\na\nbcde", {throwOnError: false});
-      assert.equal(result.position.column, 2);
+      assert.equal(result.position.column, 1);
     });
   });
   describe("base parsers", function() {
@@ -157,8 +157,8 @@ describe("mona", function() {
         assert.throws(function() { parse(parser, ""); });
       });
       it("returns a parser with the arguments applied", function() {
-        var parser = mona.delay(mona.integer, 16);
-        assert.equal(parse(parser, "deadbeef"), 0xdeadbeef);
+        var parser = mona.delay(mona.value, "foo");
+        assert.equal(parse(parser, ""), "foo");
       });
     });
   });
@@ -179,13 +179,14 @@ describe("mona", function() {
         assert.equal(parse(mona.or(mona.fail("nope"), mona.value("yup")), ""),
                      "yup");
       });
-      it("returns the last error if no parsers succeed", function() {
+      it("reports all the accumulated errors", function() {
         var result = parse(mona.or(mona.fail("foo"),
                                    mona.fail("bar"),
-                                   mona.fail("baz")),
+                                   mona.fail("baz"),
+                                   mona.fail("quux")),
                            "", {throwOnError: false});
         assert.equal(result.message,
-                     "(line 1, column 1) baz");
+                     "(line 1, column 0) foo\nbar\nbaz\nquux");
       });
     });
     describe("maybe", function() {
