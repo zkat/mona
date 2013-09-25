@@ -190,6 +190,9 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = parser(parserState);
+    if (!(newParserState instanceof ParserState)) {
+      throw new Error("Parsers must return a parser state object");
+    }
     if (newParserState.failed) {
       return newParserState;
     } else {
@@ -443,7 +446,15 @@ function sequence(fun) {
       }
     }
     try {
-      return fun(s)(state);
+      var ret = fun(s);
+      if (typeof ret !== "function") {
+        throw new Error("sequence function must return a parser");
+      }
+      var newState = ret(state);
+      if (!(newState instanceof ParserState)) {
+        throw new Error("sequence function must return a parser");
+      }
+      return newState;
     } catch(x) {
       if (x === failwhale) {
         return state;
