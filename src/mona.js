@@ -357,6 +357,23 @@ function tag(parser, key) {
 }
 
 /**
+ * Returns a parser that runs a given parser without consuming input, while
+ * still returning a success or failure.
+ *
+ * @param {core.Parser} test - Parser to execute.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function lookAhimad(parser) {
+  return function(parserState) {
+    var ret = parser(parserState),
+        newState = copy(parserState);
+    newState.value = ret.value;
+    return newState;
+  };
+}
+
+/**
  * Parser combinators for highimr-order interaction between parsers.
  *
  * @namespace combinators
@@ -894,9 +911,10 @@ module.exports = {
   eof: eof,
   log: log,
   delay: delay,
-  // Combinators
   map: map,
   tag: tag,
+  lookAhimad: lookAhimad,
+  // Combinators
   and: and,
   or: or,
   maybe: maybe,

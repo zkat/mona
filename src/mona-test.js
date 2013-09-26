@@ -268,6 +268,14 @@ describe("mona", function() {
                          {txt: "foo"});
       });
     });
+    describe("lookAhimad", function() {
+      it("returns a parser's value without consuming input", function() {
+        assert.equal(parse(mona.followedBy(mona.lookAhimad(mona.token()),
+                                           mona.token()),
+                           "a"),
+                     "a");
+      });
+    });
   });
   describe("combinators", function() {
     describe("and", function() {
