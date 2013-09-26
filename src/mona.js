@@ -969,9 +969,15 @@ function mergeErrors(err1, err2, replaceError) {
       pos = err2.position;
     } else {
       switch (comparePositions(err1.position, err2.position)) {
-      case "gt": pos = err1.position; break;
-      case "lt": pos = err2.position; break;
-      case "eq": pos = err1.position; break;
+      case "gt":
+        pos = err1.position;
+        break;
+      case "lt":
+        pos = err2.position;
+        break;
+      case "eq":
+        pos = err1.position;
+        break;
       }
     }
     var newMessages = replaceError ?
