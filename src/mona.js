@@ -5,6 +5,8 @@
  * @namespace api
  */
 
+var VERSION = "0.4.0";
+
 /**
  * Executes a parser and returns the result.
  *
@@ -900,6 +902,7 @@ function integer(base) {
 
 module.exports = {
   // API
+  version: VERSION,
   parse: parse,
   parseAsync: parseAsync,
   // Base parsers
