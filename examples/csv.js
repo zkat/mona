@@ -8,21 +8,18 @@ var mona = require("../src/mona");
  * Based on parser from http://book.realworldhaskell.org/read/using-parsec.html
  */
 
-function csv() {
-  return mona.sequence(function(s) {
-    var lines = s(mona.zeroOrMore(mona.followedBy(line(), eol())));
-    s(mona.eof());
-    return mona.value(lines);
-  });
+function csv(minimumColumns) {
+  return mona.endedBy(line(minimumColumns), eol());
 }
 
-function line() {
-  return mona.separatedBy(cell(), mona.character(","));
+function line(minimumColumns) {
+  return mona.separatedBy(cell(), mona.character(","), minimumColumns);
 }
 
 function cell() {
   return mona.or(quotedCell(),
                  mona.text(mona.noneOf(",\n\r")));
+
 }
 
 function quotedCell() {
@@ -48,11 +45,12 @@ function eol() {
                  str("\r\n"),
                  ch("\n"),
                  ch("\r"),
-                 mona.fail("expected end of line"));
+                 mona.expected("end of line"));
 }
 
-function parseCSV(text) {
-  return mona.parse(csv(), text);
+function parseCSV(text, minimumColumns) {
+  return mona.parse(mona.followedBy(csv(minimumColumns),
+                                    mona.eof()), text);
 }
 
 function runExample() {
@@ -63,6 +61,6 @@ function runExample() {
                  '"Haskell Caps",15\r\n'+
                  ',\n');
   console.log("Parsing:\n", csvText,
-              "=>\n", parseCSV(csvText));
+              "=>\n", parseCSV(csvText, 2));
 }
 if (module.id === ".") runExample();
