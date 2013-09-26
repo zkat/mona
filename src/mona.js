@@ -121,7 +121,7 @@ function parseAsync(parser, callback, opts) {
 function SourcePosition(name, line, column) {
   this.name = name;
   this.line = line || 1;
-  this.column = column || 0;
+  this.column = column || 1;
 }
 
 /**
@@ -257,7 +257,7 @@ function token(count) {
           newPosition = copy(parserState.position);
       for (var i = offset; i < newOffset; i++) {
         if (input.charAt(i) === "\n") {
-          newPosition.column = 0;
+          newPosition.column = 1;
           newPosition.line += 1;
         } else {
           newPosition.column += 1;
@@ -927,14 +927,39 @@ function mergeErrors(err1, err2, replaceError) {
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
-    var newMessages = replaceError ? err2.messages :
+    var pos;
+    if (replaceError) {
+      pos = err2.position;
+    } else {
+      switch (comparePositions(err1.position, err2.position)) {
+      case "gt": pos = err1.position; break;
+      case "lt": pos = err2.position; break;
+      case "eq": pos = err1.position; break;
+      }
+    }
+    var newMessages = replaceError ?
+          err2.messages :
           (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
             return (~acc.indexOf(x)) ? acc : acc.concat([x]);
           }, []);
-    return new ParseError(err1.position,
+    return new ParseError(pos,
                           newMessages,
-                          err1.type || err2.type,
-                          err1.wasEof || err2.wasEof);
+                          err2.type,
+                          err2.wasEof || err1.wasEof);
+  }
+}
+
+function comparePositions(pos1, pos2) {
+  if (pos1.line < pos2.line) {
+    return "lt";
+  } else if (pos1.line > pos2.line) {
+    return "gt";
+  } else if (pos1.column < pos2.column) {
+    return "lt";
+  } else if (pos1.column > pos2.column) {
+    return "gt";
+  } else {
+    return "eq";
   }
 }
 

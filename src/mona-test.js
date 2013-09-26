@@ -121,16 +121,18 @@ describe("mona", function() {
     it("reports the column in which an error happened", function() {
       assert.equal(
         parse(mona.fail(), "", {throwOnError:false}).position.column,
-        0);
+        1);
       assert.equal(
-        parse(mona.and(mona.character("a"), mona.character("a")),
-              "ab",
+        parse(mona.and(mona.character("a"),
+                       mona.character("a"),
+                       mona.character("a")),
+              "aab",
               {throwOnError:false}).position.column,
-        2);
+        3);
       var parser = mona.and(mona.token(), mona.token(), mona.token(),
                             mona.token(), mona.fail()),
           result = parse(parser, "\na\nbcde", {throwOnError: false});
-      assert.equal(result.position.column, 1);
+      assert.equal(result.position.column, 2);
     });
   });
   describe("base parsers", function() {
@@ -257,7 +259,7 @@ describe("mona", function() {
       it("does not call function if the parser fails", function() {
         var parser = mona.map(mona.token(), function(x) {throw x;});
         assert.equal(parse(parser, "", {throwOnError: false}).message,
-                     "(line 1, column 0) unexpected eof");
+                     "(line 1, column 1) unexpected eof");
       });
     });
     describe("wrap", function() {
@@ -291,7 +293,7 @@ describe("mona", function() {
                                    mona.fail("quux")),
                            "", {throwOnError: false});
         assert.equal(result.message,
-                     "(line 1, column 0) foo\nbar\nbaz\nquux");
+                     "(line 1, column 1) foo\nbar\nbaz\nquux");
       });
     });
     describe("maybe", function() {
@@ -340,13 +342,23 @@ describe("mona", function() {
         assert.equal(parse(parser, "ab"), "ba");
       });
       it("errors with the correct message if an parser fails", function() {
-        var parser = mona.sequence(function(s) {
-          var x = s(mona.token());
-          assert.equal(x, "a");
-          return mona.token();
-        });
-        assert.equal(parse(parser, "a", {throwOnError: false}).messages[0],
-                     "unexpected eof");
+        assert.throws(function() {
+          var parser = mona.sequence(function(s) {
+            var x = s(mona.token());
+            assert.equal(x, "a");
+            return mona.token();
+          });
+          parse(parser, "a");
+        }, /\(line 1, column 2\) unexpected eof/);
+        assert.throws(function() {
+          var parser = mona.sequence(function(s) {
+            s(mona.token());
+            s(mona.token());
+            s(mona.token());
+            return mona.eof();
+          });
+          parse(parser, "aa");
+        }, /\(line 1, column 3\) unexpected eof/);
       });
       it("throws an error if callback fails to return a parser", function() {
         assert.throws(function() {
