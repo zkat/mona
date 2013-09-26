@@ -400,6 +400,39 @@ describe("mona", function() {
         });
       });
     });
+    describe("endedBy", function() {
+      it("collects matches separated and ended by a parser", function() {
+        assert.deepEqual(
+          parse(mona.followedBy(
+            mona.endedBy(mona.token(), mona.character(".")),
+            mona.eof()), "a.b.c.d."),
+          ["a", "b", "c", "d"]);
+        assert.throws(function() {
+          parse(mona.followedBy(
+            mona.endedBy(mona.token(), mona.character(".")),
+            mona.eof()), "a.b.c.d");
+        });
+      });
+      it("accepts a flag to make the ender optional", function() {
+        assert.deepEqual(
+          parse(mona.followedBy(
+            mona.endedBy(mona.token(), mona.character("."), false),
+            mona.eof()), "a.b.c.d"),
+          ["a", "b", "c", "d"]);
+        assert.deepEqual(
+          parse(mona.followedBy(
+            mona.endedBy(mona.token(), mona.character("."), false),
+            mona.eof()), "a.b.c.d."),
+          ["a", "b", "c", "d"]);
+      });
+      it("accepts a minimum count as a fourth argument", function() {
+        var parser = mona.endedBy(mona.token(), mona.character("."), true, 3);
+        assert.deepEqual(parse(parser, "a.b.c."), ["a", "b", "c"]);
+        assert.throws(function() {
+          parse(parser, "a.b.");
+        });
+      });
+    });
     describe("zeroOrMore", function() {
       it("returns zero or more matches for a given parser", function() {
         var parser = mona.zeroOrMore(mona.token());

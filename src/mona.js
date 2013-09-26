@@ -575,6 +575,24 @@ function separatedBy(parser, separator, minimum) {
 }
 
 /**
+ * Returns a parser that returns an array of results that have been successfully
+ * parsed by `parser`, separated and ended by `separator`.
+ *
+ * @param {core.Parser} parser - Parser for matching and collecting results.
+ * @param {core.Parser} separator - Parser for the separator
+ * @param {integer} [enforceEnd=true] - If true, `separator` must be at the end
+ *                                      of the parse.
+ * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function endedBy(parser, separator, enforceEnd, minimum) {
+  enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
+  return followedBy(separatedBy(parser, separator, minimum),
+                    enforceEnd ? separator : maybe(separator));
+}
+
+/**
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`.
  *
@@ -887,6 +905,7 @@ module.exports = {
   sequence: sequence,
   followedBy: followedBy,
   separatedBy: separatedBy,
+  endedBy: endedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   between: between,
