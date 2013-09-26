@@ -39,7 +39,7 @@ function atom() {
 }
 
 function symbol() {
-  return mona.text(symbolToken());
+  return mona.stringOf(symbolToken());
 }
 
 function symbolToken() {
@@ -54,7 +54,7 @@ function list() {
 }
 
 mona.parse(sexp(), "(1 23 (foo 6) () bar! -10 baz)");
-// => [1,23,['foo',6],[],'bar!', -10, 'baz']
+// => [1, 23, ['foo',6], [], 'bar!', -10, 'baz']
 ```
 
 # Introduction
