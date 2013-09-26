@@ -7,6 +7,8 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
  * @namespace api
  */
 
+var VERSION = "0.4.0";
+
 /**
  * Executes a parser and returns the result.
  *
@@ -24,15 +26,92 @@ function parse(parser, string, opts) {
     throwOnError: true
   };
   var parseState = parser(
-    new ParserState(undefined, string, opts.userState,
-                    new SourcePosition(opts.fileName), false));
-  if (parseState.error && opts.throwOnError) {
+    new ParserState(undefined,
+                    string,
+                    0,
+                    opts.userState,
+                    opts.position || new SourcePosition(opts.fileName),
+                    false));
+  if (parseState.failed && opts.throwOnError) {
     throw parseState.error;
-  } else if (parseState.error && !opts.throwOnError) {
+  } else if (parseState.failed && !opts.throwOnError) {
     return parseState.error;
+  } else if (opts.returnState) {
+    return parseState;
   } else {
     return parseState.value;
   }
+}
+
+/**
+ * Executes a parser asynchronously, returning an object that can be used to
+ * manage the parser state. Unless the parser given tries to match eof(),
+ * parsing will continue until the parser's done() function is called.
+ *
+ * @param {Function} parser - The parser to execute.
+ * @param {AsyncParserCallback} callback - node-style 2-arg callback executed
+ *                                         once per successful application of
+ *                                         `parser`.
+ * @param {Object} [opts] - Options object.
+ * @param {String} [opts.fileName] - filename to use for error messages.
+ * @returns {AsyncParserHandle}
+ * @memberof api
+ */
+function parseAsync(parser, callback, opts) {
+  opts = copy(opts || {});
+  // Force the matter in case someone gets clever.
+  opts.throwOnError = true;
+  opts.returnState = true;
+  var done = false,
+      buffer = "";
+  function exec() {
+    if (done && !buffer.length) {
+      return false;
+    }
+    var res;
+    try {
+      res = parse(oneOrMore(parser), buffer, opts);
+      opts.position = res.position;
+      buffer = res.input.slice(res.offset);
+    } catch (e) {
+      if (!e.wasEof || done) {
+        callback(e);
+      }
+      return false;
+    }
+    res.value.forEach(function(val) {
+      callback(null, val);
+    });
+    return true;
+  }
+  function errIfDone(cb) {
+    return function() {
+      if (done) {
+        throw new Error("AsyncParser closed");
+      } else {
+        return cb.apply(null, arguments);
+      }
+    };
+  }
+  var handle = {
+    done: errIfDone(function() {
+      done = true;
+      buffer = "";
+      while(exec()){}
+      return handle;
+    }),
+    data: errIfDone(function(data) {
+      buffer += data;
+      while(exec()){}
+      return handle;
+    }),
+    error: errIfDone(function(error) {
+      done = true;
+      callback(error);
+      return handle;
+    })
+  };
+  return handle;
 }
 
 /**
@@ -57,7 +136,7 @@ function SourcePosition(name, line, column) {
  * @property {String} type - The type of parsing error.
  * @memberof api
  */
-function ParseError(pos, messages, type) {
+function ParseError(pos, messages, type, wasEof) {
   if (Error.captureStackTrace) {
     // For pretty-printing errors on node.
     Error.captureStackTrace(this, this);
@@ -65,9 +144,10 @@ function ParseError(pos, messages, type) {
   this.position = pos;
   this.messages = messages;
   this.type = type;
+  this.wasEof = wasEof;
   this.message = ("(line "+ this.position.line +
                   ", column "+this.position.column+") "+
-                  this.messages.join("\n "));
+                  this.messages.join("\n"));
 }
 ParseError.prototype = new Error();
 ParseError.prototype.constructor = ParseError;
@@ -98,7 +178,9 @@ ParseError.prototype.name = "ParseError";
  */
 function value(val) {
   return function(parserState) {
-    return attr(parserState, "value", val);
+    var newState = copy(parserState);
+    newState.value = val;
+    return newState;
   };
 }
 
@@ -116,7 +198,10 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = parser(parserState);
-    if (newParserState.error) {
+    if (!(newParserState instanceof ParserState)) {
+      throw new Error("Parsers must return a parser state object");
+    }
+    if (newParserState.failed) {
       return newParserState;
     } else {
       return fun(newParserState.value)(newParserState);
@@ -133,14 +218,16 @@ function bind(parser, fun) {
  * @returns {core.Parser}
  * @memberof core
  */
-function fail(msg, type) {
+function fail(msg, type, replaceError) {
   msg = msg || "parser error";
   type = type || "failure";
   return function(parserState) {
-    return attr(parserState, "error", function(oldErr) {
-      return mergeErrors(
-        oldErr, new ParseError(parserState.position, [msg], type));
-    });
+    parserState = copy(parserState);
+    parserState.failed = true;
+    var newError = new ParseError(parserState.position, [msg],
+                                  type, type === "eof");
+    parserState.error = mergeErrors(parserState.error, newError, replaceError);
+    return parserState;
   };
 }
 
@@ -152,7 +239,7 @@ function fail(msg, type) {
  * @memberof core
  */
 function expected(descriptor) {
-  return fail("expected "+descriptor, "expectation");
+  return fail("expected "+descriptor, "expectation", true);
 }
 
 /**
@@ -166,11 +253,13 @@ function expected(descriptor) {
 function token(count) {
   count = count || 1; // force 0 to 1, as well.
   return function(parserState) {
-    var input = parserState.restOfInput;
-    if (input.length >= count) {
+    var input = parserState.input,
+        offset = parserState.offset,
+        newOffset = offset + count;
+    if (input.length >= newOffset) {
       var newParserState = copy(parserState),
           newPosition = copy(parserState.position);
-      for (var i = 0; i < count; i++) {
+      for (var i = offset; i < newOffset; i++) {
         if (input.charAt(i) === "\n") {
           newPosition.column = 1;
           newPosition.line += 1;
@@ -178,8 +267,8 @@ function token(count) {
           newPosition.column += 1;
         }
       }
-      newParserState.value = input.slice(0, count);
-      newParserState.restOfInput = input.slice(count);
+      newParserState.value = input.slice(offset, newOffset);
+      newParserState.offset = newOffset;
       newParserState.position = newPosition;
       return newParserState;
     } else {
@@ -197,8 +286,8 @@ function token(count) {
  */
 function eof() {
   return function(parserState) {
-    if (!parserState.restOfInput) {
-      return attr(parserState, "value", true);
+    if (parserState.input.length === parserState.offset) {
+      return value(true)(parserState);
     } else {
       return expected("end of input")(parserState);
     }
@@ -240,6 +329,55 @@ function log(parser, tag, level) {
 }
 
 /**
+ * Returns a parser that transforms the resulting value of a successful
+ * application of its given parser. This function is a lot like `bind`, except
+ * it always succeeds if its parser succeeds, and is expected to return a
+ * transformed value, instead of another parser.
+ *
+ * @param {core.Parser} parser - Parser that will yield the input value.
+ * @param {Function} transformer - Function called on `parser`'s value. Its
+ *                                 return value will be used as the `map`
+ *                                 parser's value.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function map(parser, transformer) {
+  return bind(parser, function(result) {
+    return value(transformer(result));
+  });
+}
+
+/**
+ * Returns a parser that returns an object with a single key whose value is the
+ * result of the given parser.
+ *
+ * @param {core.Parser} parser - Parser whose value will be tagged.
+ * @param {String} tag - String to use as the object's key.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function tag(parser, key) {
+  return map(parser, function(x) { var ret = {}; ret[key] = x; return ret; });
+}
+
+/**
+ * Returns a parser that runs a given parser without consuming input, while
+ * still returning a success or failure.
+ *
+ * @param {core.Parser} test - Parser to execute.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function lookAhead(parser) {
+  return function(parserState) {
+    var ret = parser(parserState),
+        newState = copy(parserState);
+    newState.value = ret.value;
+    return newState;
+  };
+}
+
+/**
  * Parser combinators for higher-order interaction between parsers.
  *
  * @namespace combinators
@@ -275,7 +413,11 @@ function or() {
     var parsers = [].slice.call(arguments);
     return function(parserState) {
       var res = parsers[0](parserState);
-      if (res.error && parsers[1]) {
+      if (res.failed) {
+        parserState = copy(parserState);
+        parserState.error = mergeErrors(parserState.error, res.error);
+      }
+      if (res.failed && parsers[1]) {
         return orHelper.apply(null, parsers.slice(1))(parserState);
       } else {
         return res;
@@ -306,7 +448,7 @@ function maybe(parser) {
  */
 function not(parser) {
   return function(parserState) {
-    return parser(parserState).error ?
+    return parser(parserState).failed ?
       value(true)(parserState) :
       fail("expected parser to fail")(parserState);
   };
@@ -356,14 +498,22 @@ function sequence(fun) {
     var state = parserState, failwhale = {};
     function s(parser) {
       state = parser(state);
-      if (state.error) {
+      if (state.failed) {
         throw failwhale;
       } else {
         return state.value;
       }
     }
     try {
-      return fun(s)(state);
+      var ret = fun(s);
+      if (typeof ret !== "function") {
+        throw new Error("sequence function must return a parser");
+      }
+      var newState = ret(state);
+      if (!(newState instanceof ParserState)) {
+        throw new Error("sequence function must return a parser");
+      }
+      return newState;
     } catch(x) {
       if (x === failwhale) {
         return state;
@@ -446,6 +596,24 @@ function separatedBy(parser, separator, minimum) {
 }
 
 /**
+ * Returns a parser that returns an array of results that have been successfully
+ * parsed by `parser`, separated and ended by `separator`.
+ *
+ * @param {core.Parser} parser - Parser for matching and collecting results.
+ * @param {core.Parser} separator - Parser for the separator
+ * @param {integer} [enforceEnd=true] - If true, `separator` must be at the end
+ *                                      of the parse.
+ * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function endedBy(parser, separator, enforceEnd, minimum) {
+  enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
+  return followedBy(separatedBy(parser, separator, minimum),
+                    enforceEnd ? separator : maybe(separator));
+}
+
+/**
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`.
  *
@@ -456,7 +624,7 @@ function separatedBy(parser, separator, minimum) {
 function zeroOrMore(parser) {
   return function(parserState) {
     var prev = parserState, s = parserState, res =[];
-    while (s = parser(s), !s.error) {
+    while (s = parser(s), !s.failed) {
       res.push(s.value);
       prev = s;
     }
@@ -517,19 +685,19 @@ function skip(parser) {
  *
  * @param {Function} predicate - Called with a single token. Should return a
  *                               truthy value if the token should be accepted.
+ * @param {String} [predicateName="predicate"] - Name to use with fail message.
  * @returns {core.Parser}
  * @memberof strings
  */
-function satisfies(predicate) {
-  return bind(token(), function(c) {
+function satisfies(predicate, predicateName) {
+  predicateName = predicateName || "predicate";
+  return or(bind(token(), function(c) {
     if (predicate(c)) {
       return value(c);
     } else {
-      return fail("token does not match '"+
-                  (predicate.name || "predicate")+
-                  "'");
+      return fail();
     }
-  });
+  }), expected("token matching "+predicateName));
 }
 
 /**
@@ -542,14 +710,14 @@ function satisfies(predicate) {
  * @memberof strings
  */
 function stringOf(parser) {
-  return bind(parser, function(xs) {
+  return or(bind(parser, function(xs) {
     if (xs.hasOwnProperty("length") &&
         xs.join) {
       return value(xs.join(""));
     } else {
-      return expected("an array-like from parser");
+      return fail();
     }
-  });
+  }), expected("an array-like from parser"));
 }
 
 /**
@@ -617,20 +785,11 @@ function noneOf(chars, caseSensitive) {
  * @memberof strings
  */
 function string(str, caseSensitive) {
-  // TODO - use "".indexOf(str) to make this more efficient. Once we switch to
-  //        indexes instead of substrings, the second argument can be used to
-  //        work with the offset.
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  str = caseSensitive ? str : str.toLowerCase();
-  return sequence(function(s) {
-    var tokens = s(token(str.length)),
-        matchTokens = caseSensitive ? tokens : tokens.toLowerCase();
-    if (str === matchTokens) {
-      return value(tokens);
-    } else {
-      return expected("string matching {"+str+"}");
-    }
-  });
+  return or(sequence(function(s) {
+    var x = s(character(str.charAt(0), caseSensitive));
+    var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
+    return value(x+xs);
+  }), expected("string matching {"+str+"}"));
 }
 
 /**
@@ -681,7 +840,7 @@ function text(parser, parserName) {
     parserName = "token";
     parser = token();
   }
-  return or(stringOf(oneOrMore(parser)),
+  return or(stringOf(zeroOrMore(parser)),
             expected("text"+ (typeof parserName !== "undefined" ?
                               " of {"+parserName+"}" :
                               "")));
@@ -745,7 +904,9 @@ function integer(base) {
 
 module.exports = {
   // API
+  version: VERSION,
   parse: parse,
+  parseAsync: parseAsync,
   // Base parsers
   value: value,
   bind: bind,
@@ -755,6 +916,9 @@ module.exports = {
   eof: eof,
   log: log,
   delay: delay,
+  map: map,
+  tag: tag,
+  lookAhead: lookAhead,
   // Combinators
   and: and,
   or: or,
@@ -764,6 +928,7 @@ module.exports = {
   sequence: sequence,
   followedBy: followedBy,
   separatedBy: separatedBy,
+  endedBy: endedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   between: between,
@@ -798,38 +963,62 @@ function copy(obj) {
   return newObj;
 }
 
-function attr(obj, name, arg) {
-  if (arguments.length < 2) {
-    return copy(obj);
-  } else if (arguments.length < 3) {
-    return obj[name];
-  } else {
-    var newObj = copy(obj);
-    newObj[name] = (typeof arg === "function") ?
-      arg(obj[name]) :
-      arg;
-    return newObj;
-  }
-}
-
-function mergeErrors(err1, err2) {
+function mergeErrors(err1, err2, replaceError) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
     return err2;
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
-    return new ParseError(err1.position,
-                          err1.messages.concat(err2.messages),
-                          err1.type || err2.type);
+    var pos;
+    if (replaceError) {
+      pos = err2.position;
+    } else {
+      switch (comparePositions(err1.position, err2.position)) {
+      case "gt":
+        pos = err1.position;
+        break;
+      case "lt":
+        pos = err2.position;
+        break;
+      case "eq":
+        pos = err1.position;
+        break;
+      }
+    }
+    var newMessages = replaceError ?
+          err2.messages :
+          (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
+            return (~acc.indexOf(x)) ? acc : acc.concat([x]);
+          }, []);
+    return new ParseError(pos,
+                          newMessages,
+                          err2.type,
+                          err2.wasEof || err1.wasEof);
   }
 }
 
-function ParserState(value, restOfInput, userState,
-                     position, hasConsumed, error) {
+function comparePositions(pos1, pos2) {
+  if (pos1.line < pos2.line) {
+    return "lt";
+  } else if (pos1.line > pos2.line) {
+    return "gt";
+  } else if (pos1.column < pos2.column) {
+    return "lt";
+  } else if (pos1.column > pos2.column) {
+    return "gt";
+  } else {
+    return "eq";
+  }
+}
+
+function ParserState(value, input, offset, userState,
+                     position, hasConsumed, error, failed) {
   this.value = value;
-  this.restOfInput = restOfInput;
+  this.input = input;
+  this.offset = offset;
   this.position = position;
   this.userState = userState;
+  this.failed = failed;
   this.error = error;
 }
 

@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line359">line 359</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line378">line 378</a>
     </li></ul></dd>
     
     
@@ -200,7 +200,7 @@ returned parser uses the value of the last successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line373">line 373</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line392">line 392</a>
     </li></ul></dd>
     
     
@@ -359,7 +359,273 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line621">line 621</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line658">line 658</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="endedBy"><span class="type-signature">&lt;static> </span>endedBy<span class="signature">(parser, separator, <span class="optional">enforceEnd</span>, <span class="optional">minimum</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns a parser that returns an array of results that have been successfully
+parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>Parser for matching and collecting results.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>separator</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>Parser for the separator</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>enforceEnd</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+            
+            <td class="description last"><p>If true, <code>separator</code> must be at the end
+                                     of the parse.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>minimum</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>Minimum length of the resulting array.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line608">line 608</a>
     </li></ul></dd>
     
     
@@ -540,7 +806,7 @@ but fails if any of the following parsers fail.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line538">line 538</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line557">line 557</a>
     </li></ul></dd>
     
     
@@ -676,7 +942,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line417">line 417</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line436">line 436</a>
     </li></ul></dd>
     
     
@@ -811,7 +1077,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line428">line 428</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line447">line 447</a>
     </li></ul></dd>
     
     
@@ -947,7 +1213,7 @@ results for <code>parser</code>. The parser must succeed at least once.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line604">line 604</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line641">line 641</a>
     </li></ul></dd>
     
     
@@ -1095,7 +1361,7 @@ suceeds. Uses the value of the first successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line390">line 390</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line409">line 409</a>
     </li></ul></dd>
     
     
@@ -1321,7 +1587,7 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line557">line 557</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line576">line 576</a>
     </li></ul></dd>
     
     
@@ -1464,7 +1730,7 @@ sequence will fail with that parser's reason.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line475">line 475</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line494">line 494</a>
     </li></ul></dd>
     
     
@@ -1608,7 +1874,7 @@ sequence will fail with that parser's reason.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line632">line 632</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line669">line 669</a>
     </li></ul></dd>
     
     
@@ -1788,7 +2054,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line446">line 446</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line465">line 465</a>
     </li></ul></dd>
     
     
@@ -1924,7 +2190,7 @@ results for <code>parser</code>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line585">line 585</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line622">line 622</a>
     </li></ul></dd>
     
     
@@ -2073,7 +2339,7 @@ care.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line506">line 506</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line525">line 525</a>
     </li></ul></dd>
     
     
@@ -2141,7 +2407,7 @@ care.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Wed Sep 25 2013 15:25:56 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 26 2013 00:18:06 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
