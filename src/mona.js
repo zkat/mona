@@ -801,7 +801,7 @@ function text(parser, parserName) {
     parserName = "token";
     parser = token();
   }
-  return or(stringOf(oneOrMore(parser)),
+  return or(stringOf(zeroOrMore(parser)),
             expected("text"+ (typeof parserName !== "undefined" ?
                               " of {"+parserName+"}" :
                               "")));
