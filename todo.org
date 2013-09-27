@@ -1,4 +1,4 @@
-* archive [29/29]
+* archive [43/43]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -102,17 +102,69 @@
 ** DONE Properly support node's stream API                              :API:
    CLOSED: [2013-09-25 Wed 01:22]
    http://nodejs.org/api/stream.html#stream_class_stream_transform_1
-* backlog [0/12]
-** TODO times() parser                                                  :API:
+** DONE wrap() parser                                                   :API:
+   CLOSED: [2013-09-25 Wed 08:56]
+   Returns a tagged version of a parser's results, so: wrap(token(), "letter")
+   would result in {letter:"a"} or something of the sort. Useful when you have
+   an existing parser and just want to label what you got for something else to
+   consume.
+** DONE map() parser                                                    :API:
+   CLOSED: [2013-09-25 Wed 08:56]
+   A generalized version of wrap() that calls a function on the resulting value
+   of a parser. This is similar to bind(), except it's expected to return a
+   value, not another parser.
+** DONE Improve/fix CSV example                                    :examples:
+   CLOSED: [2013-09-25 Wed 22:50]
+** DONE Include a version in the 'mona' object                          :API:
+   CLOSED: [2013-09-25 Wed 23:01]
+   And modify make release to automatically update it.
+** DONE float() parser                                                  :API:
+   CLOSED: [2013-09-26 Thu 23:07]
+   Needs tests
+** DONE Swap argument order for map()                                   :API:
+   CLOSED: [2013-09-26 Thu 23:08]
+   the current version kinda sucks for indentation.
+** DONE Consider a whitespace-trimming utility                          :API:
+   CLOSED: [2013-09-26 Thu 23:54]
+   and(maybe(spaces()), something(), maybe(spaces())) is pretty common...
+** DONE JSON parser                                                :examples:
+   CLOSED: [2013-09-27 Fri 00:06]
+   Write a unit test for it, too, eventually.
+   
+   Right now, just needs some cleanup, unicodeHex(), and pulling out
+   trim() into mona.
+** DONE tests for trim() and family                                   :tests:
+   CLOSED: [2013-09-27 Fri 00:22]
+** DONE tests for collect() and exactly()                             :tests:
+   CLOSED: [2013-09-27 Fri 00:29]
+** DONE Consider getting rid of zeroOrMore and oneOrMore                :API:
+   CLOSED: [2013-09-27 Fri 00:38]
+   They're trivial with collect(), so maybe they're just redundant.
+** DONE times() parser                                                  :API:
+   CLOSED: [2013-09-27 Fri 00:39]
    Applies a parser exactly N times and returns the results in an array.
+   NOTE: created as exactly()
+** DONE Consider getting rid of character()                             :API:
+   CLOSED: [2013-09-27 Fri 00:57]
+   It doesn't make much of a difference in JS, since they're strings
+   anyway, and any performance-oriented special cases can be done right in
+   string(). Can we just use that? This would involve touching a lot of
+   code and be fairly API-breaking, so it would be good to do it sooner
+   rather than later.
+** DONE digitCharacter() and digit()                                    :API:
+   CLOSED: [2013-09-27 Fri 01:00]
+   digitCharacter() kinda sucks. Maybe this should just be done as part of
+   splitting mona up into multiple modules to disambiguate digit() and
+   digitCharacater()? Is numeric() enough to mean "this will return a
+   string, use digit() for numbers? Should digit() go away entirely as a
+   numeric function and be strictly for strings? Why would you ever want to
+   parse a single digit as an integer without processing it as a string,
+   first? (if an integer() parser already exists)
+* backlog [0/15]
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
    choice as to whether to break before, after, or both?
-** TODO float() parser                                                  :API:
 ** TODO Write a CL-style extensible reader example                 :examples:
-** TODO Look into implementing handling multibyte chars               :input:
-   See:
-   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt?redirectlocale=en-US&redirectslug=JavaScript/Reference/Global_Objects/String/charAt
 ** TODO Write some tutorials                                           :docs:
 ** TODO Write cardinal and ordinal number parsers                       :API:
    Including the english counterparts:
@@ -126,20 +178,54 @@
    Instruct people to use either sequence or delay, or some similar
    construct. Might be good to just put this in a tutorial.
 ** TODO Bring back nondeterministic parsing                         :parsing:
-** TODO Benchmark tests                                               :tests:
-* active [0/8]
-** TODO Support parsing binary buffers                                  :API:
-** TODO Add a streaming CSV parser example                         :examples:
 ** TODO Add a zip file parser                                      :examples:
 ** TODO Write a streaming unzipping csv parser                     :examples:
    This would be fairly impressive, so you could do:
    parseAsync(zipChunk(csvLine()), function(err, line) { ... }).data(....)
+** TODO Change between()                                                :API:
+   between(wrapper, parser[, trailing=wrapper])
+   
+   Meh. Not sure if I want this change.
+** TODO Benchmark tests                                         :tests:speed:
+   No optimization until we have some reasonable benchmarks to test
+   against. The html parser should be a good starting point.
+** TODO Add a streaming CSV parser example                         :examples:
 ** TODO Write a 'make' target that will update the docs                :docs:
    It should probably really just be part of `make release`
-** TODO Include a version in the 'mona' object                          :API:
-   And modify make release to automatically update it.
 ** TODO Make the docs prettier                                         :docs:
-** TODO Optimize!                                                   :parsing:
-   The way things are done right now involves a LOT of consing, including a lot
-   of unnecessary consing. Look into memoizing some of the built-in pure
-   parsers for speed.
+* active [0/10]
+** TODO Error by default if there's any input remaining after parse()   :API:
+   I think the main thing is that or() needs some kind of case where it
+   will only replaceErrors for errors that happened internally to it. The
+   current replaceErrors strategy pretty much completely clobbers errors
+   flying around.
+** TODO expected() and or()                                             :API:
+   The way expected() works right now kinda clobbers error messages in
+   annoying ways. Perhaps the right thing is to have or() accept a string
+   as an optional final parser, in which case it'll use that as the
+   replaced error expectation message for the entire or() clause. This
+   would make things work more like Parsec's <?> combinator.
+   
+   Write a few tests related to error reporting before doing this,
+   though. Probably as part of or().
+** TODO More error reporting testing                                  :tests:
+   It would be really nice to have nicer test coverage for the error
+   reporting system.
+** TODO throwOnError                                                    :API:
+   Either get rid of this altogether (since you can just try/catch), or
+   have the option return ParserState|ParseError
+** TODO parseState/ParseError/etc                                   :nitpick:
+   use 'parse' only for the function. Everything else should use 'parser',
+   so 'parserState', 'ParserError", etc.
+** TODO Write tests for examples                                      :tests:
+** TODO Get tests to run on node 0.6 and 0.8 again                    :tests:
+   The stream and utils stuff isn't supported, but raw mona should still pass
+   those tests. Put a conditional somewhere.
+** TODO Support parsing binary buffers                                  :API:
+   Just define a protocol for arbitrary input streams.
+** TODO Add a custom tag to JSDoc for @value                           :docs:
+   To document the value returned by a successful parse.
+** TODO Write an html parser and compare it                           :speed:
+   http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
+   regexes, which should be fairly fast. I don't expect to be able to -beat- its
+   speed, but it might be a useful point of reference.
