@@ -794,10 +794,10 @@ function string(str, caseSensitive) {
  * @returns {core.Parser}
  * @memberof strings
  */
-function digitCharacter(base) {
+function digit(base) {
   base = base || 10;
   return or(satisfies(function(x) { return !isNaN(parseInt(x, base)); }),
-            expected("digitCharacter"));
+            expected("digit"));
 }
 
 /**
@@ -880,23 +880,6 @@ function trimRight(parser) {
  */
 
 /**
- * Returns a parser that matches a single digit from the input, returning the
- * number represented by that digit as its value.
- *
- * @param {integer} [base=10] - Base to use when parsing the digit.
- * @returns {core.Parser}
- * @memberof numbers
- */
-function digit(base) {
-  base = base || 10;
-  return sequence(function(s) {
-    var c = s(token()),
-        digit = s(value(parseInt(c, base)));
-    return isNaN(digit) ? fail("invalid digit") : value(digit);
-  });
-}
-
-/**
  * Returns a parser that matches a natural number. That is, a number without a
  * positive/negative sign or decimal places, and returns a positive integer.
  *
@@ -907,7 +890,7 @@ function digit(base) {
 function naturalNumber(base) {
   base = base || 10;
   return sequence(function(s) {
-    var xs = s(collect(digitCharacter(base), 1));
+    var xs = s(collect(digit(base), 1));
     return value(parseInt(xs.join(""), base));
   });
 }
@@ -991,7 +974,7 @@ module.exports = {
   oneOf: oneOf,
   noneOf: noneOf,
   string: string,
-  digitCharacter: digitCharacter,
+  digit: digit,
   space: space,
   spaces: spaces,
   text: text,
@@ -999,7 +982,6 @@ module.exports = {
   trimLeft: trimLeft,
   trimRight: trimRight,
   // Numbers
-  digit: digit,
   naturalNumber: naturalNumber,
   integer: integer,
   float: float

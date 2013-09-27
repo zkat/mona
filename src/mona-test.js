@@ -569,21 +569,21 @@ describe("mona", function() {
                      "fail");
       });
     });
-    describe("digitCharacter", function() {
+    describe("digit", function() {
       it("succeeds if the next token is a digit character", function() {
-        assert.equal(parse(mona.digitCharacter(), "1"), "1");
+        assert.equal(parse(mona.digit(), "1"), "1");
         assert.throws(function() {
-          parse(mona.digitCharacter(), "z");
+          parse(mona.digit(), "z");
         });
       });
       it("accepts an optional base/radix argument", function() {
-        assert.equal(parse(mona.digitCharacter(16), "f"), "f");
+        assert.equal(parse(mona.digit(16), "f"), "f");
       });
       it("defaults to base 10", function() {
-        assert.equal(parse(mona.digitCharacter(), "0"), "0");
-        assert.equal(parse(mona.digitCharacter(), "9"), "9");
+        assert.equal(parse(mona.digit(), "0"), "0");
+        assert.equal(parse(mona.digit(), "9"), "9");
         assert.throws(function() {
-          parse(mona.digitCharacter(), "a");
+          parse(mona.digit(), "a");
         });
       });
     });
@@ -651,15 +651,6 @@ describe("mona", function() {
     });
   });
   describe("number-related parsers", function() {
-    describe("digit", function() {
-      it("matches a single digit and returns it as a number", function() {
-        assert.equal(parse(mona.digit(), "1"), 1);
-      });
-      it("accepts a base/radix argument", function() {
-        assert.equal(parse(mona.digit(16), "F"), 0xf);
-        assert.equal(parse(mona.digit(2), "1"), 1);
-      });
-    });
     describe("naturalNumber", function() {
       it("matches a natural number without a sign", function() {
         assert.equal(parse(mona.naturalNumber(), "1234"), 1234);
