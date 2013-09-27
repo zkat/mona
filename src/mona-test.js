@@ -626,6 +626,35 @@ describe("mona", function() {
         assert.equal(parse(mona.text(), "abcde"), "abcde");
       });
     });
+    describe("trim", function() {
+      it("trims leading and trailing whitespace", function() {
+        assert.equal(parse(mona.trim(mona.token()), "   a    "), "a");
+        assert.equal(parse(mona.trim(mona.token()), "a    "), "a");
+        assert.equal(parse(mona.trim(mona.token()), "   a"), "a");
+      });
+    });
+    describe("trimLeft", function() {
+      it("trims leading whitespace only", function() {
+        var parser = mona.between(mona.character("|"),
+                                  mona.character("|"),
+                                  mona.trimLeft(mona.character("a")));
+        assert.equal(parse(parser, "|   a|"), "a");
+        assert.throws(function() {
+          parse(parser, "|   a    |");
+        }, /expected character \{\|\}/);
+      });
+    });
+    describe("trimRight", function() {
+      it("trims trailing whitespace only", function() {
+        var parser = mona.between(mona.character("|"),
+                                  mona.character("|"),
+                                  mona.trimRight(mona.character("a")));
+        assert.equal(parse(parser, "|a     |"), "a");
+        assert.throws(function() {
+          parse(parser, "|   a    |");
+        }, /expected character \{\a\}/);
+      });
+    });
   });
   describe("number-related parsers", function() {
     describe("digit", function() {

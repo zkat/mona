@@ -845,6 +845,38 @@ function text(parser, parserName) {
 }
 
 /**
+ * Returns a parser that trims any whitespace surrounding `parser`.
+ *
+ * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @memberof strings
+ */
+function trim(parser) {
+  return between(maybe(spaces()),
+                 maybe(spaces()),
+                 parser);
+}
+
+/**
+ * Returns a parser that trims any leading whitespace before `parser`.
+ *
+ * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @memberof strings
+ */
+function trimLeft(parser) {
+  return and(maybe(spaces()), parser);
+}
+
+/**
+ * Returns a parser that trims any trailing whitespace before `parser`.
+ *
+ * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @memberof strings
+ */
+function trimRight(parser) {
+  return followedBy(parser, maybe(spaces()));
+}
+
+/**
  * Number-related parsers and combinators
  *
  * @namespace numbers
@@ -967,6 +999,9 @@ module.exports = {
   space: space,
   spaces: spaces,
   text: text,
+  trim: trim,
+  trimLeft: trimLeft,
+  trimRight: trimRight,
   // Numbers
   digit: digit,
   naturalNumber: naturalNumber,
