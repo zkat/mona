@@ -19,26 +19,26 @@ function object() {
       obj[p[0]] = p[1];
     });
     return obj;
-  }, mona.between(mona.trim(mona.character("{")),
-                  mona.trim(mona.character("}")),
+  }, mona.between(mona.trim(mona.string("{")),
+                  mona.trim(mona.string("}")),
                   mona.separatedBy(keyAndValue(),
-                                   mona.trim(mona.character(",")))));
+                                   mona.trim(mona.string(",")))));
 }
 
 function keyAndValue() {
   return mona.sequence(function(s) {
     var key = s(string());
-    s(mona.trim(mona.character(":")));
+    s(mona.trim(mona.string(":")));
     var value = s(json());
     return mona.value([key, value]);
   });
 }
 
 function array() {
-  return mona.between(mona.trim(mona.character("[")),
-                      mona.trim(mona.character("]")),
+  return mona.between(mona.trim(mona.string("[")),
+                      mona.trim(mona.string("]")),
                       mona.separatedBy(mona.and(mona.delay(json)),
-                                       mona.trim(mona.character(","))));
+                                       mona.trim(mona.string(","))));
 }
 
 function bool() {
@@ -56,15 +56,15 @@ function number() {
 }
 
 function string() {
-  return mona.between(mona.character("\""),
-                      mona.or(mona.character("\""),
+  return mona.between(mona.string("\""),
+                      mona.or(mona.string("\""),
                               mona.expected("closing double-quote")),
                       mona.text(mona.noneOf('"')));
 }
 
 function escaped() {
   return mona.sequence(function(s) {
-    s(mona.character("\\"));
+    s(mona.string("\\"));
     var esc = s(mona.token);
     switch (esc) {
       case "b": return mona.value("\b");
