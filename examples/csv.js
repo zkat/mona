@@ -13,7 +13,7 @@ function csv(minimumColumns) {
 }
 
 function line(minimumColumns) {
-  return mona.separatedBy(cell(), mona.character(","), minimumColumns);
+  return mona.separatedBy(cell(), mona.string(","), minimumColumns);
 }
 
 function cell() {
@@ -24,9 +24,9 @@ function cell() {
 
 function quotedCell() {
   return mona.sequence(function(s) {
-    s(mona.character('"'));
+    s(mona.string('"'));
     var content = s(mona.text(quotedChar()));
-    s(mona.or(mona.character('"'),
+    s(mona.or(mona.string('"'),
               mona.expected("closing quote at the end of cell")));
     return mona.value(content);
   });
@@ -40,7 +40,7 @@ function quotedChar() {
 
 function eol() {
   var str = mona.string,
-      ch = mona.character;
+      ch = mona.string;
   return mona.or(str("\n\r"),
                  str("\r\n"),
                  ch("\n"),

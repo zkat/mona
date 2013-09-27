@@ -47,8 +47,8 @@ function symbolToken() {
 }
 
 function list() {
-  return mona.between(mona.character("("),
-                      mona.character(")"),
+  return mona.between(mona.string("("),
+                      mona.string(")"),
                       mona.separatedBy(mona.delay(sexp),
                                        mona.spaces()));
 }

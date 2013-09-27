@@ -487,7 +487,7 @@ function unless(parser) {
  * @example
  * mona.sequence(function(s) {
  *  var x = s(mona.token());
- *  var y = s(mona.character('b'));
+ *  var y = s(mona.string('b'));
  *  return mona.value(x+y);
  * });
  */
@@ -729,24 +729,6 @@ function stringOf(parser) {
 }
 
 /**
- * Returns a parser that tries to consume and return a single character matching
- * `x`.
- *
- * @param {String} x - single-character string to match against the next token.
- * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
- * @returns {core.Parser}
- * @memberof strings
- */
-function character(x, caseSensitive) {
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  x = caseSensitive ? x : x.toLowerCase();
-  return or(satisfies(function(y) {
-    y = caseSensitive ? y : y.toLowerCase();
-    return x === y;
-  }), expected("character {"+x+"}"));
-}
-
-/**
  * Returns a parser that succeeds if the next token is one of the provided
  * `chars`.
  *
@@ -793,8 +775,13 @@ function noneOf(chars, caseSensitive) {
  * @memberof strings
  */
 function string(str, caseSensitive) {
+  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
+  str = caseSensitive ? str : str.toLowerCase();
   return or(sequence(function(s) {
-    var x = s(character(str.charAt(0), caseSensitive));
+    var x = s(satisfies(function(x) {
+      x = caseSensitive ? x : x.toLowerCase();
+      return  x === str[0];
+    }, str.charAt(0)));
     var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
     return value(x+xs);
   }), expected("string matching {"+str+"}"));
@@ -935,8 +922,8 @@ function naturalNumber(base) {
 function integer(base) {
   base = base || 10;
   return sequence(function(s) {
-    var sign = s(maybe(or(character("+"),
-                          character("-")))),
+    var sign = s(maybe(or(string("+"),
+                          string("-")))),
         num = s(naturalNumber(base));
     return value(num * (sign === "-" ? -1 : 1));
   });
@@ -953,14 +940,14 @@ function float(base) {
   base = base || 10;
   return sequence(function(s) {
     var leftSide = s(integer(base));
-    var rightSide = s(or(and(character("."),
+    var rightSide = s(or(and(string("."),
                              integer(base)),
                          value(0)));
     while (rightSide > 1) {
       rightSide = rightSide / 10;
     }
     rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
-    var e = s(or(and(character("e", false),
+    var e = s(or(and(string("e", false),
                      integer(base)),
                  value(0)));
     return value((leftSide + rightSide)*(Math.pow(10,e)));
@@ -1001,7 +988,6 @@ module.exports = {
   // String-related parsers
   satisfies: satisfies,
   stringOf: stringOf,
-  character: character,
   oneOf: oneOf,
   noneOf: noneOf,
   string: string,

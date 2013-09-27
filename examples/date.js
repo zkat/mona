@@ -93,7 +93,7 @@ function intervalUnit() {
                          mona.string("week"),
                          mona.string("month"),
                          mona.string("year")));
-    s(mona.maybe(mona.character("s")));
+    s(mona.maybe(mona.string("s")));
     return mona.value(unit);
   });
 }
@@ -176,7 +176,7 @@ function fullDate() {
     var _month = s(month());
     s(mona.spaces());
     var _day = s(day());
-    s(mona.maybe(mona.character(",")));
+    s(mona.maybe(mona.string(",")));
     s(mona.maybe(mona.spaces()));
     var _year = s(year());
     var mo = moment([_year, _month, _day]);
