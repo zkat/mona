@@ -26,7 +26,8 @@ docs-dir = docs
 examples-dir = examples
 browserify-bundle = $(build-dir)/mona.js
 min-file = $(build-dir)/mona.min.js
-source-map = $(build-dir)/mona.js.src
+source-map-filename = mona.js.src
+source-map = $(build-dir)/$(source-map-filename)
 jsdoc-config = jsdoc.conf.json
 linter-config = jshint.conf.json
 readme = README.md
@@ -57,8 +58,10 @@ publish:
 
 $(min-file) $(source-map): $(browserify-bundle)
 	$(uglify) $(browserify-bundle) \
-		-o $(min-file) \
-		--source-map $(source-map)
+        --compress \
+		--output $(min-file) \
+		--source-map $(source-map) \
+        --source-map-url $(source-map-filename)
 
 $(browserify-bundle): $(main-file) $(source-files) | $(build-dir)
 	$(browserify) $(main-file) \
