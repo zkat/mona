@@ -900,6 +900,31 @@ function integer(base) {
   });
 }
 
+/**
+ * Returns a parser that will parse floating point numbers.
+ *
+ * @param {integer} [base=10] - Base to use when parsing the float.
+ * @returns {core.Parser}
+ * @memberof numbers
+ */
+function float(base) {
+  base = base || 10;
+  return sequence(function(s) {
+    var leftSide = s(integer(base));
+    var rightSide = s(or(and(character("."),
+                             integer(base)),
+                         value(0)));
+    while (rightSide > 1) {
+      rightSide = rightSide / 10;
+    }
+    rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
+    var e = s(or(and(character("e", false),
+                     integer(base)),
+                 value(0)));
+    return value((leftSide + rightSide)*(Math.pow(10,e)));
+  });
+}
+
 module.exports = {
   // API
   version: VERSION,
@@ -945,7 +970,8 @@ module.exports = {
   // Numbers
   digit: digit,
   naturalNumber: naturalNumber,
-  integer: integer
+  integer: integer,
+  float: float
 };
 
 /*
