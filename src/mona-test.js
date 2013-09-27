@@ -463,26 +463,6 @@ describe("mona", function() {
         assert.deepEqual(parse(parser, "aaaaa"), ["a", "a", "a", "a"]);
       });
     });
-    describe("zeroOrMore", function() {
-      it("returns zero or more matches for a given parser", function() {
-        var parser = mona.zeroOrMore(mona.token());
-        assert.equal(parse(parser, "abc").length, 3);
-      });
-      it("succeeds even if no matches are found", function() {
-        var parser = mona.zeroOrMore(mona.token());
-        assert.equal(parse(parser, "").length, 0);
-      });
-    });
-    describe("oneOrMore", function() {
-      it("returns one or more matches for a given parser", function() {
-        var parser = mona.oneOrMore(mona.token());
-        assert.equal(parse(parser, "abc").length, 3);
-      });
-      it("succeeds if at least one match is found", function() {
-        var parser = mona.oneOrMore(mona.token());
-        assert.equal(parse(parser, "a").length, 1);
-      });
-    });
     describe("exactly", function() {
       it("collects exactly n matches", function() {
         var parser = mona.followedBy(mona.exactly(mona.token(), 3),

@@ -11,7 +11,7 @@ function atom() {
 }
 
 function symbol() {
-  return mona.stringOf(mona.oneOrMore(symbolToken()));
+  return mona.stringOf(mona.collect(symbolToken(), 1));
 }
 
 function symbolToken() {

@@ -68,7 +68,7 @@ function parseAsync(parser, callback, opts) {
     }
     var res;
     try {
-      res = parse(oneOrMore(parser), buffer, opts);
+      res = parse(collect(parser, 1), buffer, opts);
       opts.position = res.position;
       buffer = res.input.slice(res.offset);
     } catch (e) {
@@ -581,7 +581,7 @@ function separatedBy(parser, separator, minimum) {
   } else {
     return sequence(function(s) {
       var x = s(parser);
-      var xs = s(zeroOrMore(and(separator, parser)));
+      var xs = s(collect(and(separator, parser)));
       var result = [x].concat(xs);
       if (result.length >= minimum) {
         return value(result);
@@ -644,30 +644,6 @@ function collect(parser, min, max) {
 }
 
 /**
- * Returns a parser that results in an array of zero or more successful parse
- * results for `parser`.
- *
- * @param {core.Parser} parser - The parser to try to apply.
- * @returns {core.Parser}
- * @memberof combinators
- */
-function zeroOrMore(parser) {
-  return collect(parser);
-}
-
-/**
- * Returns a parser that results in an array of zero or more successful parse
- * results for `parser`. The parser must succeed at least once.
- *
- * @param {core.Parser} parser - The parser to collect results for.
- * @returns {core.Parser}
- * @memberof combinators
- */
-function oneOrMore(parser) {
-  return collect(parser, 1);
-}
-
-/**
  * Returns a parser that results in an array of exactly `n` results for
  * `parser`.
  *
@@ -701,7 +677,7 @@ function between(open, close, parser) {
  * @memberof combinators
  */
 function skip(parser) {
-  return and(zeroOrMore(parser), value());
+  return and(collect(parser), value());
 }
 
 /**
@@ -872,7 +848,7 @@ function text(parser, parserName) {
     parserName = "token";
     parser = token();
   }
-  return or(stringOf(zeroOrMore(parser)),
+  return or(stringOf(collect(parser)),
             expected("text"+ (typeof parserName !== "undefined" ?
                               " of {"+parserName+"}" :
                               "")));
@@ -944,7 +920,7 @@ function digit(base) {
 function naturalNumber(base) {
   base = base || 10;
   return sequence(function(s) {
-    var xs = s(oneOrMore(digitCharacter(base)));
+    var xs = s(collect(digitCharacter(base), 1));
     return value(parseInt(xs.join(""), base));
   });
 }
@@ -1019,8 +995,6 @@ module.exports = {
   separatedBy: separatedBy,
   endedBy: endedBy,
   collect: collect,
-  zeroOrMore: zeroOrMore,
-  oneOrMore: oneOrMore,
   exactly: exactly,
   between: between,
   skip: skip,
