@@ -441,6 +441,28 @@ describe("mona", function() {
         });
       });
     });
+    describe("collect", function() {
+      it("collects zero or more matches by default", function() {
+        var parser = mona.collect(mona.token());
+        assert.deepEqual(parse(parser, "abc"), ["a", "b", "c"]);
+      });
+      it("succeeds even if no matches are found", function() {
+        var parser = mona.collect(mona.token());
+        assert.deepEqual(parse(parser, ""), []);
+      });
+      it("accepts a minimum count", function() {
+        var parser = mona.collect(mona.token(), 1);
+        assert.deepEqual(parse(parser, "a"), ["a"]);
+        assert.throws(function() {
+          parse(parser, "");
+        }, /unexpected eof/);
+      });
+      it("accepts a maximum count", function() {
+        var parser = mona.followedBy(mona.collect(mona.token(), 1, 4),
+                                     mona.collect(mona.token()));
+        assert.deepEqual(parse(parser, "aaaaa"), ["a", "a", "a", "a"]);
+      });
+    });
     describe("zeroOrMore", function() {
       it("returns zero or more matches for a given parser", function() {
         var parser = mona.zeroOrMore(mona.token());
@@ -459,6 +481,16 @@ describe("mona", function() {
       it("succeeds if at least one match is found", function() {
         var parser = mona.oneOrMore(mona.token());
         assert.equal(parse(parser, "a").length, 1);
+      });
+    });
+    describe("exactly", function() {
+      it("collects exactly n matches", function() {
+        var parser = mona.followedBy(mona.exactly(mona.token(), 3),
+                                     mona.collect(mona.token()));
+        assert.deepEqual(parse(parser, "aaaaaaa"), ["a", "a", "a"]);
+        assert.throws(function() {
+          parse(parser, "aa");
+        }, /unexpected eof/);
       });
     });
     describe("between", function() {

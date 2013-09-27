@@ -612,6 +612,38 @@ function endedBy(parser, separator, enforceEnd, minimum) {
 }
 
 /**
+ * Returns a parser that results in an array of `min` to `max` matches of
+ * `parser`
+ *
+ * @param {core.Parser} parser - Parser to match.
+ * @param {integer} [min=0] - Minimum number of matches.
+ * @param {integer} [max=Infinity] - Maximum number of matches.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function collect(parser, min, max) {
+  min = min || 0;
+  max = typeof max === "undefined" ? Infinity : max;
+  if (min > max) { throw new Error("min must be less than or equal to max"); }
+  return function(parserState) {
+    var prev = parserState,
+        s = parserState,
+        res = [],
+        i = 0;
+    while(s = parser(s), i < max && !s.failed) {
+      res.push(s.value);
+      i++;
+      prev = s;
+    }
+    if (min && (res.length < min)) {
+      return s;
+    } else {
+      return value(res)(prev);
+    }
+  };
+}
+
+/**
  * Returns a parser that results in an array of zero or more successful parse
  * results for `parser`.
  *
@@ -620,14 +652,7 @@ function endedBy(parser, separator, enforceEnd, minimum) {
  * @memberof combinators
  */
 function zeroOrMore(parser) {
-  return function(parserState) {
-    var prev = parserState, s = parserState, res =[];
-    while (s = parser(s), !s.failed) {
-      res.push(s.value);
-      prev = s;
-    }
-    return value(res)(prev);
-  };
+  return collect(parser);
 }
 
 /**
@@ -639,11 +664,20 @@ function zeroOrMore(parser) {
  * @memberof combinators
  */
 function oneOrMore(parser) {
-  return sequence(function(s) {
-    var x = s(parser),
-        y = s(zeroOrMore(parser));
-    return value([x].concat(y));
-  });
+  return collect(parser, 1);
+}
+
+/**
+ * Returns a parser that results in an array of exactly `n` results for
+ * `parser`.
+ *
+ * @param {core.Parser} parser - The parser to collect results for.
+ * @param {integer} n - exact number of results to collect.
+ * @returns {core.Parser}
+ * @memberof combinators
+ */
+function exactly(parser, n) {
+  return collect(parser, n, n);
 }
 
 /**
@@ -984,8 +1018,10 @@ module.exports = {
   followedBy: followedBy,
   separatedBy: separatedBy,
   endedBy: endedBy,
+  collect: collect,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
+  exactly: exactly,
   between: between,
   skip: skip,
   // String-related parsers
