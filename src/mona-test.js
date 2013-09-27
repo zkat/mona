@@ -663,5 +663,17 @@ describe("mona", function() {
         assert.equal(parse(mona.integer(16), "-deadbeef"), -0xdeadbeef);
       });
     });
+    describe("float", function() {
+      it("parses a number with decimal points into a JS float", function() {
+        assert.equal(parse(mona.float(), "1.2"), 1.2);
+        assert.equal(parse(mona.float(), "-1.25"), -1.25);
+        assert.equal(parse(mona.float(), "+1.25"), 1.25);
+      });
+      it("supports e-notation", function() {
+        assert.equal(parse(mona.float(), "1.25e10"), 1.25e10);
+        assert.equal(parse(mona.float(), "1.25e3"), 1.25e3);
+        assert.equal(parse(mona.float(), "1.25e-3"), 1.25e-3);
+      });
+    });
   });
 });
