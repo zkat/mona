@@ -252,12 +252,12 @@ describe("mona", function() {
     });
     describe("map", function() {
       it("transforms a parser's result", function() {
-        assert.equal(parse(mona.map(mona.text(), function(txt) {
+        assert.equal(parse(mona.map(function(txt) {
           return txt.toUpperCase();
-        }), "abc"),  "ABC");
+        }, mona.text()), "abc"), "ABC");
       });
       it("does not call function if the parser fails", function() {
-        var parser = mona.map(mona.token(), function(x) {throw x;});
+        var parser = mona.map(function(x) {throw x;}, mona.token());
         assert.equal(parse(parser, "", {throwOnError: false}).message,
                      "(line 1, column 1) unexpected eof");
       });

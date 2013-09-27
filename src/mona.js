@@ -332,14 +332,14 @@ function log(parser, tag, level) {
  * it always succeeds if its parser succeeds, and is expected to return a
  * transformed value, instead of another parser.
  *
- * @param {core.Parser} parser - Parser that will yield the input value.
  * @param {Function} transformer - Function called on `parser`'s value. Its
  *                                 return value will be used as the `map`
  *                                 parser's value.
+ * @param {core.Parser} parser - Parser that will yield the input value.
  * @returns {core.Parser}
  * @memberof core
  */
-function map(parser, transformer) {
+function map(transformer, parser) {
   return bind(parser, function(result) {
     return value(transformer(result));
   });
@@ -355,7 +355,7 @@ function map(parser, transformer) {
  * @memberof core
  */
 function tag(parser, key) {
-  return map(parser, function(x) { var ret = {}; ret[key] = x; return ret; });
+  return map(function(x) { var ret = {}; ret[key] = x; return ret; }, parser);
 }
 
 /**
