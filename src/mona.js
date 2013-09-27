@@ -788,6 +788,17 @@ function string(str, caseSensitive) {
 }
 
 /**
+ * Returns a parser that matches a single non-unicode alphabetical character.
+ *
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alpha() {
+  return or(oneOf("abcdefghijklmnopqrstuvwxyz", false),
+            expected("alpha"));
+}
+
+/**
  * Returns a parser that parses a single digit character token from the input.
  *
  * @param {integer} [base=10] - Optional base for the digit.
@@ -798,6 +809,17 @@ function digit(base) {
   base = base || 10;
   return or(satisfies(function(x) { return !isNaN(parseInt(x, base)); }),
             expected("digit"));
+}
+
+/**
+ * Returns a parser that matches an alphanumeric character.
+ *
+ * @param {integer} [base=10] - Optional base for numeric parsing.
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alphanum(base) {
+  return or(alpha(), digit(base), expected("alphanum"));
 }
 
 /**
@@ -974,7 +996,9 @@ module.exports = {
   oneOf: oneOf,
   noneOf: noneOf,
   string: string,
+  alpha: alpha,
   digit: digit,
+  alphanum: alphanum,
   space: space,
   spaces: spaces,
   text: text,

@@ -569,6 +569,18 @@ describe("mona", function() {
                      "fail");
       });
     });
+    describe("alpha", function() {
+      it("parses one alphabetical character", function() {
+        var alphabet = "abcdefghijklmnopqrstuvwxyz";
+        for (var i = 0; i < alphabet.length; i++) {
+          assert.equal(parse(mona.alpha(), alphabet.charAt(i)),
+                       alphabet.charAt(i));
+        }
+        assert.throws(function() {
+          parse(mona.alpha(), "0");
+        }, /expected alpha/);
+      });
+    });
     describe("digit", function() {
       it("succeeds if the next token is a digit character", function() {
         assert.equal(parse(mona.digit(), "1"), "1");
@@ -585,6 +597,22 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.digit(), "a");
         });
+      });
+    });
+    describe("alphanum", function() {
+      it("parses either an alphabetical character or a digit", function() {
+        assert.equal(parse(mona.alphanum(), "x"), "x");
+        assert.equal(parse(mona.alphanum(), "7"), "7");
+        assert.throws(function() {
+          parse(mona.alphanum(), "?");
+        }, /expected alphanum/);
+      });
+      it("accepts an optional base/radix argument", function() {
+        assert.equal(parse(mona.alphanum(16), "f"), "f");
+      });
+      it("defaults to base 10", function() {
+        assert.equal(parse(mona.alphanum(), "0"), "0");
+        assert.equal(parse(mona.alphanum(), "9"), "9");
       });
     });
     describe("space", function() {
