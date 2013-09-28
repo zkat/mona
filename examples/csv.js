@@ -13,7 +13,7 @@ function csv(minimumColumns) {
 }
 
 function line(minimumColumns) {
-  return mona.split(cell(), mona.string(","), minimumColumns);
+  return mona.split(cell(), mona.string(","), {min: minimumColumns});
 }
 
 function cell() {
@@ -23,13 +23,10 @@ function cell() {
 }
 
 function quotedCell() {
-  return mona.sequence(function(s) {
-    s(mona.string('"'));
-    var content = s(mona.text(quotedChar()));
-    s(mona.or(mona.string('"'),
-              mona.expected("closing quote at the end of cell")));
-    return mona.value(content);
-  });
+  return mona.between(mona.string('"'),
+                      mona.or(mona.string('"'),
+                              mona.expected("closing quote")),
+                      mona.text(quotedChar()));
 }
 
 function quotedChar() {
@@ -39,18 +36,16 @@ function quotedChar() {
 }
 
 function eol() {
-  var str = mona.string,
-      ch = mona.string;
+  var str = mona.string;
   return mona.or(str("\n\r"),
                  str("\r\n"),
-                 ch("\n"),
-                 ch("\r"),
+                 str("\n"),
+                 str("\r"),
                  mona.expected("end of line"));
 }
 
 function parseCSV(text, minimumColumns) {
-  return mona.parse(mona.followedBy(csv(minimumColumns),
-                                    mona.eof()), text);
+  return mona.parse(csv(minimumColumns), text);
 }
 
 function runExample() {
