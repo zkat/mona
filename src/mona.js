@@ -376,6 +376,32 @@ function lookAhead(parser) {
 }
 
 /**
+ * Returns a parser that succeeds with the next token as its value if
+ * `predicate` returns a truthy value when called on the token.
+ *
+ * @param {Function} predicate - Tests a token.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function is(predicate) {
+  return bind(token(), function(tok) {
+    return (predicate(tok)) ? value(tok) : fail();
+  });
+}
+
+/**
+ * Returns a parser that succeeds with the next token as its value if
+ * `predicate` returns a falsy value when called on the token.
+ *
+ * @param {Function} predicate - Tests a token.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function isNot(predicate) {
+  return is(function(x) { return !predicate(x); });
+}
+
+/**
  * Parser combinators for higher-order interaction between parsers.
  *
  * @namespace combinators
@@ -686,28 +712,6 @@ function skip(parser) {
  */
 
 /**
- * Returns a parser that succeeds if the next token satisfies `predicate`,
- * returning the accepted character as its value. Fails if `predicate` does not
- * match.
- *
- * @param {Function} predicate - Called with a single token. Should return a
- *                               truthy value if the token should be accepted.
- * @param {String} [predicateName="predicate"] - Name to use with fail message.
- * @returns {core.Parser}
- * @memberof strings
- */
-function satisfies(predicate, predicateName) {
-  predicateName = predicateName || "predicate";
-  return or(bind(token(), function(c) {
-    if (predicate(c)) {
-      return value(c);
-    } else {
-      return fail();
-    }
-  }), expected("token matching "+predicateName));
-}
-
-/**
  * Returns a string containing the concatenated results returned by applying
  * `parser`. `parser` must be a combinator that returns an array of string parse
  * results.
@@ -740,7 +744,7 @@ function stringOf(parser) {
 function oneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(satisfies(function(x) {
+  return or(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return ~chars.indexOf(x);
   }), expected("one of {"+chars+"}"));
@@ -758,7 +762,7 @@ function oneOf(chars, caseSensitive) {
 function noneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(satisfies(function(x) {
+  return or(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return !~chars.indexOf(x);
   }), expected("none of {"+chars+"}"));
@@ -777,7 +781,7 @@ function string(str, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   str = caseSensitive ? str : str.toLowerCase();
   return or(sequence(function(s) {
-    var x = s(satisfies(function(x) {
+    var x = s(is(function(x) {
       x = caseSensitive ? x : x.toLowerCase();
       return  x === str[0];
     }, str.charAt(0)));
@@ -806,7 +810,7 @@ function alpha() {
  */
 function digit(base) {
   base = base || 10;
-  return or(satisfies(function(x) { return !isNaN(parseInt(x, base)); }),
+  return or(is(function(x) { return !isNaN(parseInt(x, base)); }),
             expected("digit"));
 }
 
@@ -969,6 +973,8 @@ module.exports = {
   map: map,
   tag: tag,
   lookAhead: lookAhead,
+  is: is,
+  isNot: isNot,
   // Combinators
   and: and,
   or: or,
@@ -984,7 +990,6 @@ module.exports = {
   between: between,
   skip: skip,
   // String-related parsers
-  satisfies: satisfies,
   stringOf: stringOf,
   oneOf: oneOf,
   noneOf: noneOf,

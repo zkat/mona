@@ -276,6 +276,24 @@ describe("mona", function() {
                      "a");
       });
     });
+    describe("is", function() {
+      it("parses a token matching a predicate", function() {
+        var parser = mona.is(function(t) {
+          return t === "\n";
+        });
+        assert.equal(parse(parser, "\n"), "\n");
+        assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
+      });
+    });
+    describe("isNot", function() {
+      it("parses a token not matching a predicate", function() {
+        var parser = mona.isNot(function(t) {
+          return t !== "\n";
+        });
+        assert.equal(parse(parser, "\n"), "\n");
+        assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
+      });
+    });
   });
   describe("combinators", function() {
     describe("and", function() {
@@ -504,15 +522,6 @@ describe("mona", function() {
     });
   });
   describe("string-related parsers", function() {
-    describe("satisfies", function() {
-      it("parses a token matching a predicate", function() {
-        var parser = mona.satisfies(function(t) {
-          return t === "\n";
-        });
-        assert.equal(parse(parser, "\n"), "\n");
-        assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
-      });
-    });
     describe("oneOf", function() {
       it("succeeds if the next token is present in the char bag", function() {
         assert.equal(parse(mona.oneOf("abc"), "b"), "b");
