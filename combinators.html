@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line378">line 378</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line408">line 408</a>
     </li></ul></dd>
     
     
@@ -200,7 +200,7 @@ returned parser uses the value of the last successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line392">line 392</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line422">line 422</a>
     </li></ul></dd>
     
     
@@ -359,7 +359,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line668">line 668</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line705">line 705</a>
     </li></ul></dd>
     
     
@@ -405,7 +405,7 @@ parser.</p>
         
             
 <dt>
-    <h4 class="name" id="collect"><span class="type-signature">&lt;static> </span>collect<span class="signature">(parser, <span class="optional">min</span>, <span class="optional">max</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    <h4 class="name" id="collect"><span class="type-signature">&lt;static> </span>collect<span class="signature">(parser, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
     
     
 </dt>
@@ -440,8 +440,6 @@ parser.</p>
 		
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -475,14 +473,66 @@ parser.</p>
             
             
             
-                <td class="default">
-                
-                </td>
-            
             
             <td class="description last"><p>Parser to match.</p></td>
         </tr>
 	
+	
+	
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
 	
 	
         <tr>
@@ -564,267 +614,7 @@ parser.</p>
 	
 	</tbody>
 </table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line624">line 624</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-	</dd>
-</dl>
-
-        
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="endedBy"><span class="type-signature">&lt;static> </span>endedBy<span class="signature">(parser, separator, <span class="optional">enforceEnd</span>, <span class="optional">minimum</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that returns an array of results that have been successfully
-parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		<th>Default</th>
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>parser</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-            
             </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Parser for matching and collecting results.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>separator</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Parser for the separator</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>enforceEnd</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">integer</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-            
-            <td class="description last"><p>If true, <code>separator</code> must be at the end
-                                     of the parse.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>minimum</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">integer</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    0
-                
-                </td>
-            
-            
-            <td class="description last"><p>Minimum length of the resulting array.</p></td>
         </tr>
 	
 	
@@ -855,7 +645,7 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line608">line 608</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line660">line 660</a>
     </li></ul></dd>
     
     
@@ -1014,7 +804,7 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line655">line 655</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line692">line 692</a>
     </li></ul></dd>
     
     
@@ -1195,7 +985,7 @@ but fails if any of the following parsers fail.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line557">line 557</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line587">line 587</a>
     </li></ul></dd>
     
     
@@ -1331,7 +1121,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line436">line 436</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line466">line 466</a>
     </li></ul></dd>
     
     
@@ -1466,7 +1256,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line447">line 447</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line477">line 477</a>
     </li></ul></dd>
     
     
@@ -1614,233 +1404,7 @@ suceeds. Uses the value of the first successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line409">line 409</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-	</dd>
-</dl>
-
-        
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="separatedBy"><span class="type-signature">&lt;static> </span>separatedBy<span class="signature">(parser, separator, <span class="optional">minimum</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that returns an array of results that have been successfully
-parsed by <code>parser</code>, which were separated by <code>separator</code>.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		<th>Default</th>
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>parser</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Parser for matching and collecting results.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>separator</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Parser for the separator</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>minimum</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">integer</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    0
-                
-                </td>
-            
-            
-            <td class="description last"><p>Minimum length of the resulting array.</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line576">line 576</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line439">line 439</a>
     </li></ul></dd>
     
     
@@ -1983,7 +1547,7 @@ sequence will fail with that parser's reason.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line494">line 494</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line524">line 524</a>
     </li></ul></dd>
     
     
@@ -2127,7 +1691,681 @@ sequence will fail with that parser's reason.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line679">line 679</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line716">line 716</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="split"><span class="type-signature">&lt;static> </span>split<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns a parser that returns an array of results that have been successfully
+parsed by <code>parser</code>, which were separated by <code>separator</code>.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Parser for matching and collecting results.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>separator</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Parser for the separator</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>min</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>Minimum length of the resulting array.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>max</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>Maximum length of the resulting array.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line608">line 608</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="splitEnd"><span class="type-signature">&lt;static> </span>splitEnd<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns a parser that returns an array of results that have been successfully
+parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Parser for matching and collecting results.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>separator</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Parser for the separator</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>enforceEnd</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+            
+            <td class="description last"><p>If true, <code>separator</code> must be at the
+                                          end of the parse.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>min</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>Minimum length of the resulting array.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>max</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>Maximum length of the resulting array.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line640">line 640</a>
     </li></ul></dd>
     
     
@@ -2307,7 +2545,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line465">line 465</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line495">line 495</a>
     </li></ul></dd>
     
     
@@ -2456,7 +2694,7 @@ care.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line525">line 525</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line555">line 555</a>
     </li></ul></dd>
     
     
@@ -2524,7 +2762,7 @@ care.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Fri Sep 27 2013 01:27:54 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Fri Sep 27 2013 23:27:05 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

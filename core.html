@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line155">line 155</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line159">line 159</a>
     </li></ul></dd>
     
     
@@ -213,7 +213,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line196">line 196</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line200">line 200</a>
     </li></ul></dd>
     
     
@@ -392,7 +392,7 @@ recursive parsers that would otherwise blow the stack at construction time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line304">line 304</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line308">line 308</a>
     </li></ul></dd>
     
     
@@ -480,7 +480,7 @@ input to consume.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line285">line 285</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line289">line 289</a>
     </li></ul></dd>
     
     
@@ -615,7 +615,7 @@ input to consume.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line239">line 239</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line243">line 243</a>
     </li></ul></dd>
     
     
@@ -774,7 +774,279 @@ includes the line and column positions in the final ParseError.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line219">line 219</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line223">line 223</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="is"><span class="type-signature">&lt;static> </span>is<span class="signature">(predicate)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns a parser that succeeds with the next token as its value if
+<code>predicate</code> returns a truthy value when called on the token.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>predicate</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Tests a token.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line390">line 390</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="core.html#Parser">core.Parser</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isNot"><span class="type-signature">&lt;static> </span>isNot<span class="signature">(predicate)</span><span class="type-signature"> &rarr; {<a href="core.html#Parser">core.Parser</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns a parser that succeeds with the next token as its value if
+<code>predicate</code> returns a falsy value when called on the token.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>predicate</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Tests a token.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line404">line 404</a>
     </li></ul></dd>
     
     
@@ -999,7 +1271,7 @@ includes the line and column positions in the final ParseError.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line320">line 320</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line324">line 324</a>
     </li></ul></dd>
     
     
@@ -1135,7 +1407,7 @@ still returning a success or failure.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line369">line 369</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line373">line 373</a>
     </li></ul></dd>
     
     
@@ -1298,7 +1570,7 @@ transformed value, instead of another parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line342">line 342</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line346">line 346</a>
     </li></ul></dd>
     
     
@@ -1457,7 +1729,7 @@ result of the given parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line357">line 357</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line361">line 361</a>
     </li></ul></dd>
     
     
@@ -1613,7 +1885,7 @@ unexpected eof error if there is no input left.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line251">line 251</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line255">line 255</a>
     </li></ul></dd>
     
     
@@ -1763,7 +2035,7 @@ unexpected eof error if there is no input left.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line177">line 177</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line181">line 181</a>
     </li></ul></dd>
     
     
@@ -1905,7 +2177,7 @@ new parserState.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line157">line 157</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#line161">line 161</a>
     </li></ul></dd>
     
     
@@ -1972,7 +2244,7 @@ new parserState.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Fri Sep 27 2013 01:27:54 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Fri Sep 27 2013 23:27:05 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

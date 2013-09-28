@@ -7,7 +7,7 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
  * @namespace api
  */
 
-var VERSION = "0.5.0";
+var VERSION = "0.6.0";
 
 /**
  * Executes a parser and returns the result.
@@ -25,6 +25,9 @@ function parse(parser, string, opts) {
   opts = opts || {
     throwOnError: true
   };
+  if (!opts.allowTrailing) {
+    parser = followedBy(parser, eof());
+  }
   var parseState = parser(
     new ParserState(undefined,
                     string,
@@ -62,6 +65,7 @@ function parseAsync(parser, callback, opts) {
   // Force the matter in case someone gets clever.
   opts.throwOnError = true;
   opts.returnState = true;
+  opts.allowTrailing = true;
   var done = false,
       buffer = "";
   function exec() {
@@ -70,7 +74,7 @@ function parseAsync(parser, callback, opts) {
     }
     var res;
     try {
-      res = parse(collect(parser, 1), buffer, opts);
+      res = parse(collect(parser, {min: 1}), buffer, opts);
       opts.position = res.position;
       buffer = res.input.slice(res.offset);
     } catch (e) {
@@ -378,6 +382,32 @@ function lookAhead(parser) {
 }
 
 /**
+ * Returns a parser that succeeds with the next token as its value if
+ * `predicate` returns a truthy value when called on the token.
+ *
+ * @param {Function} predicate - Tests a token.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function is(predicate) {
+  return bind(token(), function(tok) {
+    return (predicate(tok)) ? value(tok) : fail();
+  });
+}
+
+/**
+ * Returns a parser that succeeds with the next token as its value if
+ * `predicate` returns a falsy value when called on the token.
+ *
+ * @param {Function} predicate - Tests a token.
+ * @returns {core.Parser}
+ * @memberof core
+ */
+function isNot(predicate) {
+  return is(function(x) { return !predicate(x); });
+}
+
+/**
  * Parser combinators for higher-order interaction between parsers.
  *
  * @namespace combinators
@@ -571,26 +601,26 @@ function followedBy(parser) {
  *
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
- * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
-function separatedBy(parser, separator, minimum) {
-  minimum = typeof minimum === "undefined" ? 0 : minimum;
-  if (minimum === 0) {
-    return or(separatedBy(parser, separator, 1),
+function split(parser, separator, opts) {
+  opts = opts || {};
+  if (!opts.min) {
+    return or(split(parser, separator, {min: 1, max: opts.max}),
               value([]));
   } else {
+    opts = copy(opts);
+    opts.min = opts.min && opts.min-1;
+    opts.max = opts.max && opts.max-1;
     return sequence(function(s) {
       var x = s(parser);
-      var xs = s(collect(and(separator, parser)));
+      var xs = s(collect(and(separator, parser), opts));
       var result = [x].concat(xs);
-      if (result.length >= minimum) {
-        return value(result);
-      } else {
-        return fail("expected at least "+minimum+
-                    "values from separatedBy");
-      }
+      return value(result);
     });
   }
 }
@@ -601,15 +631,20 @@ function separatedBy(parser, separator, minimum) {
  *
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
- * @param {integer} [enforceEnd=true] - If true, `separator` must be at the end
- *                                      of the parse.
- * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @param {Object} [opts]
+ * @param {integer} [opts.enforceEnd=true] - If true, `separator` must be at the
+ *                                           end of the parse.
+ * @param {integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
-function endedBy(parser, separator, enforceEnd, minimum) {
-  enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
-  return followedBy(separatedBy(parser, separator, minimum),
+function splitEnd(parser, separator, opts){
+  opts = opts || {};
+  var enforceEnd = typeof opts.enforceEnd === "undefined" ?
+        true :
+        opts.enforceEnd;
+  return followedBy(split(parser, separator, {min: opts.min, max: opts.max}),
                     enforceEnd ? separator : maybe(separator));
 }
 
@@ -618,14 +653,16 @@ function endedBy(parser, separator, enforceEnd, minimum) {
  * `parser`
  *
  * @param {core.Parser} parser - Parser to match.
- * @param {integer} [min=0] - Minimum number of matches.
- * @param {integer} [max=Infinity] - Maximum number of matches.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum number of matches.
+ * @param {integer} [opts.max=Infinity] - Maximum number of matches.
  * @returns {core.Parser}
  * @memberof combinators
  */
-function collect(parser, min, max) {
-  min = min || 0;
-  max = typeof max === "undefined" ? Infinity : max;
+function collect(parser, opts) {
+  opts = opts || {};
+  var min = opts.min || 0,
+      max = typeof opts.max === "undefined" ? Infinity : opts.max;
   if (min > max) { throw new Error("min must be less than or equal to max"); }
   return function(parserState) {
     var prev = parserState,
@@ -655,7 +692,7 @@ function collect(parser, min, max) {
  * @memberof combinators
  */
 function exactly(parser, n) {
-  return collect(parser, n, n);
+  return collect(parser, {min: n, max: n});
 }
 
 /**
@@ -689,28 +726,6 @@ function skip(parser) {
  */
 
 /**
- * Returns a parser that succeeds if the next token satisfies `predicate`,
- * returning the accepted character as its value. Fails if `predicate` does not
- * match.
- *
- * @param {Function} predicate - Called with a single token. Should return a
- *                               truthy value if the token should be accepted.
- * @param {String} [predicateName="predicate"] - Name to use with fail message.
- * @returns {core.Parser}
- * @memberof strings
- */
-function satisfies(predicate, predicateName) {
-  predicateName = predicateName || "predicate";
-  return or(bind(token(), function(c) {
-    if (predicate(c)) {
-      return value(c);
-    } else {
-      return fail();
-    }
-  }), expected("token matching "+predicateName));
-}
-
-/**
  * Returns a string containing the concatenated results returned by applying
  * `parser`. `parser` must be a combinator that returns an array of string parse
  * results.
@@ -720,14 +735,14 @@ function satisfies(predicate, predicateName) {
  * @memberof strings
  */
 function stringOf(parser) {
-  return or(bind(parser, function(xs) {
+  return bind(parser, function(xs) {
     if (xs.hasOwnProperty("length") &&
         xs.join) {
       return value(xs.join(""));
     } else {
       return fail();
     }
-  }), expected("an array-like from parser"));
+  });
 }
 
 /**
@@ -743,7 +758,7 @@ function stringOf(parser) {
 function oneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(satisfies(function(x) {
+  return or(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return ~chars.indexOf(x);
   }), expected("one of {"+chars+"}"));
@@ -761,7 +776,7 @@ function oneOf(chars, caseSensitive) {
 function noneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(satisfies(function(x) {
+  return or(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return !~chars.indexOf(x);
   }), expected("none of {"+chars+"}"));
@@ -780,13 +795,24 @@ function string(str, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   str = caseSensitive ? str : str.toLowerCase();
   return or(sequence(function(s) {
-    var x = s(satisfies(function(x) {
+    var x = s(is(function(x) {
       x = caseSensitive ? x : x.toLowerCase();
       return  x === str[0];
     }, str.charAt(0)));
     var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
     return value(x+xs);
   }), expected("string matching {"+str+"}"));
+}
+
+/**
+ * Returns a parser that matches a single non-unicode alphabetical character.
+ *
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alpha() {
+  return or(oneOf("abcdefghijklmnopqrstuvwxyz", false),
+            expected("alpha"));
 }
 
 /**
@@ -798,8 +824,19 @@ function string(str, caseSensitive) {
  */
 function digit(base) {
   base = base || 10;
-  return or(satisfies(function(x) { return !isNaN(parseInt(x, base)); }),
+  return or(is(function(x) { return !isNaN(parseInt(x, base)); }),
             expected("digit"));
+}
+
+/**
+ * Returns a parser that matches an alphanumeric character.
+ *
+ * @param {integer} [base=10] - Optional base for numeric parsing.
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alphanum(base) {
+  return or(alpha(), digit(base), expected("alphanum"));
 }
 
 /**
@@ -825,22 +862,20 @@ function spaces() {
 }
 
 /**
- * Returns a parser that collects zero or more tokens matching `parser`. The
- * result is returned as a single string.
+ * Returns a parser that collects between `min` and `max` tokens matching
+ * `parser`. The result is returned as a single string. This parser is
+ * essentially collect() for strings.
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
- * @param {String} [parserName] - name for `parser`. Used for error reporting.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum number of matches.
+ * @param {integer} [opts.max=Infinity] - Maximum number of matches.
  * @memberof strings
  */
-function text(parser, parserName) {
-  if (!parser) {
-    parserName = "token";
-    parser = token();
-  }
-  return or(stringOf(collect(parser)),
-            expected("text"+ (typeof parserName !== "undefined" ?
-                              " of {"+parserName+"}" :
-                              "")));
+function text(parser, opts) {
+  parser = parser || token();
+  opts = opts || {};
+  return stringOf(collect(parser, opts));
 }
 
 /**
@@ -889,12 +924,10 @@ function trimRight(parser) {
  * @returns {core.Parser}
  * @memberof numbers
  */
-function naturalNumber(base) {
+function natural(base) {
   base = base || 10;
-  return sequence(function(s) {
-    var xs = s(collect(digit(base), 1));
-    return value(parseInt(xs.join(""), base));
-  });
+  return map(function(str) { return parseInt(str, base); },
+             text(digit(base), {min: 1}));
 }
 
 /**
@@ -909,7 +942,7 @@ function integer(base) {
   return sequence(function(s) {
     var sign = s(maybe(or(string("+"),
                           string("-")))),
-        num = s(naturalNumber(base));
+        num = s(natural(base));
     return value(num * (sign === "-" ? -1 : 1));
   });
 }
@@ -917,25 +950,23 @@ function integer(base) {
 /**
  * Returns a parser that will parse floating point numbers.
  *
- * @param {integer} [base=10] - Base to use when parsing the float.
  * @returns {core.Parser}
  * @memberof numbers
  */
-function float(base) {
-  base = base || 10;
+function float() {
   return sequence(function(s) {
-    var leftSide = s(integer(base));
+    var leftSide = s(integer());
     var rightSide = s(or(and(string("."),
-                             integer(base)),
+                             integer()),
                          value(0)));
     while (rightSide > 1) {
       rightSide = rightSide / 10;
     }
     rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
     var e = s(or(and(string("e", false),
-                     integer(base)),
+                     integer()),
                  value(0)));
-    return value((leftSide + rightSide)*(Math.pow(10,e)));
+    return value((leftSide + rightSide)*(Math.pow(10, e)));
   });
 }
 
@@ -956,6 +987,8 @@ module.exports = {
   map: map,
   tag: tag,
   lookAhead: lookAhead,
+  is: is,
+  isNot: isNot,
   // Combinators
   and: and,
   or: or,
@@ -964,19 +997,20 @@ module.exports = {
   unless: unless,
   sequence: sequence,
   followedBy: followedBy,
-  separatedBy: separatedBy,
-  endedBy: endedBy,
+  split: split,
+  splitEnd: splitEnd,
   collect: collect,
   exactly: exactly,
   between: between,
   skip: skip,
   // String-related parsers
-  satisfies: satisfies,
   stringOf: stringOf,
   oneOf: oneOf,
   noneOf: noneOf,
   string: string,
+  alpha: alpha,
   digit: digit,
+  alphanum: alphanum,
   space: space,
   spaces: spaces,
   text: text,
@@ -984,7 +1018,7 @@ module.exports = {
   trimLeft: trimLeft,
   trimRight: trimRight,
   // Numbers
-  naturalNumber: naturalNumber,
+  natural: natural,
   integer: integer,
   float: float
 };
