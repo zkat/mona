@@ -78,11 +78,12 @@ human-readable way.
 * Returns arbitrary data from parsers, not necessarily a plain parse tree
 * Human-readable error messages with source locations
 * Facilities for improving your own parsers' error reports
-* Supports context-sensitive parsing
+* Supports context-sensitive parsing (see `examples/context.js`)
 * Supports asynchronous, incremental parsing with `parseAsync`. Useful for very
   large files or parsing from streams
 * Node.js stream API support with `parseStream`, including piping support
 * Heavy test coverage (see `src/mona-test.js`)
+* Small footprint (less that 4kb gzipped and minified)
 * Fully documented API
 
 ### Documentation
