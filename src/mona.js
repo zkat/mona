@@ -23,6 +23,9 @@ function parse(parser, string, opts) {
   opts = opts || {
     throwOnError: true
   };
+  if (!opts.allowTrailing) {
+    parser = followedBy(parser, eof());
+  }
   var parseState = parser(
     new ParserState(undefined,
                     string,
@@ -60,6 +63,7 @@ function parseAsync(parser, callback, opts) {
   // Force the matter in case someone gets clever.
   opts.throwOnError = true;
   opts.returnState = true;
+  opts.allowTrailing = true;
   var done = false,
       buffer = "";
   function exec() {
