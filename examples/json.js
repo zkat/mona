@@ -67,13 +67,13 @@ function escaped() {
     s(mona.string("\\"));
     var esc = s(mona.token);
     switch (esc) {
-      case "b": return mona.value("\b");
-      case "f": return mona.value("\f");
-      case "n": return mona.value("\n");
-      case "r": return mona.value("\r");
-      case "t": return mona.value("\t");
-      case "u": return unicodeHex();
-      default: return mona.value(esc);
+    case "b": return mona.value("\b");
+    case "f": return mona.value("\f");
+    case "n": return mona.value("\n");
+    case "r": return mona.value("\r");
+    case "t": return mona.value("\t");
+    case "u": return unicodeHex();
+    default: return mona.value(esc);
     }
   });
 }
