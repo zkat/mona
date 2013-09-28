@@ -937,25 +937,23 @@ function integer(base) {
 /**
  * Returns a parser that will parse floating point numbers.
  *
- * @param {integer} [base=10] - Base to use when parsing the float.
  * @returns {core.Parser}
  * @memberof numbers
  */
-function float(base) {
-  base = base || 10;
+function float() {
   return sequence(function(s) {
-    var leftSide = s(integer(base));
+    var leftSide = s(integer());
     var rightSide = s(or(and(string("."),
-                             integer(base)),
+                             integer()),
                          value(0)));
     while (rightSide > 1) {
       rightSide = rightSide / 10;
     }
     rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
     var e = s(or(and(string("e", false),
-                     integer(base)),
+                     integer()),
                  value(0)));
-    return value((leftSide + rightSide)*(Math.pow(10,e)));
+    return value((leftSide + rightSide)*(Math.pow(10, e)));
   });
 }
 
