@@ -8,7 +8,7 @@ var assert = require("assert"),
     parseStream = require("./stream").parseStream;
 
 describe("stream", function() {
-  describe("parseStream", function() {
+  describe("parseStream()", function() {
     it("returns a valid nodejs Transform stream", function() {
       assert.ok(parseStream(mona.token()) instanceof stream.Transform);
     });

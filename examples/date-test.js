@@ -8,7 +8,7 @@ var assert = require("assert"),
 function fmt(date) {
   return moment(date).format("ll");
 }
-describe("parseDate", function() {
+describe("parseDate()", function() {
   var today = moment().startOf("day");
   describe("date aliases", function() {
     it("'now' => today", function() {
