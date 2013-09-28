@@ -666,7 +666,13 @@ describe("mona", function() {
       it("defaults to token()", function() {
         assert.equal(parse(mona.text(), "abcde"), "abcde");
       });
-      it("accepts a minumum and maximum option", function() {
+      it("accepts a minimum and maximum option", function() {
+        assert.equal(parse(mona.text(mona.token(), {min: 3}),
+                           "aaaa"),
+                     "aaaa");
+        assert.throws(function() {
+          parse(mona.text(mona.token(), {min: 3}), "aa");
+        }, /unexpected eof/);
         assert.equal(parse(mona.text(mona.token(), {max: 3}),
                            "aaaa"),
                      "aaa");
