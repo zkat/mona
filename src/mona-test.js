@@ -686,17 +686,17 @@ describe("mona", function() {
     });
   });
   describe("number-related parsers", function() {
-    describe("naturalNumber", function() {
+    describe("natural", function() {
       it("matches a natural number without a sign", function() {
-        assert.equal(parse(mona.naturalNumber(), "1234"), 1234);
+        assert.equal(parse(mona.natural(), "1234"), 1234);
         assert.throws(function() {
-          parse(mona.naturalNumber(), "-123");
+          parse(mona.natural(), "-123");
         });
       });
       it("accepts a base/radix argument", function() {
-        assert.equal(parse(mona.naturalNumber(2), "101110"),
+        assert.equal(parse(mona.natural(2), "101110"),
                      parseInt("101110", 2));
-        assert.equal(parse(mona.naturalNumber(16), "deadbeef"),
+        assert.equal(parse(mona.natural(16), "deadbeef"),
                      0xdeadbeef);
       });
     });

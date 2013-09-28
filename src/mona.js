@@ -906,12 +906,10 @@ function trimRight(parser) {
  * @returns {core.Parser}
  * @memberof numbers
  */
-function naturalNumber(base) {
+function natural(base) {
   base = base || 10;
-  return sequence(function(s) {
-    var xs = s(collect(digit(base), 1));
-    return value(parseInt(xs.join(""), base));
-  });
+  return map(function(str) { return parseInt(str, base); },
+             text(digit(base), {min: 1}));
 }
 
 /**
@@ -926,7 +924,7 @@ function integer(base) {
   return sequence(function(s) {
     var sign = s(maybe(or(string("+"),
                           string("-")))),
-        num = s(naturalNumber(base));
+        num = s(natural(base));
     return value(num * (sign === "-" ? -1 : 1));
   });
 }
@@ -1001,7 +999,7 @@ module.exports = {
   trimLeft: trimLeft,
   trimRight: trimRight,
   // Numbers
-  naturalNumber: naturalNumber,
+  natural: natural,
   integer: integer,
   float: float
 };
