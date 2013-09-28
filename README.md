@@ -60,12 +60,12 @@ mona.parse(sexp(), "(1 23 (foo 6) () bar! -10 baz)");
 # Introduction
 
 Writing parsers with `mona` involves writing a number of individually-testable
-`parser constructors` which return parsers that mona can then execute. These
-smaller parsers are then combined in various ways, even provided as part of
-libraries, in order to compose much larger, intricate parsers.
+`parser constructors` which return parsers that `mona.parse()` can then
+execute. These smaller parsers are then combined in various ways, even provided
+as part of libraries, in order to compose much larger, intricate parsers.
 
-`mona` tries to do a good job at reporting parsing failures when and where they
-happen, and provides a number of facilities for reporting errors in a
+`mona` tries to do a decent job at reporting parsing failures when and where
+they happen, and provides a number of facilities for reporting errors in a
 human-readable way.
 
 `mona` is based on [smug](https://github.com/drewc/smug), and Haskell's
