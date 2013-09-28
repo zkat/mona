@@ -595,7 +595,9 @@ function followedBy(parser) {
  *
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
- * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -606,7 +608,8 @@ function split(parser, separator, opts) {
               value([]));
   } else {
     opts = copy(opts);
-    opts.min = opts.min ? opts.min-1 : 0;
+    opts.min = opts.min && opts.min-1;
+    opts.max = opts.max && opts.max-1;
     return sequence(function(s) {
       var x = s(parser);
       var xs = s(collect(and(separator, parser), opts));
@@ -622,15 +625,20 @@ function split(parser, separator, opts) {
  *
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
- * @param {integer} [enforceEnd=true] - If true, `separator` must be at the end
- *                                      of the parse.
- * @param {integer} [minimum=0] - Minimum length of the resulting array.
+ * @param {Object} [opts]
+ * @param {integer} [opts.enforceEnd=true] - If true, `separator` must be at the
+ *                                           end of the parse.
+ * @param {integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
-function splitEnd(parser, separator, enforceEnd, minimum) {
-  enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
-  return followedBy(split(parser, separator, {min: minimum}),
+function splitEnd(parser, separator, opts){
+  opts = opts || {};
+  var enforceEnd = typeof opts.enforceEnd === "undefined" ?
+        true :
+        opts.enforceEnd;
+  return followedBy(split(parser, separator, {min: opts.min, max: opts.max}),
                     enforceEnd ? separator : maybe(separator));
 }
 
