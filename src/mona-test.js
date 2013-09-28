@@ -6,7 +6,7 @@ var assert = require("assert"),
     parse = mona.parse;
 
 describe("mona", function() {
-  describe("parse", function() {
+  describe("parse()", function() {
     it("executes a parser on some input and returns the result", function() {
       var result = {};
       assert.equal(parse(mona.value(result), ""), result);
@@ -27,7 +27,7 @@ describe("mona", function() {
       });
     });
   });
-  describe("parseAsync", function() {
+  describe("parseAsync()", function() {
     it("executes a callback on asynchronous results", function(done) {
       var step = 0;
       var handle = mona.parseAsync(mona.token(), function(err, token) {
@@ -136,7 +136,7 @@ describe("mona", function() {
     });
   });
   describe("base parsers", function() {
-    describe("value", function() {
+    describe("value()", function() {
       it("parses to the given value", function() {
         assert.equal(parse(mona.value("foo"), ""), "foo");
       });
@@ -146,7 +146,7 @@ describe("mona", function() {
                      "foo");
       });
     });
-    describe("bind", function() {
+    describe("bind()", function() {
       it("calls a function with the result of a parser", function() {
         parse(mona.bind(mona.value("test"), function(val) {
           assert.equal(val, "test");
@@ -169,7 +169,7 @@ describe("mona", function() {
         }, /Parsers must return a parser state object/);
       });
     });
-    describe("fail", function() {
+    describe("fail()", function() {
       it("fails the parse with the given message", function() {
         assert.equal(parse(mona.fail("hi"),
                            "abc",
@@ -192,7 +192,7 @@ describe("mona", function() {
                      "failure");
       });
     });
-    describe("expected", function() {
+    describe("expected()", function() {
       it("fails the parse reporting what was expected", function() {
         var result = parse(mona.expected("something"),
                            "",
@@ -201,7 +201,7 @@ describe("mona", function() {
         assert.equal(result.messages[0], "expected something");
       });
     });
-    describe("token", function() {
+    describe("token()", function() {
       it("consumes one character from the input and returns it", function() {
         assert.equal(parse(mona.token(), "a"), "a");
         assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
@@ -229,7 +229,7 @@ describe("mona", function() {
                      "eof");
       });
     });
-    describe("eof", function() {
+    describe("eof()", function() {
       it("succeeds with true if we're out of input", function() {
         assert.equal(parse(mona.eof(), ""), true);
       });
@@ -238,7 +238,7 @@ describe("mona", function() {
                      "expected end of input");
       });
     });
-    describe("delay", function() {
+    describe("delay()", function() {
       it("delays calling a parser constructor until parse-time", function() {
         var parser = mona.delay(function() {
           throw new Error("Parser explosion");
@@ -250,7 +250,7 @@ describe("mona", function() {
         assert.equal(parse(parser, ""), "foo");
       });
     });
-    describe("map", function() {
+    describe("map()", function() {
       it("transforms a parser's result", function() {
         assert.equal(parse(mona.map(function(txt) {
           return txt.toUpperCase();
@@ -262,13 +262,13 @@ describe("mona", function() {
                      "(line 1, column 1) unexpected eof");
       });
     });
-    describe("wrap", function() {
+    describe("wrap()", function() {
       it("wraps a parser's output with a tagging object", function() {
         assert.deepEqual(parse(mona.tag(mona.text(), "txt"), "foo"),
                          {txt: "foo"});
       });
     });
-    describe("lookAhead", function() {
+    describe("lookAhead()", function() {
       it("returns a parser's value without consuming input", function() {
         assert.equal(parse(mona.followedBy(mona.lookAhead(mona.token()),
                                            mona.token()),
@@ -276,7 +276,7 @@ describe("mona", function() {
                      "a");
       });
     });
-    describe("is", function() {
+    describe("is()", function() {
       it("parses a token matching a predicate", function() {
         var parser = mona.is(function(t) {
           return t === "\n";
@@ -287,7 +287,7 @@ describe("mona", function() {
           "\r"), "fail");
       });
     });
-    describe("isNot", function() {
+    describe("isNot()", function() {
       it("parses a token not matching a predicate", function() {
         var parser = mona.isNot(function(t) {
           return t !== "\n";
@@ -300,7 +300,7 @@ describe("mona", function() {
     });
   });
   describe("combinators", function() {
-    describe("and", function() {
+    describe("and()", function() {
       it("returns the last result if all previous ones succeed",  function() {
         assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
         assert.equal(parse(mona.and(mona.token()), "a"), "a");
@@ -309,7 +309,7 @@ describe("mona", function() {
         });
       });
     });
-    describe("or", function() {
+    describe("or()", function() {
       it("returns the result of the first parser that succeeds", function() {
         assert.equal(parse(mona.or(mona.value("foo"), mona.value("bar")), ""),
                      "foo");
@@ -326,7 +326,7 @@ describe("mona", function() {
                      "(line 1, column 1) foo\nbar\nbaz\nquux");
       });
     });
-    describe("maybe", function() {
+    describe("maybe()", function() {
       it("returns the result of the parser, if it succeeds", function() {
         assert.equal(parse(mona.maybe(mona.value("foo")), ""), "foo");
       });
@@ -338,7 +338,7 @@ describe("mona", function() {
                      "a");
       });
     });
-    describe("not", function() {
+    describe("not()", function() {
       it("returns true if the given parser fails", function() {
         assert.equal(parse(mona.not(mona.token()), ""), true);
       });
@@ -348,7 +348,7 @@ describe("mona", function() {
                      "test");
       });
     });
-    describe("unless", function() {
+    describe("unless()", function() {
       it("returns the last result if the first parser fails", function() {
         assert.equal(parse(mona.unless(mona.fail("fail"),
                                        mona.value("success")),
@@ -360,7 +360,7 @@ describe("mona", function() {
                   "expected parser to fail");
       });
     });
-    describe("sequence", function() {
+    describe("sequence()", function() {
       it("simulates do notation", function() {
         var parser = mona.sequence(function(s) {
           var x = s(mona.token());
@@ -399,7 +399,7 @@ describe("mona", function() {
         }, /must return a parser/);
       });
     });
-    describe("followedBy", function() {
+    describe("followedBy()", function() {
       it("returns the first result if the others also succeed", function() {
         var parserSuccess = mona.followedBy(mona.value("pass"),
                                             mona.value("yay"));
@@ -410,7 +410,7 @@ describe("mona", function() {
                      "fail");
       });
     });
-    describe("split", function() {
+    describe("split()", function() {
       it("returns an array of values separated by a separator", function() {
         assert.deepEqual(
           parse(mona.split(mona.token(), mona.string(".")), "a.b.c.d"),
@@ -434,7 +434,7 @@ describe("mona", function() {
                          ".d");
       });
     });
-    describe("splitEnd", function() {
+    describe("splitEnd()", function() {
       it("collects matches separated and ended by a parser", function() {
         assert.deepEqual(
           parse(mona.followedBy(
@@ -470,7 +470,7 @@ describe("mona", function() {
                          "d.");
       });
     });
-    describe("collect", function() {
+    describe("collect()", function() {
       it("collects zero or more matches by default", function() {
         var parser = mona.collect(mona.token());
         assert.deepEqual(parse(parser, "abc"), ["a", "b", "c"]);
@@ -493,7 +493,7 @@ describe("mona", function() {
         assert.deepEqual(parse(parser, "aaaaa"), ["a", "a", "a", "a"]);
       });
     });
-    describe("exactly", function() {
+    describe("exactly()", function() {
       it("collects exactly n matches", function() {
         var parser = mona.followedBy(mona.exactly(mona.token(), 3),
                                      mona.collect(mona.token()));
@@ -503,7 +503,7 @@ describe("mona", function() {
         }, /unexpected eof/);
       });
     });
-    describe("between", function() {
+    describe("between()", function() {
       it("returns a value in between two other parsers", function() {
         var parser = mona.between(mona.string("("),
                                   mona.string(")"),
@@ -524,7 +524,7 @@ describe("mona", function() {
         assert.equal(parse(maybeParser, "()"), undefined);
       });
     });
-    describe("skip", function() {
+    describe("skip()", function() {
       it("skips input until parser stops matching", function() {
         var parser = mona.and(mona.skip(mona.string("a")), mona.token());
         assert.equal(parse(parser, "aaaaaaaaaaab"), "b");
@@ -532,7 +532,7 @@ describe("mona", function() {
     });
   });
   describe("string-related parsers", function() {
-    describe("oneOf", function() {
+    describe("oneOf()", function() {
       it("succeeds if the next token is present in the char bag", function() {
         assert.equal(parse(mona.oneOf("abc"), "b"), "b");
         assert.throws(function() {
@@ -551,7 +551,7 @@ describe("mona", function() {
         }, /expected one of {abc}/);
       });
     });
-    describe("noneOf", function() {
+    describe("noneOf()", function() {
       it("succeeds if the next token is not in the char bag", function() {
         assert.equal(parse(mona.noneOf("abc"), "d"), "d");
         assert.throws(function() {
@@ -565,7 +565,7 @@ describe("mona", function() {
         }, /expected none of {abc}/);
       });
     });
-    describe("string", function() {
+    describe("string()", function() {
       it("succeeds if the string matches a string in the input", function() {
         assert.equal(parse(mona.string("foo"), "foo"), "foo");
         assert.throws(function() {
@@ -584,7 +584,7 @@ describe("mona", function() {
         }, /expected string matching {abc}/);
       });
     });
-    describe("alpha", function() {
+    describe("alpha()", function() {
       it("parses one alphabetical character", function() {
         var alphabet = "abcdefghijklmnopqrstuvwxyz";
         for (var i = 0; i < alphabet.length; i++) {
@@ -596,7 +596,7 @@ describe("mona", function() {
         }, /expected alpha/);
       });
     });
-    describe("digit", function() {
+    describe("digit()", function() {
       it("succeeds if the next token is a digit character", function() {
         assert.equal(parse(mona.digit(), "1"), "1");
         assert.throws(function() {
@@ -614,7 +614,7 @@ describe("mona", function() {
         });
       });
     });
-    describe("alphanum", function() {
+    describe("alphanum()", function() {
       it("parses either an alphabetical character or a digit", function() {
         assert.equal(parse(mona.alphanum(), "x"), "x");
         assert.equal(parse(mona.alphanum(), "7"), "7");
@@ -630,7 +630,7 @@ describe("mona", function() {
         assert.equal(parse(mona.alphanum(), "9"), "9");
       });
     });
-    describe("space", function() {
+    describe("space()", function() {
       it("consumes a single whitespace character from input", function() {
         assert.equal(parse(mona.space(), " "), " ");
         assert.equal(parse(mona.space(), "\n"), "\n");
@@ -644,7 +644,7 @@ describe("mona", function() {
         });
       });
     });
-    describe("spaces", function() {
+    describe("spaces()", function() {
       it("consumes one or more whitespace characters", function() {
         var parser = mona.and(mona.spaces(),
                               mona.token());
@@ -655,7 +655,7 @@ describe("mona", function() {
         assert.equal(parse(mona.spaces(), "\r \n\t   \r\t\t\n"), " ");
       });
     });
-    describe("text", function() {
+    describe("text()", function() {
       it("collects one or more parser results into a string", function() {
         assert.equal(parse(mona.text(mona.string("a")), "aaaab",
                            {allowTrailing: true}),
@@ -677,14 +677,14 @@ describe("mona", function() {
                      "aaa");
       });
     });
-    describe("trim", function() {
+    describe("trim()", function() {
       it("trims leading and trailing whitespace", function() {
         assert.equal(parse(mona.trim(mona.token()), "   a    "), "a");
         assert.equal(parse(mona.trim(mona.token()), "a    "), "a");
         assert.equal(parse(mona.trim(mona.token()), "   a"), "a");
       });
     });
-    describe("trimLeft", function() {
+    describe("trimLeft()", function() {
       it("trims leading whitespace only", function() {
         var parser = mona.between(mona.string("|"),
                                   mona.string("|"),
@@ -695,7 +695,7 @@ describe("mona", function() {
         }, /expected string matching \{\|\}/);
       });
     });
-    describe("trimRight", function() {
+    describe("trimRight()", function() {
       it("trims trailing whitespace only", function() {
         var parser = mona.between(mona.string("|"),
                                   mona.string("|"),
@@ -708,7 +708,7 @@ describe("mona", function() {
     });
   });
   describe("number-related parsers", function() {
-    describe("natural", function() {
+    describe("natural()", function() {
       it("matches a natural number without a sign", function() {
         assert.equal(parse(mona.natural(), "1234"), 1234);
         assert.throws(function() {
@@ -722,7 +722,7 @@ describe("mona", function() {
                      0xdeadbeef);
       });
     });
-    describe("integer", function() {
+    describe("integer()", function() {
       it("matches a positive or negative possibly-signed integer", function() {
         assert.equal(parse(mona.integer(), "1234"), 1234);
         assert.equal(parse(mona.integer(), "+1234"), 1234);
@@ -734,7 +734,7 @@ describe("mona", function() {
         assert.equal(parse(mona.integer(16), "-deadbeef"), -0xdeadbeef);
       });
     });
-    describe("float", function() {
+    describe("float()", function() {
       it("parses a number with decimal points into a JS float", function() {
         assert.equal(parse(mona.float(), "1.2"), 1.2);
         assert.equal(parse(mona.float(), "-1.25"), -1.25);
