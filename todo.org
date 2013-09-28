@@ -1,4 +1,4 @@
-* archive [43/43]
+* archive [52/52]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -160,7 +160,46 @@
    numeric function and be strictly for strings? Why would you ever want to
    parse a single digit as an integer without processing it as a string,
    first? (if an integer() parser already exists)
-* backlog [0/15]
+** DONE alpha() and alphanum()                                          :API:
+   CLOSED: [2013-09-27 Fri 02:25]
+   Needs tests
+** DONE Fix float() for non-10 radix                                 :bugfix:
+   CLOSED: [2013-09-27 Fri 17:37]
+   By 'fix' I mean 'omg it should not support this'
+** DONE min/max options for text()                                      :API:
+   CLOSED: [2013-09-27 Fri 18:24]
+   Basically max text() work like collect(), but for strings! :)
+   NOTE: Pending tests
+** DONE Use option objects more                                         :API:
+   CLOSED: [2013-09-27 Fri 18:24]
+   Anything that accepts multiple optional arguments should just use opts
+   objects. For example, collect(token(), {min: 1})
+** DONE is() and isNot()                                                :API:
+   CLOSED: [2013-09-27 Fri 18:38]
+   Smug seems to have replaced satisfies() with is(), which is pretty nice, and
+   isNot() does the inverse, which might help with the not() issue, too.
+** DONE Rename separatedBy() to split() ?                               :API:
+   CLOSED: [2013-09-27 Fri 20:22]
+   Is split() clearer? Shorter is nice, and it's reminiscent of
+   String.split(). separatedBy() has the advantage of being congruent with
+   endedBy(), so I think they should both be renamed together if that should
+   happen.
+   I really don't know about this one. separatedBy -> split seems nice, but I
+   wouldn't know what to do about endedBy.
+   Lol... split() and splitEnd()
+** DONE Write parser for the {a^n b^n c^n | n >=1} grammar         :examples:
+   CLOSED: [2013-09-27 Fri 21:46]
+   https://en.wikipedia.org/wiki/Context-sensitive_grammar
+** DONE Error by default if there's any input remaining after parse()   :API:
+   CLOSED: [2013-09-27 Fri 22:54]
+   I think the main thing is that or() needs some kind of case where it
+   will only replaceErrors for errors that happened internally to it. The
+   current replaceErrors strategy pretty much completely clobbers errors
+   flying around.
+** DONE Use foo() to refer to parser constructors in tests            :tests:
+   CLOSED: [2013-09-27 Fri 23:24]
+   It's kinda confusing to read right now without that.
+* backlog [0/20]
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
    choice as to whether to break before, after, or both?
@@ -178,6 +217,10 @@
    Instruct people to use either sequence or delay, or some similar
    construct. Might be good to just put this in a tutorial.
 ** TODO Bring back nondeterministic parsing                         :parsing:
+   AAaaaargh why can't frickin' sequence() support this? examples/context.js
+   would actually work with token() if we had amb(). I also have no idea how to
+   support nice error messages when amb() exists. What branch would report the
+   error? Would branches that disappear as parses succeed still report?
 ** TODO Add a zip file parser                                      :examples:
 ** TODO Write a streaming unzipping csv parser                     :examples:
    This would be fairly impressive, so you could do:
@@ -193,12 +236,29 @@
 ** TODO Write a 'make' target that will update the docs                :docs:
    It should probably really just be part of `make release`
 ** TODO Make the docs prettier                                         :docs:
-* active [0/10]
-** TODO Error by default if there's any input remaining after parse()   :API:
-   I think the main thing is that or() needs some kind of case where it
-   will only replaceErrors for errors that happened internally to it. The
-   current replaceErrors strategy pretty much completely clobbers errors
-   flying around.
+** TODO Figure out why uglifyjs is dumping such big files               :etc:
+   It looks like it isn't renaming functions at all. The output could really be
+   significantly smaller. :(
+** TODO Get tests to run on node 0.6 and 0.8 again                    :tests:
+   The stream and utils stuff isn't supported, but raw mona should still pass
+   those tests. Put a conditional somewhere.
+** TODO Add a custom tag to JSDoc for @value                           :docs:
+   To document the value returned by a successful parse.
+** TODO Write an html parser and compare it                           :speed:
+   http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
+   regexes, which should be fairly fast. I don't expect to be able to -beat- its
+   speed, but it might be a useful point of reference.
+** TODO mona.parserify                                                  :API:
+   Write a function that will wrap a given function to make it a 'nice' mona
+   parser constructor. This wrapper can be used to give names (for debugging!)
+   to the returned parser functions, as well as for memoizing pure
+   parsers. Probably not worth doing until the future when performance matters
+   more, and it does add some noise to the syntax/API.
+* active [0/8]
+** TODO range()                                                         :API:
+   range(start, end[, parser=token()[, predicate="<"]]) 
+** TODO Better name for followedBy                                      :API:
+   It's a real mouthful, and it's used all the time :(
 ** TODO expected() and or()                                             :API:
    The way expected() works right now kinda clobbers error messages in
    annoying ways. Perhaps the right thing is to have or() accept a string
@@ -208,6 +268,11 @@
    
    Write a few tests related to error reporting before doing this,
    though. Probably as part of or().
+   
+   Note: The best implementation of this is probably to do like Parsec and add
+   a label() combinator that does the actual error message replacement. or()
+   can then have a "shorthand" than simply wraps the whole or() in a label(),
+   with the or()'s final string being the argument to label().
 ** TODO More error reporting testing                                  :tests:
    It would be really nice to have nicer test coverage for the error
    reporting system.
@@ -218,14 +283,5 @@
    use 'parse' only for the function. Everything else should use 'parser',
    so 'parserState', 'ParserError", etc.
 ** TODO Write tests for examples                                      :tests:
-** TODO Get tests to run on node 0.6 and 0.8 again                    :tests:
-   The stream and utils stuff isn't supported, but raw mona should still pass
-   those tests. Put a conditional somewhere.
 ** TODO Support parsing binary buffers                                  :API:
    Just define a protocol for arbitrary input streams.
-** TODO Add a custom tag to JSDoc for @value                           :docs:
-   To document the value returned by a successful parse.
-** TODO Write an html parser and compare it                           :speed:
-   http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
-   regexes, which should be fairly fast. I don't expect to be able to -beat- its
-   speed, but it might be a useful point of reference.
