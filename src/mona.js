@@ -5,7 +5,7 @@
  * @namespace api
  */
 
-var VERSION = "0.5.0";
+var VERSION = "0.6.0";
 
 /**
  * Executes a parser and returns the result.
