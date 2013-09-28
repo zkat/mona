@@ -22,8 +22,7 @@ function symbolToken() {
 function list() {
   return mona.between(mona.string("("),
                       mona.string(")"),
-                      mona.separatedBy(mona.delay(sexp),
-                                       mona.spaces()));
+                      mona.split(mona.delay(sexp), mona.spaces()));
 }
 
 function read(string) {

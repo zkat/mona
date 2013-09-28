@@ -50,8 +50,7 @@ function symbolToken() {
 function list() {
   return mona.between(mona.string("("),
                       mona.string(")"),
-                      mona.separatedBy(mona.delay(sexp),
-                                       mona.spaces()));
+                      mona.split(mona.delay(sexp), mona.spaces()));
 }
 
 mona.parse(sexp(), "(1 23 (foo 6) () bar! -10 baz)");

@@ -21,8 +21,8 @@ function object() {
     return obj;
   }, mona.between(mona.trim(mona.string("{")),
                   mona.trim(mona.string("}")),
-                  mona.separatedBy(keyAndValue(),
-                                   mona.trim(mona.string(",")))));
+                  mona.split(keyAndValue(),
+                             mona.trim(mona.string(",")))));
 }
 
 function keyAndValue() {
@@ -37,8 +37,8 @@ function keyAndValue() {
 function array() {
   return mona.between(mona.trim(mona.string("[")),
                       mona.trim(mona.string("]")),
-                      mona.separatedBy(mona.and(mona.delay(json)),
-                                       mona.trim(mona.string(","))));
+                      mona.split(mona.and(mona.delay(json)),
+                                 mona.trim(mona.string(","))));
 }
 
 function bool() {
