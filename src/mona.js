@@ -599,10 +599,10 @@ function followedBy(parser) {
  * @returns {core.Parser}
  * @memberof combinators
  */
-function separatedBy(parser, separator, opts) {
+function split(parser, separator, opts) {
   opts = opts || {};
   if (!opts.min) {
-    return or(separatedBy(parser, separator, {min: 1, max: opts.max}),
+    return or(split(parser, separator, {min: 1, max: opts.max}),
               value([]));
   } else {
     opts = copy(opts);
@@ -628,9 +628,9 @@ function separatedBy(parser, separator, opts) {
  * @returns {core.Parser}
  * @memberof combinators
  */
-function endedBy(parser, separator, enforceEnd, minimum) {
+function splitEnd(parser, separator, enforceEnd, minimum) {
   enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
-  return followedBy(separatedBy(parser, separator, {min: minimum}),
+  return followedBy(split(parser, separator, {min: minimum}),
                     enforceEnd ? separator : maybe(separator));
 }
 
@@ -983,8 +983,8 @@ module.exports = {
   unless: unless,
   sequence: sequence,
   followedBy: followedBy,
-  separatedBy: separatedBy,
-  endedBy: endedBy,
+  split: split,
+  splitEnd: splitEnd,
   collect: collect,
   exactly: exactly,
   between: between,

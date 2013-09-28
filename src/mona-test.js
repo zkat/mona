@@ -406,54 +406,52 @@ describe("mona", function() {
                      "fail");
       });
     });
-    describe("separatedBy", function() {
+    describe("split", function() {
       it("returns an array of values separated by a separator", function() {
         assert.deepEqual(
-          parse(mona.separatedBy(mona.token(), mona.string(".")), "a.b.c.d"),
+          parse(mona.split(mona.token(), mona.string(".")), "a.b.c.d"),
           ["a", "b", "c", "d"]);
       });
       it("returns an empty array if it fails", function() {
-        assert.deepEqual(parse(mona.separatedBy(mona.string("a"),
-                                                mona.string(".")),
+        assert.deepEqual(parse(mona.split(mona.string("a"), mona.string(".")),
                                "b.c.d"),
                          []);
       });
       it("accepts a min count", function() {
-        var parser = mona.separatedBy(mona.token(), mona.string("."),
-                                      {min: 3});
+        var parser = mona.split(mona.token(), mona.string("."), {min: 3});
         assert.deepEqual(parse(parser, "a.b.c"), ["a", "b", "c"]);
         assert.throws(function() {
           parse(parser, "a.b");
         });
       });
     });
-    describe("endedBy", function() {
+    describe("splitEnd", function() {
       it("collects matches separated and ended by a parser", function() {
         assert.deepEqual(
           parse(mona.followedBy(
-            mona.endedBy(mona.token(), mona.string(".")),
+            mona.splitEnd(mona.token(), mona.string(".")),
             mona.eof()), "a.b.c.d."),
           ["a", "b", "c", "d"]);
         assert.throws(function() {
           parse(mona.followedBy(
-            mona.endedBy(mona.token(), mona.string(".")),
+            mona.splitEnd(mona.token(), mona.string(".")),
             mona.eof()), "a.b.c.d");
         });
       });
       it("accepts a flag to make the ender optional", function() {
         assert.deepEqual(
           parse(mona.followedBy(
-            mona.endedBy(mona.token(), mona.string("."), false),
+            mona.splitEnd(mona.token(), mona.string("."), false),
             mona.eof()), "a.b.c.d"),
           ["a", "b", "c", "d"]);
         assert.deepEqual(
           parse(mona.followedBy(
-            mona.endedBy(mona.token(), mona.string("."), false),
+            mona.splitEnd(mona.token(), mona.string("."), false),
             mona.eof()), "a.b.c.d."),
           ["a", "b", "c", "d"]);
       });
       it("accepts a minimum count as a fourth argument", function() {
-        var parser = mona.endedBy(mona.token(), mona.string("."), true, 3);
+        var parser = mona.splitEnd(mona.token(), mona.string("."), true, 3);
         assert.deepEqual(parse(parser, "a.b.c."), ["a", "b", "c"]);
         assert.throws(function() {
           parse(parser, "a.b.");

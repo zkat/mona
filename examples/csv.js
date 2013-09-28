@@ -9,11 +9,11 @@ var mona = require("../src/mona");
  */
 
 function csv(minimumColumns) {
-  return mona.endedBy(line(minimumColumns), eol());
+  return mona.splitEnd(line(minimumColumns), eol());
 }
 
 function line(minimumColumns) {
-  return mona.separatedBy(cell(), mona.string(","), minimumColumns);
+  return mona.split(cell(), mona.string(","), minimumColumns);
 }
 
 function cell() {
