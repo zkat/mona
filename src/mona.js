@@ -729,14 +729,14 @@ function skip(parser) {
  * @memberof strings
  */
 function stringOf(parser) {
-  return or(bind(parser, function(xs) {
+  return bind(parser, function(xs) {
     if (xs.hasOwnProperty("length") &&
         xs.join) {
       return value(xs.join(""));
     } else {
       return fail();
     }
-  }), expected("an array-like from parser"));
+  });
 }
 
 /**
