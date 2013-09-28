@@ -3,12 +3,23 @@
 
 var assert = require("assert"),
     mona = require("./mona"),
-    stream = require("stream"),
-    fs = require("fs"),
-    parseStream = require("./stream").parseStream;
+    fs = require("fs");
 
 describe("stream", function() {
+
+  if (!process.version || !/^v0\.10\./.test(process.version)) {
+    it("can only be loaded on node 0.10", function() {
+      assert.throws(function() {
+        require("./stream");
+      });
+    });
+    return null;
+  }
+
+  var stream = require("stream"),
+      parseStream = require("./stream").parseStream;
   describe("parseStream()", function() {
+
     it("returns a valid nodejs Transform stream", function() {
       assert.ok(parseStream(mona.token()) instanceof stream.Transform);
     });
