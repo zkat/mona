@@ -19,7 +19,7 @@ describe("mona", function() {
     it("throws a ParseError if throwOnError is truthy", function() {
       assert.throws(function() {
         parse(mona.fail("nop"), "", {throwOnError: true});
-      });
+      }, /nop/);
     });
     it("defaults to throwing a ParseError if it fails", function() {
       assert.throws(function() {
@@ -282,7 +282,9 @@ describe("mona", function() {
           return t === "\n";
         });
         assert.equal(parse(parser, "\n"), "\n");
-        assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
+        assert.equal(parse(
+          mona.followedBy(mona.or(parser, mona.value("fail")), mona.token()),
+          "\r"), "fail");
       });
     });
     describe("isNot", function() {
@@ -291,7 +293,9 @@ describe("mona", function() {
           return t !== "\n";
         });
         assert.equal(parse(parser, "\n"), "\n");
-        assert.equal(parse(mona.or(parser, mona.value("fail")), "\r"), "fail");
+        assert.equal(parse(
+          mona.followedBy(mona.or(parser, mona.value("fail")), mona.token()),
+          "\r"), "fail");
       });
     });
   });
@@ -299,7 +303,7 @@ describe("mona", function() {
     describe("and", function() {
       it("returns the last result if all previous ones succeed",  function() {
         assert.equal(parse(mona.and(mona.token(), mona.token()), "ab"), "b");
-        assert.equal(parse(mona.and(mona.token()), "ab"), "a");
+        assert.equal(parse(mona.and(mona.token()), "a"), "a");
         assert.throws(function() {
           parse(mona.and(), "ab");
         });
@@ -414,7 +418,7 @@ describe("mona", function() {
       });
       it("returns an empty array if it fails", function() {
         assert.deepEqual(parse(mona.split(mona.string("a"), mona.string(".")),
-                               "b.c.d"),
+                               ""),
                          []);
       });
       it("accepts a min count", function() {
@@ -426,7 +430,8 @@ describe("mona", function() {
       });
       it("accepts a max count", function() {
         var parser = mona.split(mona.token(), mona.string("."), {max: 3});
-        assert.deepEqual(parse(parser, "a.b.c.d"), ["a", "b", "c"]);
+        assert.deepEqual(parse(mona.and(parser, mona.string(".d")), "a.b.c.d"),
+                         ".d");
       });
     });
     describe("splitEnd", function() {
@@ -437,23 +442,19 @@ describe("mona", function() {
             mona.eof()), "a.b.c.d."),
           ["a", "b", "c", "d"]);
         assert.throws(function() {
-          parse(mona.followedBy(
-            mona.splitEnd(mona.token(), mona.string(".")),
-            mona.eof()), "a.b.c.d");
-        });
+          parse(mona.splitEnd(mona.token(), mona.string(".")), "a.b.c.d");
+        }, /expected string matching {.}/);
       });
       it("accepts a flag to make the ender optional", function() {
         assert.deepEqual(
-          parse(mona.followedBy(
-            mona.splitEnd(mona.token(), mona.string("."),
-                          {enforceEnd: false}),
-            mona.eof()), "a.b.c.d"),
+          parse(mona.splitEnd(mona.token(), mona.string("."),
+                              {enforceEnd: false}),
+                "a.b.c.d"),
           ["a", "b", "c", "d"]);
         assert.deepEqual(
-          parse(mona.followedBy(
-            mona.splitEnd(mona.token(), mona.string("."),
-                          {enforceEnd: false}),
-            mona.eof()), "a.b.c.d."),
+          parse(mona.splitEnd(mona.token(), mona.string("."),
+                              {enforceEnd: false}),
+                "a.b.c.d."),
           ["a", "b", "c", "d"]);
       });
       it("accepts a min count", function() {
@@ -461,11 +462,12 @@ describe("mona", function() {
         assert.deepEqual(parse(parser, "a.b.c."), ["a", "b", "c"]);
         assert.throws(function() {
           parse(parser, "a.b.");
-        });
+        }, /unexpected eof/);
       });
       it("accepts a max count", function() {
         var parser = mona.splitEnd(mona.token(), mona.string("."), {max: 3});
-        assert.deepEqual(parse(parser, "a.b.c.d."), ["a", "b", "c"]);
+        assert.deepEqual(parse(mona.and(parser, mona.string("d.")), "a.b.c.d."),
+                         "d.");
       });
     });
     describe("collect", function() {
@@ -535,18 +537,18 @@ describe("mona", function() {
         assert.equal(parse(mona.oneOf("abc"), "b"), "b");
         assert.throws(function() {
           parse(mona.oneOf("abc"), "d");
-        });
+        }, /expected one of {abc}/);
       });
       it("optionally does a case-insensitive match", function() {
         assert.equal(parse(mona.oneOf("abc", false), "B"), "B");
-        assert.equal(parse(mona.or(mona.oneOf("abc", true),
-                                   mona.value("fail")), "B"),
-                     "fail");
+        assert.throws(function() {
+          parse(mona.oneOf("abc", true), "B");
+        }, /expected one of {abc}/);
       });
       it("defaults to being case-sensitive", function() {
-        assert.equal(parse(mona.or(mona.oneOf("abc"),
-                                   mona.value("fail")), "B"),
-                     "fail");
+        assert.throws(function() {
+          parse(mona.oneOf("abc"), "B");
+        }, /expected one of {abc}/);
       });
     });
     describe("noneOf", function() {
@@ -554,38 +556,32 @@ describe("mona", function() {
         assert.equal(parse(mona.noneOf("abc"), "d"), "d");
         assert.throws(function() {
           parse(mona.noneOf("abc"), "b");
-        });
+        }, /expected none of {abc}/);
       });
       it("optionally does a case-insensitive match", function() {
         assert.equal(parse(mona.noneOf("abc", true), "B"), "B");
-        assert.equal(parse(mona.or(mona.noneOf("abc", false),
-                                   mona.value("fail")), "B"),
-                     "fail");
-      });
-      it("defaults to being case-sensitive", function() {
-        assert.equal(parse(mona.or(mona.noneOf("abc"),
-                                   mona.value("fail")), "b"),
-                     "fail");
+        assert.throws(function() {
+          parse(mona.noneOf("abc", false), "B");
+        }, /expected none of {abc}/);
       });
     });
     describe("string", function() {
       it("succeeds if the string matches a string in the input", function() {
         assert.equal(parse(mona.string("foo"), "foo"), "foo");
-        assert.equal(parse(mona.string("foo"), "foobarbaz"), "foo");
         assert.throws(function() {
-          parse(mona.string("bar"), "foobarbaz");
-        });
+          parse(mona.and(mona.string("foo"), mona.string("baz")), "foobarbaz");
+        }, /expected string matching {baz}/);
       });
       it("optionally does a case-insensitive match", function() {
         assert.equal(parse(mona.string("abc", false), "AbC"), "AbC");
-        assert.equal(parse(mona.or(mona.string("abc", true),
-                                   mona.value("fail")), "AbC"),
-                     "fail");
+        assert.throws(function() {
+          parse(mona.string("abc", true), "AbC");
+        }, /expected string matching {abc}/);
       });
       it("defaults to being case-sensitive", function() {
-        assert.equal(parse(mona.or(mona.string("abc"),
-                                   mona.value("fail")), "AbC"),
-                     "fail");
+        assert.throws(function() {
+          parse(mona.string("abc"), "AbC");
+        }, /expected string matching {abc}/);
       });
     });
     describe("alpha", function() {
@@ -660,8 +656,10 @@ describe("mona", function() {
       });
     });
     describe("text", function() {
-      it("Collects one or more parser results into a string", function() {
-        assert.equal(parse(mona.text(mona.string("a")), "aaaab"), "aaaa");
+      it("collects one or more parser results into a string", function() {
+        assert.equal(parse(mona.text(mona.string("a")), "aaaab",
+                           {allowTrailing: true}),
+                     "aaaa");
       });
       it("defaults to token()", function() {
         assert.equal(parse(mona.text(), "abcde"), "abcde");
@@ -673,7 +671,8 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.text(mona.token(), {min: 3}), "aa");
         }, /unexpected eof/);
-        assert.equal(parse(mona.text(mona.token(), {max: 3}),
+        assert.equal(parse(mona.followedBy(
+          mona.text(mona.token(), {max: 3}), mona.token()),
                            "aaaa"),
                      "aaa");
       });
