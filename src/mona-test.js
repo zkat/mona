@@ -400,8 +400,9 @@ describe("mona", function() {
                                "b.c.d"),
                          []);
       });
-      it("accepts a minimum count as a third argument", function() {
-        var parser = mona.separatedBy(mona.token(), mona.string("."), 3);
+      it("accepts a min count", function() {
+        var parser = mona.separatedBy(mona.token(), mona.string("."),
+                                      {min: 3});
         assert.deepEqual(parse(parser, "a.b.c"), ["a", "b", "c"]);
         assert.throws(function() {
           parse(parser, "a.b");
@@ -451,15 +452,16 @@ describe("mona", function() {
         assert.deepEqual(parse(parser, ""), []);
       });
       it("accepts a minimum count", function() {
-        var parser = mona.collect(mona.token(), 1);
+        var parser = mona.collect(mona.token(), {min: 1});
         assert.deepEqual(parse(parser, "a"), ["a"]);
         assert.throws(function() {
           parse(parser, "");
         }, /unexpected eof/);
       });
       it("accepts a maximum count", function() {
-        var parser = mona.followedBy(mona.collect(mona.token(), 1, 4),
-                                     mona.collect(mona.token()));
+        var parser = mona.followedBy(
+          mona.collect(mona.token(), {min: 1, max: 4}),
+          mona.collect(mona.token()));
         assert.deepEqual(parse(parser, "aaaaa"), ["a", "a", "a", "a"]);
       });
     });
@@ -646,6 +648,11 @@ describe("mona", function() {
       });
       it("defaults to token()", function() {
         assert.equal(parse(mona.text(), "abcde"), "abcde");
+      });
+      it("accepts a minumum and maximum option", function() {
+        assert.equal(parse(mona.text(mona.token(), {max: 3}),
+                           "aaaa"),
+                     "aaa");
       });
     });
     describe("trim", function() {

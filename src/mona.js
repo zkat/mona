@@ -68,7 +68,7 @@ function parseAsync(parser, callback, opts) {
     }
     var res;
     try {
-      res = parse(collect(parser, 1), buffer, opts);
+      res = parse(collect(parser, {min: 1}), buffer, opts);
       opts.position = res.position;
       buffer = res.input.slice(res.offset);
     } catch (e) {
@@ -573,22 +573,19 @@ function followedBy(parser) {
  * @returns {core.Parser}
  * @memberof combinators
  */
-function separatedBy(parser, separator, minimum) {
-  minimum = typeof minimum === "undefined" ? 0 : minimum;
-  if (minimum === 0) {
-    return or(separatedBy(parser, separator, 1),
+function separatedBy(parser, separator, opts) {
+  opts = opts || {};
+  if (!opts.min) {
+    return or(separatedBy(parser, separator, {min: 1, max: opts.max}),
               value([]));
   } else {
+    opts = copy(opts);
+    opts.min = opts.min ? opts.min-1 : 0;
     return sequence(function(s) {
       var x = s(parser);
-      var xs = s(collect(and(separator, parser)));
+      var xs = s(collect(and(separator, parser), opts));
       var result = [x].concat(xs);
-      if (result.length >= minimum) {
-        return value(result);
-      } else {
-        return fail("expected at least "+minimum+
-                    "values from separatedBy");
-      }
+      return value(result);
     });
   }
 }
@@ -607,7 +604,7 @@ function separatedBy(parser, separator, minimum) {
  */
 function endedBy(parser, separator, enforceEnd, minimum) {
   enforceEnd = typeof enforceEnd === "undefined" ? true : enforceEnd;
-  return followedBy(separatedBy(parser, separator, minimum),
+  return followedBy(separatedBy(parser, separator, {min: minimum}),
                     enforceEnd ? separator : maybe(separator));
 }
 
@@ -616,14 +613,16 @@ function endedBy(parser, separator, enforceEnd, minimum) {
  * `parser`
  *
  * @param {core.Parser} parser - Parser to match.
- * @param {integer} [min=0] - Minimum number of matches.
- * @param {integer} [max=Infinity] - Maximum number of matches.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum number of matches.
+ * @param {integer} [opts.max=Infinity] - Maximum number of matches.
  * @returns {core.Parser}
  * @memberof combinators
  */
-function collect(parser, min, max) {
-  min = min || 0;
-  max = typeof max === "undefined" ? Infinity : max;
+function collect(parser, opts) {
+  opts = opts || {};
+  var min = opts.min || 0,
+      max = typeof opts.max === "undefined" ? Infinity : opts.max;
   if (min > max) { throw new Error("min must be less than or equal to max"); }
   return function(parserState) {
     var prev = parserState,
@@ -653,7 +652,7 @@ function collect(parser, min, max) {
  * @memberof combinators
  */
 function exactly(parser, n) {
-  return collect(parser, n, n);
+  return collect(parser, {min: n, max: n});
 }
 
 /**
@@ -845,22 +844,20 @@ function spaces() {
 }
 
 /**
- * Returns a parser that collects zero or more tokens matching `parser`. The
- * result is returned as a single string.
+ * Returns a parser that collects between `min` and `max` tokens matching
+ * `parser`. The result is returned as a single string. This parser is
+ * essentially collect() for strings.
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
- * @param {String} [parserName] - name for `parser`. Used for error reporting.
+ * @param {Object} [opts]
+ * @param {integer} [opts.min=0] - Minimum number of matches.
+ * @param {integer} [opts.max=Infinity] - Maximum number of matches.
  * @memberof strings
  */
-function text(parser, parserName) {
-  if (!parser) {
-    parserName = "token";
-    parser = token();
-  }
-  return or(stringOf(collect(parser)),
-            expected("text"+ (typeof parserName !== "undefined" ?
-                              " of {"+parserName+"}" :
-                              "")));
+function text(parser, opts) {
+  parser = parser || token();
+  opts = opts || {};
+  return stringOf(collect(parser, opts));
 }
 
 /**
