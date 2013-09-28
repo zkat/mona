@@ -39,11 +39,12 @@ function atom() {
 }
 
 function symbol() {
-  return mona.stringOf(symbolToken());
+  return mona.text(symbolToken(), {min: 1});
 }
 
 function symbolToken() {
-  return mona.noneOf("() \n\t\r");
+  return mona.unless(mona.space(),
+                     mona.noneOf("()"));
 }
 
 function list() {
