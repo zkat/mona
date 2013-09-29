@@ -629,16 +629,46 @@ describe("mona", function() {
         }, /(line 1, column 4)/);
       });
     });
+    describe("alphaUpper()", function() {
+      it("parses one uppercase alphabetical character", function() {
+        var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (var i = 0; i < alphabet.length; i++) {
+          assert.equal(parse(mona.alphaUpper(), alphabet.charAt(i)),
+                       alphabet.charAt(i));
+          assert.throws(function() {
+            parse(mona.alphaUpper(), alphabet.charAt(i).toLowerCase());
+          }, /expected uppercase alphabetical character/);
+        }
+        assert.throws(function() {
+          parse(mona.alphaUpper(), "0");
+        }, /expected uppercase alphabetical character/);
+      });
+    });
+    describe("alphaLower()", function() {
+      it("parses one lowercase alphabetical character", function() {
+        var alphabet = "abcdefghijklmnopqrstuvwxyz";
+        for (var i = 0; i < alphabet.length; i++) {
+          assert.equal(parse(mona.alphaLower(), alphabet.charAt(i)),
+                       alphabet.charAt(i));
+          assert.throws(function() {
+            parse(mona.alphaLower(), alphabet.charAt(i).toUpperCase());
+          }, /expected lowercase alphabetical character/);
+        }
+        assert.throws(function() {
+          parse(mona.alphaLower(), "0");
+        }, /expected lowercase alphabetical character/);
+      });
+    });
     describe("alpha()", function() {
       it("parses one alphabetical character", function() {
-        var alphabet = "abcdefghijklmnopqrstuvwxyz";
+        var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         for (var i = 0; i < alphabet.length; i++) {
           assert.equal(parse(mona.alpha(), alphabet.charAt(i)),
                        alphabet.charAt(i));
         }
         assert.throws(function() {
           parse(mona.alpha(), "0");
-        }, /expected alpha/);
+        }, /expected alphabetical character/);
       });
     });
     describe("digit()", function() {
