@@ -338,6 +338,14 @@ describe("mona", function() {
           parse(parser, "");
         }, /\(line 1, column 0\) foo\nbar\nbaz\nquux/);
       });
+      it("accumulates labeled errors without clobbering", function() {
+        var parser = mona.or(mona.label(mona.fail(), "foo"),
+                             mona.label(mona.fail(), "bar"),
+                             mona.label(mona.fail(), "baz"));
+        assert.throws(function() {
+          parse(parser, "");
+        }, /\(line 1, column 0\) expected foo\nexpected bar\nexpected baz/);
+      });
       it("labels the parser if the last argument is a string", function() {
         var parser = mona.or(mona.fail("foo"),
                              mona.fail("bar"),
