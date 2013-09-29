@@ -456,16 +456,22 @@ function and(firstParser) {
  * @memberof combinators
  */
 function or() {
+  var errors = [];
   function orHelper() {
     var parsers = [].slice.call(arguments);
     return function(parserState) {
       var res = parsers[0](parserState);
       if (res.failed) {
-        parserState = copy(parserState);
-        parserState.error = mergeErrors(parserState.error, res.error);
+        errors.push(res.error);
       }
       if (res.failed && parsers[1]) {
         return orHelper.apply(null, parsers.slice(1))(parserState);
+      } else if (res.failed) {
+        var finalState = copy(res);
+        finalState.error = errors.reduce(function(err1, err2) {
+          return mergeErrors(err1, err2);
+        });
+        return finalState;
       } else {
         return res;
       }
