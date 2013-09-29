@@ -437,6 +437,9 @@ function isNot(predicate) {
  */
 function and(firstParser) {
   var moreParsers = [].slice.call(arguments, 1);
+  if (!firstParser) {
+    throw new Error("and() requires at least one parser");
+  }
   return bind(firstParser, function(result) {
     return moreParsers.length ?
       and.apply(null, moreParsers) :
