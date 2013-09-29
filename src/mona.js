@@ -744,6 +744,27 @@ function skip(parser) {
 }
 
 /**
+ * Returns a parser that accepts a parser if its result is within range of
+ * `start` and `end`.
+ *
+ * @param {*} start - lower bound of the range to accept.
+ * @param {*} end - higher bound of the range to accept.
+ * @param {core.Parser} [parser=token()] - parser whose results to test
+ * @param {Function} [predicate=function(x,y){return x<=y; }] - Tests range
+ */
+function range(start, end, parser, predicate) {
+  parser = parser || token();
+  predicate = predicate || function(x,y) { return x <= y; };
+  return label(bind(parser, function(result) {
+    if (predicate(start, result) && predicate(result, end)) {
+      return value(result);
+    } else {
+      return fail();
+    }
+  }), "value between {"+start+"} and {"+end+"}");
+}
+
+/**
  * String-related parsers and combinators.
  *
  * @namespace strings
@@ -1030,6 +1051,7 @@ module.exports = {
   exactly: exactly,
   between: between,
   skip: skip,
+  range: range,
   // String-related parsers
   stringOf: stringOf,
   oneOf: oneOf,
