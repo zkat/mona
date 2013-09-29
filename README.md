@@ -1,4 +1,4 @@
-# Mona [![Build Status](https://travis-ci.org/zkat/mona.png)](https://travis-ci.org/zkat/mona)
+# Mona [![NPM version](https://badge.fury.io/js/mona-parser.png)](http://badge.fury.io/js/mona-parser) [![Build Status](https://travis-ci.org/zkat/mona.png)](https://travis-ci.org/zkat/mona)
 
 `mona` is
 [hosted at Github](http://github.com/zkat/mona). `mona` is a
