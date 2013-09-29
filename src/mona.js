@@ -1123,26 +1123,23 @@ function mergeErrors(err1, err2) {
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
-    var pos;
     switch (comparePositions(err1.position, err2.position)) {
     case "gt":
-      pos = err1.position;
-      break;
+      return err1;
     case "lt":
-      pos = err2.position;
-      break;
+      return err2;
     case "eq":
-      pos = err1.position;
-      break;
+      var newMessages =
+        (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
+          return (~acc.indexOf(x)) ? acc : acc.concat([x]);
+        }, []);
+      return new ParserError(err2.position,
+                             newMessages,
+                             err2.type,
+                             err2.wasEof || err1.wasEof);
+    default:
+      throw new Error("This should never happen");
     }
-    var newMessages =
-          (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
-            return (~acc.indexOf(x)) ? acc : acc.concat([x]);
-          }, []);
-    return new ParserError(pos,
-                           newMessages,
-                           err2.type,
-                           err2.wasEof || err1.wasEof);
   }
 }
 

@@ -346,6 +346,15 @@ describe("mona", function() {
           parse(parser, "");
         }, /\(line 1, column 0\) expected foo\nexpected bar\nexpected baz/);
       });
+      it("accumulates errors with the greatest identical position", function() {
+        var parser = mona.or(mona.fail("foo"),
+                             mona.string("ad"),
+                             mona.string("abc"),
+                             mona.string("abcd"));
+        assert.throws(function() {
+          parse(parser, "abd");
+        }, /column 3\) [^\{]+{abc}\n[^\{]+{abcd}/);
+      });
       it("labels the parser if the last argument is a string", function() {
         var parser = mona.or(mona.fail("foo"),
                              mona.fail("bar"),
