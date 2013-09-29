@@ -13,12 +13,11 @@ var VERSION = "0.6.0";
  * @param {Function} parser - The parser to execute.
  * @param {String} string - String to parse.
  * @param {Object} [opts] - Options object.
- * @param {Boolean} [opts.throwOnError=true] - If truthy, throws a ParseError if
- *                                             the parser fails and returns
- *                                             ParserState instead of its
- *                                             value.
+ * @param {Boolean} [opts.throwOnError=true] - If truthy, throws a ParserError
+ *                                             if the parser fails and returns
+ *                                             ParserState instead of its value.
  * @param {String} [opts.fileName] - filename to use for error messages.
- * @returns {value|api.ParseError}
+ * @returns {value|api.ParserError}
  * @memberof api
  */
 function parse(parser, string, opts) {
@@ -136,13 +135,13 @@ function SourcePosition(name, line, column) {
 
 /**
  * Information about a parsing failure.
- * @typedef {Object} ParseError
+ * @typedef {Object} ParserError
  * @property {api.SourcePosition} position - Source position for the error.
  * @property {Array} messages - Array containing relevant error messages.
  * @property {String} type - The type of parsing error.
  * @memberof api
  */
-function ParseError(pos, messages, type, wasEof) {
+function ParserError(pos, messages, type, wasEof) {
   if (Error.captureStackTrace) {
     // For pretty-printing errors on node.
     Error.captureStackTrace(this, this);
@@ -155,9 +154,9 @@ function ParseError(pos, messages, type, wasEof) {
                   ", column "+this.position.column+") "+
                   this.messages.join("\n"));
 }
-ParseError.prototype = new Error();
-ParseError.prototype.constructor = ParseError;
-ParseError.prototype.name = "ParseError";
+ParserError.prototype = new Error();
+ParserError.prototype.constructor = ParserError;
+ParserError.prototype.name = "ParserError";
 
 
 /**
@@ -217,10 +216,10 @@ function bind(parser, fun) {
 
 /**
  * Returns a parser that always fails without consuming input. Automatically
- * includes the line and column positions in the final ParseError.
+ * includes the line and column positions in the final ParserError.
  *
  * @param {String} msg - Message to report with the failure.
- * @param {String} type - A type to apply to the ParseError.
+ * @param {String} type - A type to apply to the ParserError.
  * @returns {core.Parser}
  * @memberof core
  */
@@ -230,8 +229,8 @@ function fail(msg, type) {
   return function(parserState) {
     parserState = copy(parserState);
     parserState.failed = true;
-    var newError = new ParseError(parserState.position, [msg],
-                                  type, type === "eof");
+    var newError = new ParserError(parserState.position, [msg],
+                                   type, type === "eof");
     parserState.error = mergeErrors(parserState.error, newError);
     return parserState;
   };
@@ -251,10 +250,10 @@ function label(parser, msg) {
     var newState = parser(parserState);
     if (newState.failed) {
       newState = copy(newState);
-      newState.error = new ParseError(newState.error.position,
-                                      ["expected "+msg],
-                                      "expectation",
-                                      newState.error.wasEof);
+      newState.error = new ParserError(newState.error.position,
+                                       ["expected "+msg],
+                                       "expectation",
+                                       newState.error.wasEof);
     }
     return newState;
   };
@@ -1134,10 +1133,10 @@ function mergeErrors(err1, err2) {
           (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
             return (~acc.indexOf(x)) ? acc : acc.concat([x]);
           }, []);
-    return new ParseError(pos,
-                          newMessages,
-                          err2.type,
-                          err2.wasEof || err1.wasEof);
+    return new ParserError(pos,
+                           newMessages,
+                           err2.type,
+                           err2.wasEof || err1.wasEof);
   }
 }
 

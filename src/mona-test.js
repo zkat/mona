@@ -20,12 +20,12 @@ describe("mona", function() {
       var result = parse(mona.token(), "a", {throwOnError: false});
       assert.equal(result.value, "a");
     });
-    it("throws a ParseError if throwOnError is truthy", function() {
+    it("throws a ParserError if throwOnError is truthy", function() {
       assert.throws(function() {
         parse(mona.fail("nop"), "", {throwOnError: true});
       }, /nop/);
     });
-    it("defaults to throwing a ParseError if it fails", function() {
+    it("defaults to throwing a ParserError if it fails", function() {
       assert.throws(function() {
         parse(mona.fail("nop"), "");
       });
@@ -113,7 +113,7 @@ describe("mona", function() {
       });
     });
   });
-  describe("ParseError", function() {
+  describe("ParserError", function() {
     it("reports the line in which an error happened", function() {
       assert.throws(function() {
         parse(mona.token(), "");
@@ -186,7 +186,7 @@ describe("mona", function() {
           parse(mona.fail(), "");
         }, /parser error/);
       });
-      it("accepts a 'type' argument used by the ParseError object", function() {
+      it("accepts a 'type' argument used by the ParserError object", function() {
         assert.throws(function() {
           parse(mona.fail("hi", "criticalExplosion"), "abc");
         }, function(err) {
