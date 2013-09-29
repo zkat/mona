@@ -27,23 +27,23 @@ function parse(parser, string, opts) {
   if (!opts.allowTrailing) {
     parser = followedBy(parser, eof());
   }
-  var parseState = parser(
+  var parserState = parser(
     new ParserState(undefined,
                     string,
                     0,
                     opts.userState,
                     opts.position || new SourcePosition(opts.fileName),
                     false));
-  if (parseState.failed && opts.throwOnError) {
-    throw parseState.error;
-  } else if (parseState.failed && !opts.throwOnError) {
-    return parseState.error;
-  } else if (!parseState.failed && !opts.throwOnError) {
-    return parseState;
+  if (parserState.failed && opts.throwOnError) {
+    throw parserState.error;
+  } else if (parserState.failed && !opts.throwOnError) {
+    return parserState.error;
+  } else if (!parserState.failed && !opts.throwOnError) {
+    return parserState;
   } else if (opts.returnState) {
-    return parseState;
+    return parserState;
   } else {
-    return parseState.value;
+    return parserState.value;
   }
 }
 
@@ -533,7 +533,7 @@ function unless(parser) {
  *
  * The `fun` callback will receive a function `s` which should be called with
  * each parser that will be executed, which will update the internal
- * parseState. The return value of the callback must be a parser.
+ * parserState. The return value of the callback must be a parser.
  *
  * If any of the parsers fail, sequence will exit immediately, and the entire
  * sequence will fail with that parser's reason.
