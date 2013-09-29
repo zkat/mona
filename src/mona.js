@@ -466,14 +466,14 @@ function or() {
     };
   }
   var labelMsg = (typeof arguments[arguments.length-1] === "string" &&
-				  arguments[arguments.length-1]),
-	  args = labelMsg ?
-		[].slice.call(arguments, 0, arguments.length-1) : arguments,
-	  parser = orHelper.apply(null, args);
+                  arguments[arguments.length-1]),
+      args = labelMsg ?
+        [].slice.call(arguments, 0, arguments.length-1) : arguments,
+      parser = orHelper.apply(null, args);
   if (labelMsg) {
-	return label(parser, labelMsg);
+    return label(parser, labelMsg);
   } else {
-	return parser;
+    return parser;
   }
 }
 
