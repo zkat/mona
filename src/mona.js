@@ -853,13 +853,35 @@ function string(str, caseSensitive) {
 }
 
 /**
+ * Returns a parser that matches a single non-unicode uppercase alphabetical
+ * character.
+ *
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alphaUpper() {
+  return label(range("A", "Z"), "uppercase alphabetical character");
+}
+
+/**
+ * Returns a parser that matches a single non-unicode lowercase alphabetical
+ * character.
+ *
+ * @returns {core.Parser}
+ * @memberof strings
+ */
+function alphaLower() {
+  return label(range("a", "z"), "lowercase alphabetical character");
+}
+
+/**
  * Returns a parser that matches a single non-unicode alphabetical character.
  *
  * @returns {core.Parser}
  * @memberof strings
  */
 function alpha() {
-  return label(oneOf("abcdefghijklmnopqrstuvwxyz", false), "alpha");
+  return or(alphaLower(), alphaUpper(), "alphabetical character");
 }
 
 /**
@@ -1060,6 +1082,8 @@ module.exports = {
   oneOf: oneOf,
   noneOf: noneOf,
   string: string,
+  alphaLower: alphaLower,
+  alphaUpper: alphaUpper,
   alpha: alpha,
   digit: digit,
   alphanum: alphanum,
