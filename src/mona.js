@@ -445,6 +445,7 @@ function and(firstParser) {
  * suceeds. Uses the value of the first successful parser.
  *
  * @param {...core.Parser} parsers - One or more parsers to execute.
+ * @param {String} [label] - Label to replace the full message with.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -464,7 +465,16 @@ function or() {
       }
     };
   }
-  return orHelper.apply(null, arguments);
+  var labelMsg = (typeof arguments[arguments.length-1] === "string" &&
+				  arguments[arguments.length-1]),
+	  args = labelMsg ?
+		[].slice.call(arguments, 0, arguments.length-1) : arguments,
+	  parser = orHelper.apply(null, args);
+  if (labelMsg) {
+	return label(parser, labelMsg);
+  } else {
+	return parser;
+  }
 }
 
 /**

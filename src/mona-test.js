@@ -323,6 +323,16 @@ describe("mona", function() {
         assert.equal(result.message,
                      "(line 1, column 0) foo\nbar\nbaz\nquux");
       });
+      it("labels the parser if the last argument is a string", function() {
+        var parser = mona.or(mona.fail("foo"),
+                             mona.fail("bar"),
+                             mona.fail("baz"),
+                             mona.fail("quux"),
+                             "one of many things");
+        assert.throws(function() {
+          parse(parser, "");
+        }, /\(line 1, column 0\) expected one of many things/);
+      });
     });
     describe("maybe()", function() {
       it("returns the result of the parser, if it succeeds", function() {
