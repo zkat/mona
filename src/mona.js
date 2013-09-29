@@ -127,7 +127,7 @@ function parseAsync(parser, callback, opts) {
 function SourcePosition(name, line, column) {
   this.name = name;
   this.line = line || 1;
-  this.column = column || 1;
+  this.column = column || 0;
 }
 
 /**
@@ -220,7 +220,7 @@ function bind(parser, fun) {
  * @returns {core.Parser}
  * @memberof core
  */
-function fail(msg, type, replaceError) {
+function fail(msg, type) {
   msg = msg || "parser error";
   type = type || "failure";
   return function(parserState) {
@@ -228,20 +228,32 @@ function fail(msg, type, replaceError) {
     parserState.failed = true;
     var newError = new ParseError(parserState.position, [msg],
                                   type, type === "eof");
-    parserState.error = mergeErrors(parserState.error, newError, replaceError);
+    parserState.error = mergeErrors(parserState.error, newError);
     return parserState;
   };
 }
 
 /**
- * Returns a parser that will fail and report that `descriptor` was expected.
+ * Returns a parser that will label a `parser` failure by replacing its error
+ * messages with `msg`.
  *
- * @param {String} descriptor - A string describing what was expected.
+ * @param {core.Parser} parser - Parser whose errors to replace.
+ * @param {String} msg - Error message to replace errors with.
  * @returns {core.Parser}
  * @memberof core
  */
-function expected(descriptor) {
-  return fail("expected "+descriptor, "expectation", true);
+function label(parser, msg) {
+  return function(parserState) {
+    var newState = parser(parserState);
+    if (newState.failed) {
+      newState = copy(newState);
+      newState.error = new ParseError(newState.error.position,
+                                      ["expected "+msg],
+                                      "expectation",
+                                      newState.error.wasEof);
+    }
+    return newState;
+  };
 }
 
 /**
@@ -257,24 +269,24 @@ function token(count) {
   return function(parserState) {
     var input = parserState.input,
         offset = parserState.offset,
-        newOffset = offset + count;
-    if (input.length >= newOffset) {
-      var newParserState = copy(parserState),
-          newPosition = copy(parserState.position);
-      for (var i = offset; i < newOffset; i++) {
-        if (input.charAt(i) === "\n") {
-          newPosition.column = 1;
-          newPosition.line += 1;
-        } else {
-          newPosition.column += 1;
-        }
+        newOffset = offset + count,
+        newParserState = copy(parserState),
+        newPosition = copy(parserState.position);
+    newParserState.position = newPosition;
+    for (var i = offset; i < newOffset && input.length >= i; i++) {
+      if (input.charAt(i) === "\n") {
+        newPosition.column = 0;
+        newPosition.line += 1;
+      } else {
+        newPosition.column += 1;
       }
+    }
+    newParserState.offset = newOffset;
+    if (input.length >= newOffset) {
       newParserState.value = input.slice(offset, newOffset);
-      newParserState.offset = newOffset;
-      newParserState.position = newPosition;
       return newParserState;
     } else {
-      return fail("unexpected eof", "eof")(parserState);
+      return fail("unexpected eof", "eof")(newParserState);
     }
   };
 }
@@ -291,7 +303,7 @@ function eof() {
     if (parserState.input.length === parserState.offset) {
       return value(true)(parserState);
     } else {
-      return expected("end of input")(parserState);
+      return fail("expected end of input", "expectation")(parserState);
     }
   };
 }
@@ -478,7 +490,7 @@ function not(parser) {
   return function(parserState) {
     return parser(parserState).failed ?
       value(true)(parserState) :
-      fail("expected parser to fail")(parserState);
+      fail("expected parser to fail", "expectation")(parserState);
   };
 }
 
@@ -756,10 +768,10 @@ function stringOf(parser) {
 function oneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(is(function(x) {
+  return label(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return ~chars.indexOf(x);
-  }), expected("one of {"+chars+"}"));
+  }), "one of {"+chars+"}");
 }
 
 /**
@@ -774,10 +786,10 @@ function oneOf(chars, caseSensitive) {
 function noneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   chars = caseSensitive ? chars : chars.toLowerCase();
-  return or(is(function(x) {
+  return label(is(function(x) {
     x = caseSensitive ? x : x.toLowerCase();
     return !~chars.indexOf(x);
-  }), expected("none of {"+chars+"}"));
+  }), "none of {"+chars+"}");
 }
 
 /**
@@ -792,14 +804,14 @@ function noneOf(chars, caseSensitive) {
 function string(str, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
   str = caseSensitive ? str : str.toLowerCase();
-  return or(sequence(function(s) {
+  return label(sequence(function(s) {
     var x = s(is(function(x) {
       x = caseSensitive ? x : x.toLowerCase();
       return  x === str[0];
     }, str.charAt(0)));
     var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
     return value(x+xs);
-  }), expected("string matching {"+str+"}"));
+  }), "string matching {"+str+"}");
 }
 
 /**
@@ -809,8 +821,7 @@ function string(str, caseSensitive) {
  * @memberof strings
  */
 function alpha() {
-  return or(oneOf("abcdefghijklmnopqrstuvwxyz", false),
-            expected("alpha"));
+  return label(oneOf("abcdefghijklmnopqrstuvwxyz", false), "alpha");
 }
 
 /**
@@ -822,8 +833,8 @@ function alpha() {
  */
 function digit(base) {
   base = base || 10;
-  return or(is(function(x) { return !isNaN(parseInt(x, base)); }),
-            expected("digit"));
+  return label(is(function(x) { return !isNaN(parseInt(x, base)); }),
+               "digit");
 }
 
 /**
@@ -834,7 +845,7 @@ function digit(base) {
  * @memberof strings
  */
 function alphanum(base) {
-  return or(alpha(), digit(base), expected("alphanum"));
+  return label(or(alpha(), digit(base)), "alphanum");
 }
 
 /**
@@ -844,7 +855,7 @@ function alphanum(base) {
  * @memberof strings
  */
 function space() {
-  return or(oneOf(" \t\n\r"), expected("space"));
+  return label(oneOf(" \t\n\r"), "space");
 }
 
 /**
@@ -856,7 +867,7 @@ function space() {
  * @memberof strings
  */
 function spaces() {
-  return or(and(space(), skip(space()), value(" ")), expected("spaces"));
+  return label(and(space(), skip(space()), value(" ")), "spaces");
 }
 
 /**
@@ -981,7 +992,7 @@ module.exports = {
   value: value,
   bind: bind,
   fail: fail,
-  expected: expected,
+  label: label,
   token: token,
   eof: eof,
   log: log,
@@ -1038,30 +1049,25 @@ function copy(obj) {
   return newObj;
 }
 
-function mergeErrors(err1, err2, replaceError) {
+function mergeErrors(err1, err2) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
     return err2;
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
     return err1;
   } else {
     var pos;
-    if (replaceError) {
+    switch (comparePositions(err1.position, err2.position)) {
+    case "gt":
+      pos = err1.position;
+      break;
+    case "lt":
       pos = err2.position;
-    } else {
-      switch (comparePositions(err1.position, err2.position)) {
-      case "gt":
-        pos = err1.position;
-        break;
-      case "lt":
-        pos = err2.position;
-        break;
-      case "eq":
-        pos = err1.position;
-        break;
-      }
+      break;
+    case "eq":
+      pos = err1.position;
+      break;
     }
-    var newMessages = replaceError ?
-          err2.messages :
+    var newMessages =
           (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
             return (~acc.indexOf(x)) ? acc : acc.concat([x]);
           }, []);

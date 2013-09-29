@@ -8,7 +8,7 @@ var mona = require("../src/mona"),
  * Utility for parsing formats that moment recognizes.
  */
 function momentParser(unit, formats) {
-  return mona.sequence(function(s) {
+  return mona.label(mona.sequence(function(s) {
     var str = s(mona.text(mona.noneOf(" "))),
         formatted;
     for (var i = 0; i < formats.length; i++) {
@@ -17,8 +17,8 @@ function momentParser(unit, formats) {
         return mona.value(formatted[unit]());
       }
     }
-    return mona.expected(unit);
-  });
+    return mona.fail();
+  }), unit);
 }
 
 /**
@@ -36,14 +36,14 @@ function day() {
   //        and validate that that particular month can have this as a day? It
   //        could make error reporting nicer, too. And show off a nice feature
   //        of mona.
-  return mona.sequence(function(s) {
+  return mona.label(mona.sequence(function(s) {
     var dayNum = s(mona.integer());
     if (1 <= dayNum && dayNum <= 31) {
       return mona.value(dayNum);
     } else {
-      return mona.expected("day");
+      return mona.fail();
     }
-  });
+  }), "day");
 }
 
 /**

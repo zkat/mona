@@ -57,8 +57,8 @@ function number() {
 
 function string() {
   return mona.between(mona.string("\""),
-                      mona.or(mona.string("\""),
-                              mona.expected("closing double-quote")),
+                      mona.label(mona.string("\""),
+                                 "closing double-quote"),
                       mona.text(mona.noneOf('"')));
 }
 

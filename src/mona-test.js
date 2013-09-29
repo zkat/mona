@@ -119,20 +119,20 @@ describe("mona", function() {
                    2);
     });
     it("reports the column in which an error happened", function() {
-      assert.equal(
-        parse(mona.fail(), "", {throwOnError:false}).position.column,
-        1);
-      assert.equal(
-        parse(mona.and(mona.string("a"),
-                       mona.string("a"),
-                       mona.string("a")),
-              "aab",
-              {throwOnError:false}).position.column,
-        3);
+      assert.throws(function() {
+        parse(mona.fail(), "");
+      }, /(line 1, column 0)/);
+      assert.throws(function() {
+        parse(mona.and(mona.token(),
+                       mona.token(),
+                       mona.fail()),
+              "aaa");
+      }, /(line 1, column 2)/);
       var parser = mona.and(mona.token(), mona.token(), mona.token(),
-                            mona.token(), mona.fail()),
-          result = parse(parser, "\na\nbcde", {throwOnError: false});
-      assert.equal(result.position.column, 2);
+                            mona.token(), mona.fail());
+      assert.throws(function() {
+        parse(parser, "\na\nbcde");
+      }, /(line 3, column 1)/);
     });
   });
   describe("base parsers", function() {
@@ -192,13 +192,11 @@ describe("mona", function() {
                      "failure");
       });
     });
-    describe("expected()", function() {
-      it("fails the parse reporting what was expected", function() {
-        var result = parse(mona.expected("something"),
-                           "",
-                           {throwOnError: false});
-        assert.equal(result.type, "expectation");
-        assert.equal(result.messages[0], "expected something");
+    describe("label()", function() {
+      it("replaces any error messages with an expectation", function() {
+        assert.throws(function() {
+          parse(mona.label(mona.fail(), "wee"), "");
+        }, /\(line 1, column 0\) expected wee/);
       });
     });
     describe("token()", function() {
@@ -212,13 +210,13 @@ describe("mona", function() {
       it("fails if there is no more input", function() {
         assert.throws(function() {
           parse(mona.token(), "");
-        });
+        }, /(line 1, column 1)/);
         assert.throws(function() {
           parse(mona.and(mona.token(), mona.token()), "a");
-        });
+        }, /(line 1, column 2)/);
         assert.throws(function() {
           parse(mona.and(mona.token(5)), "abcd");
-        });
+        }, /(line 1, column 5)/);
       });
       it("reports the error as 'unexpected eof' if it fails", function() {
         assert.equal(parse(mona.token(), "", {throwOnError: false}).messages[0],
@@ -323,7 +321,7 @@ describe("mona", function() {
                                    mona.fail("quux")),
                            "", {throwOnError: false});
         assert.equal(result.message,
-                     "(line 1, column 1) foo\nbar\nbaz\nquux");
+                     "(line 1, column 0) foo\nbar\nbaz\nquux");
       });
     });
     describe("maybe()", function() {
@@ -371,7 +369,7 @@ describe("mona", function() {
         });
         assert.equal(parse(parser, "ab"), "ba");
       });
-      it("errors with the correct message if an parser fails", function() {
+      it("errors with the correct message if a parser fails", function() {
         assert.throws(function() {
           var parser = mona.sequence(function(s) {
             var x = s(mona.token());
@@ -582,6 +580,11 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.string("abc"), "AbC");
         }, /expected string matching {abc}/);
+      });
+      it("reports the location of the first bad character", function() {
+        assert.throws(function() {
+          parse(mona.string("aaaaaaa"), "aaabaaaa");
+        }, /(line 1, column 4)/);
       });
     });
     describe("alpha()", function() {
