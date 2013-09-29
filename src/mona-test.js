@@ -11,10 +11,14 @@ describe("mona", function() {
       var result = {};
       assert.equal(parse(mona.value(result), ""), result);
     });
-    it("returns an error object if throwOnError is falsy", function() {
+    it("returns an error object on fail if throwOnError is falsy", function() {
       var result = parse(mona.fail("nop"), "", {throwOnError: false});
       assert.equal(result.messages.length, 1);
       assert.equal(result.messages[0], "nop");
+    });
+    it("returns ParserState on success if throwOnError is falsy", function() {
+      var result = parse(mona.token(), "a", {throwOnError: false});
+      assert.equal(result.value, "a");
     });
     it("throws a ParseError if throwOnError is truthy", function() {
       assert.throws(function() {
@@ -111,12 +115,12 @@ describe("mona", function() {
   });
   describe("ParseError", function() {
     it("reports the line in which an error happened", function() {
-      assert.equal(parse(mona.token(), "", {throwOnError: false}).position.line,
-                   1);
-      assert.equal(parse(mona.and(mona.token(), mona.token()),
-                         "\n",
-                         {throwOnError: false}).position.line,
-                   2);
+      assert.throws(function() {
+        parse(mona.token(), "");
+      }, /line 1/);
+      assert.throws(function() {
+        parse(mona.and(mona.token(), mona.token()), "\n");
+      }, /line 2/);
     });
     it("reports the column in which an error happened", function() {
       assert.throws(function() {
@@ -159,9 +163,11 @@ describe("mona", function() {
         }), ""), "foobar");
       });
       it("does not call the function if the parser fails", function() {
-        assert.ok(parse(mona.bind(mona.fail(), function() {
-          throw new Error("This can't be happening...");
-        }), "", {throwOnError: false}));
+        assert.throws(function() {
+          parse(mona.bind(mona.fail(), function() {
+            throw new Error("This can't be happening...");
+          }), "");
+        }, /parser error/);
       });
       it("throws an error if a parser returns the wrong thing", function() {
         assert.throws(function() {
@@ -171,25 +177,28 @@ describe("mona", function() {
     });
     describe("fail()", function() {
       it("fails the parse with the given message", function() {
-        assert.equal(parse(mona.fail("hi"),
-                           "abc",
-                           {throwOnError: false}).messages[0],
-                     "hi");
+        assert.throws(function() {
+          parse(mona.fail("hi"), "abc");
+        }, /hi/);
       });
       it("uses 'parser error' as the message if none is given", function() {
-        assert.equal(parse(mona.fail(),
-                           "", {throwOnError: false}).messages[0],
-                     "parser error");
+        assert.throws(function() {
+          parse(mona.fail(), "");
+        }, /parser error/);
       });
       it("accepts a 'type' argument used by the ParseError object", function() {
-        assert.equal(parse(mona.fail("hi", "criticalExplosion"),
-                           "abc",
-                           {throwOnError: false}).type,
-                     "criticalExplosion");
+        assert.throws(function() {
+          parse(mona.fail("hi", "criticalExplosion"), "abc");
+        }, function(err) {
+          return err.type === "criticalExplosion";
+        });
       });
       it("uses 'failure' as the default error type", function() {
-        assert.equal(parse(mona.fail(), "", {throwOnError: false}).type,
-                     "failure");
+        assert.throws(function() {
+          parse(mona.fail(), "");
+        }, function(err) {
+          return err.type === "failure";
+        });
       });
     });
     describe("label()", function() {
@@ -219,12 +228,16 @@ describe("mona", function() {
         }, /(line 1, column 5)/);
       });
       it("reports the error as 'unexpected eof' if it fails", function() {
-        assert.equal(parse(mona.token(), "", {throwOnError: false}).messages[0],
-                     "unexpected eof");
+        assert.throws(function() {
+          parse(mona.token(), "");
+        }, /unexpected eof/);
       });
       it("reports the error type as 'eof'", function() {
-        assert.equal(parse(mona.token(), "", {throwOnError: false}).type,
-                     "eof");
+        assert.throws(function() {
+          parse(mona.token(), "");
+        }, function(err) {
+          return err.type === "eof";
+        });
       });
     });
     describe("eof()", function() {
@@ -232,8 +245,9 @@ describe("mona", function() {
         assert.equal(parse(mona.eof(), ""), true);
       });
       it("fails with useful message if there is still input left", function() {
-        assert.equal(parse(mona.eof(), "a", {throwOnError: false}).messages[0],
-                     "expected end of input");
+        assert.throws(function() {
+          parse(mona.eof(), "a");
+        }, /expected end of input/);
       });
     });
     describe("delay()", function() {
@@ -256,8 +270,9 @@ describe("mona", function() {
       });
       it("does not call function if the parser fails", function() {
         var parser = mona.map(function(x) {throw x;}, mona.token());
-        assert.equal(parse(parser, "", {throwOnError: false}).message,
-                     "(line 1, column 1) unexpected eof");
+        assert.throws(function() {
+          parse(parser, "");
+        }, /unexpected eof/);
       });
     });
     describe("wrap()", function() {
@@ -304,7 +319,7 @@ describe("mona", function() {
         assert.equal(parse(mona.and(mona.token()), "a"), "a");
         assert.throws(function() {
           parse(mona.and(), "ab");
-        });
+        }, /requires at least one parser/);
       });
     });
     describe("or()", function() {
@@ -315,13 +330,13 @@ describe("mona", function() {
                      "yup");
       });
       it("reports all the accumulated errors", function() {
-        var result = parse(mona.or(mona.fail("foo"),
-                                   mona.fail("bar"),
-                                   mona.fail("baz"),
-                                   mona.fail("quux")),
-                           "", {throwOnError: false});
-        assert.equal(result.message,
-                     "(line 1, column 0) foo\nbar\nbaz\nquux");
+        var parser = mona.or(mona.fail("foo"),
+                             mona.fail("bar"),
+                             mona.fail("baz"),
+                             mona.fail("quux"));
+        assert.throws(function() {
+          parse(parser, "");
+        }, /\(line 1, column 0\) foo\nbar\nbaz\nquux/);
       });
       it("labels the parser if the last argument is a string", function() {
         var parser = mona.or(mona.fail("foo"),
@@ -351,9 +366,9 @@ describe("mona", function() {
         assert.equal(parse(mona.not(mona.token()), ""), true);
       });
       it("fails if the given parser succeeds", function() {
-        assert.equal(parse(mona.and(mona.not(mona.token()), mona.value("test")),
-                           ""),
-                     "test");
+        assert.throws(function() {
+          parse(mona.not(mona.value("foo")), "");
+        }, /expected parser to fail/);
       });
     });
     describe("unless()", function() {
@@ -362,10 +377,9 @@ describe("mona", function() {
                                        mona.value("success")),
                            ""),
                      "success");
-        assert.ok(parse(mona.unless(mona.value("success"), mona.value("fail")),
-                        "",
-                        {throwOnError: false}).messages[0],
-                  "expected parser to fail");
+        assert.throws(function() {
+          parse(mona.unless(mona.value("success"), mona.value("fail")), "");
+        }, /expected parser to fail/);
       });
     });
     describe("sequence()", function() {
@@ -434,7 +448,7 @@ describe("mona", function() {
         assert.deepEqual(parse(parser, "a.b.c"), ["a", "b", "c"]);
         assert.throws(function() {
           parse(parser, "a.b");
-        });
+        }, /\(line 1, column 4\) expected string matching {.}/);
       });
       it("accepts a max count", function() {
         var parser = mona.split(mona.token(), mona.string("."), {max: 3});
@@ -519,13 +533,13 @@ describe("mona", function() {
         assert.equal(parse(parser, "(123)"), 123);
         assert.throws(function() {
           parse(parser, "123)");
-        });
+        }, /expected string matching \{\(\}/);
         assert.throws(function() {
           parse(parser, "(123");
-        });
+        }, /expected string matching \{\)\}/);
         assert.throws(function() {
           parse(parser, "()");
-        });
+        }, /expected digit/);
         var maybeParser = mona.between(mona.string("("),
                                        mona.string(")"),
                                        mona.maybe(mona.integer()));
@@ -632,7 +646,7 @@ describe("mona", function() {
         assert.equal(parse(mona.digit(), "1"), "1");
         assert.throws(function() {
           parse(mona.digit(), "z");
-        });
+        }, /expected digit/);
       });
       it("accepts an optional base/radix argument", function() {
         assert.equal(parse(mona.digit(16), "f"), "f");
@@ -642,7 +656,7 @@ describe("mona", function() {
         assert.equal(parse(mona.digit(), "9"), "9");
         assert.throws(function() {
           parse(mona.digit(), "a");
-        });
+        }, /expected digit/);
       });
     });
     describe("alphanum()", function() {
@@ -669,10 +683,10 @@ describe("mona", function() {
         assert.equal(parse(mona.space(), "\r"), "\r");
         assert.throws(function() {
           parse(mona.space(), "");
-        });
+        }, /expected space/);
         assert.throws(function() {
           parse(mona.space(), "hi");
-        });
+        }, /expected space/);
       });
     });
     describe("spaces()", function() {
@@ -734,7 +748,7 @@ describe("mona", function() {
         assert.equal(parse(parser, "|a     |"), "a");
         assert.throws(function() {
           parse(parser, "|   a    |");
-        }, /expected string matching \{\a\}/);
+        }, /\(line 1, column 2\) expected string matching \{\a\}/);
       });
     });
   });
@@ -744,7 +758,7 @@ describe("mona", function() {
         assert.equal(parse(mona.natural(), "1234"), 1234);
         assert.throws(function() {
           parse(mona.natural(), "-123");
-        });
+        }, /expected digit/);
       });
       it("accepts a base/radix argument", function() {
         assert.equal(parse(mona.natural(2), "101110"),
