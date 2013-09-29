@@ -186,7 +186,7 @@ describe("mona", function() {
           parse(mona.fail(), "");
         }, /parser error/);
       });
-      it("accepts a 'type' argument used by the ParserError object", function() {
+      it("accepts a type argument used by the ParserError object", function() {
         assert.throws(function() {
           parse(mona.fail("hi", "criticalExplosion"), "abc");
         }, function(err) {
@@ -635,6 +635,7 @@ describe("mona", function() {
         for (var i = 0; i < alphabet.length; i++) {
           assert.equal(parse(mona.alphaUpper(), alphabet.charAt(i)),
                        alphabet.charAt(i));
+          /*jshint loopfunc: true*/
           assert.throws(function() {
             parse(mona.alphaUpper(), alphabet.charAt(i).toLowerCase());
           }, /expected uppercase alphabetical character/);
@@ -650,6 +651,7 @@ describe("mona", function() {
         for (var i = 0; i < alphabet.length; i++) {
           assert.equal(parse(mona.alphaLower(), alphabet.charAt(i)),
                        alphabet.charAt(i));
+          /*jshint loopfunc: true*/
           assert.throws(function() {
             parse(mona.alphaLower(), alphabet.charAt(i).toUpperCase());
           }, /expected lowercase alphabetical character/);
