@@ -24,8 +24,8 @@ function cell() {
 
 function quotedCell() {
   return mona.between(mona.string('"'),
-                      mona.or(mona.string('"'),
-                              mona.expected("closing quote")),
+                      mona.label(mona.string('"'),
+                                 "closing quote"),
                       mona.text(quotedChar()));
 }
 
@@ -37,11 +37,12 @@ function quotedChar() {
 
 function eol() {
   var str = mona.string;
-  return mona.or(str("\n\r"),
-                 str("\r\n"),
-                 str("\n"),
-                 str("\r"),
-                 mona.expected("end of line"));
+  return mona.label(
+    mona.or(str("\n\r"),
+            str("\r\n"),
+            str("\n"),
+            str("\r")),
+    "end of line");
 }
 
 function parseCSV(text, minimumColumns) {
