@@ -868,6 +868,7 @@ function spaces() {
  * @param {Object} [opts]
  * @param {integer} [opts.min=0] - Minimum number of matches.
  * @param {integer} [opts.max=Infinity] - Maximum number of matches.
+ * @returns {core.Parser}
  * @memberof strings
  */
 function text(parser, opts) {
@@ -880,6 +881,7 @@ function text(parser, opts) {
  * Returns a parser that trims any whitespace surrounding `parser`.
  *
  * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {core.Parser}
  * @memberof strings
  */
 function trim(parser) {
@@ -892,6 +894,7 @@ function trim(parser) {
  * Returns a parser that trims any leading whitespace before `parser`.
  *
  * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {core.Parser}
  * @memberof strings
  */
 function trimLeft(parser) {
@@ -902,6 +905,7 @@ function trimLeft(parser) {
  * Returns a parser that trims any trailing whitespace before `parser`.
  *
  * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {core.Parser}
  * @memberof strings
  */
 function trimRight(parser) {
