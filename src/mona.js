@@ -14,15 +14,17 @@ var VERSION = "0.6.0";
  * @param {String} string - String to parse.
  * @param {Object} [opts] - Options object.
  * @param {Boolean} [opts.throwOnError=true] - If truthy, throws a ParseError if
- *                                             the parser fails.
+ *                                             the parser fails and returns
+ *                                             ParserState instead of its
+ *                                             value.
  * @param {String} [opts.fileName] - filename to use for error messages.
  * @returns {value|api.ParseError}
  * @memberof api
  */
 function parse(parser, string, opts) {
-  opts = opts || {
-    throwOnError: true
-  };
+  opts = opts || {};
+  opts.throwOnError = typeof opts.throwOnError === "undefined" ?
+    true : opts.throwOnError;
   if (!opts.allowTrailing) {
     parser = followedBy(parser, eof());
   }
@@ -37,6 +39,8 @@ function parse(parser, string, opts) {
     throw parseState.error;
   } else if (parseState.failed && !opts.throwOnError) {
     return parseState.error;
+  } else if (!parseState.failed && !opts.throwOnError) {
+    return parseState;
   } else if (opts.returnState) {
     return parseState;
   } else {
