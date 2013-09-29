@@ -44,11 +44,11 @@ function array() {
 function bool() {
   return mona.map(function(str) {
     return str === "true";
-  }, mona.or(mona.string("true"), mona.string("false")));
+  }, mona.or(mona.string("true"), mona.string("false")), "boolean");
 }
 
 function nil() {
-  return mona.and(mona.string("null"), mona.value(null));
+  return mona.label(mona.and(mona.string("null"), mona.value(null)), "null");
 }
 
 function number() {
@@ -59,13 +59,14 @@ function string() {
   return mona.between(mona.string("\""),
                       mona.label(mona.string("\""),
                                  "closing double-quote"),
-                      mona.text(mona.noneOf('"')));
+                      mona.text(mona.or(escaped(),
+                                        mona.noneOf("\""))));
 }
 
 function escaped() {
   return mona.sequence(function(s) {
     s(mona.string("\\"));
-    var esc = s(mona.token);
+    var esc = s(mona.token());
     switch (esc) {
     case "b": return mona.value("\b");
     case "f": return mona.value("\f");
@@ -87,7 +88,6 @@ function parseJSON(text) {
   return mona.parse(json(), text);
 }
 
-
 function runExample() {
   var txt = JSON.stringify([{
     foo: 1,
@@ -98,3 +98,8 @@ function runExample() {
               "=>\n", JSON.stringify(parseJSON(txt)));
 }
 if (module.id === ".") runExample();
+
+module.exports = {
+  parseJSON: parseJSON,
+  runExample: runExample
+};
