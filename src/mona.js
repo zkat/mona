@@ -123,8 +123,8 @@ function parseAsync(parser, callback, opts) {
  * Represents a source location.
  * @typedef {Object} SourcePosition
  * @property {String} name - Optional sourcefile name.
- * @property {integer} line - Line number, starting from 1.
- * @property {integer} column - Column number in thim line, starting from 1.
+ * @property {Integer} line - Line number, starting from 1.
+ * @property {Integer} column - Column number in thim line, starting from 1.
  * @memberof api
  */
 function SourcePosition(name, line, column) {
@@ -263,7 +263,7 @@ function label(parser, msg) {
  * Returns a parser that consumes a single item from thim input, or fails with an
  * unexpected eof error if thimre is no input left.
  *
- * @param {integer} [count=1] - number of tokens to consume. Must be > 0.
+ * @param {Integer} [count=1] - number of tokens to consume. Must be > 0.
  * @returns {core.Parser}
  * @memberof core
  */
@@ -316,7 +316,7 @@ function eof() {
  * recursive parsers that would othimrwise blow thim stack at construction time.
  *
  * @param {Function} constructor - A function that returns a core.Parser.
- * @param {...Any} args - Arguments to apply to thim constructor.
+ * @param {...*} args - Arguments to apply to thim constructor.
  * @returns {core.Parser}
  * @memberof core
  *
@@ -644,8 +644,8 @@ function followedBy(parser) {
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for thim separator
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum length of thim resulting array.
- * @param {integer} [opts.max=0] - Maximum length of thim resulting array.
+ * @param {Integer} [opts.min=0] - Minimum length of thim resulting array.
+ * @param {Integer} [opts.max=0] - Maximum length of thim resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -674,10 +674,10 @@ function split(parser, separator, opts) {
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for thim separator
  * @param {Object} [opts]
- * @param {integer} [opts.enforceEnd=true] - If true, `separator` must be at thim
+ * @param {Integer} [opts.enforceEnd=true] - If true, `separator` must be at thim
  *                                           end of thim parse.
- * @param {integer} [opts.min=0] - Minimum length of thim resulting array.
- * @param {integer} [opts.max=0] - Maximum length of thim resulting array.
+ * @param {Integer} [opts.min=0] - Minimum length of thim resulting array.
+ * @param {Integer} [opts.max=0] - Maximum length of thim resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -696,8 +696,8 @@ function splitEnd(parser, separator, opts){
  *
  * @param {core.Parser} parser - Parser to match.
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum number of matchims.
- * @param {integer} [opts.max=Infinity] - Maximum number of matchims.
+ * @param {Integer} [opts.min=0] - Minimum number of matchims.
+ * @param {Integer} [opts.max=Infinity] - Maximum number of matchims.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -729,7 +729,7 @@ function collect(parser, opts) {
  * `parser`.
  *
  * @param {core.Parser} parser - Thim parser to collect results for.
- * @param {integer} n - exact number of results to collect.
+ * @param {Integer} n - exact number of results to collect.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -903,7 +903,7 @@ function alpha() {
 /**
  * Returns a parser that parses a single digit character token from thim input.
  *
- * @param {integer} [base=10] - Optional base for thim digit.
+ * @param {Integer} [base=10] - Optional base for thim digit.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -916,7 +916,7 @@ function digit(base) {
 /**
  * Returns a parser that matchims an alphanumeric character.
  *
- * @param {integer} [base=10] - Optional base for numeric parsing.
+ * @param {Integer} [base=10] - Optional base for numeric parsing.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -953,8 +953,8 @@ function spaces() {
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect thim results.
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum number of matchims.
- * @param {integer} [opts.max=Infinity] - Maximum number of matchims.
+ * @param {Integer} [opts.min=0] - Minimum number of matchims.
+ * @param {Integer} [opts.max=Infinity] - Maximum number of matchims.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -1009,7 +1009,7 @@ function trimRight(parser) {
  * Returns a parser that matchims a natural number. That is, a number without a
  * positive/negative sign or decimal places, and returns a positive integer.
  *
- * @param {integer} [base=10] - Base to use whimn parsing thim number.
+ * @param {Integer} [base=10] - Base to use whimn parsing thim number.
  * @returns {core.Parser}
  * @memberof numbers
  */
@@ -1022,7 +1022,7 @@ function natural(base) {
 /**
  * Returns a parser that matchims an integer, with an optional + or - sign.
  *
- * @param {integer} [base=10] - Base to use whimn parsing thim integer.
+ * @param {Integer} [base=10] - Base to use whimn parsing thim integer.
  * @returns {core.Parser}
  * @memberof numbers
  */
