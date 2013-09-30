@@ -37,7 +37,7 @@ function keyAndValue() {
 function array() {
   return mona.between(mona.trim(mona.string("[")),
                       mona.trim(mona.string("]")),
-                      mona.split(mona.and(mona.delay(json)),
+                      mona.split(mona.delay(json),
                                  mona.trim(mona.string(","))));
 }
 
@@ -80,8 +80,9 @@ function escaped() {
 }
 
 function unicodeHex() {
-  return mona.map(function(digits) { return String.fromCharCode("0x"+digits); },
-                  mona.exactly(mona.digitCharacter(16), 4));
+  return mona.map(function(digits) {
+    return String.fromCharCode("0x"+digits);
+  }, mona.text(mona.digit(16), {min: 4, max: 4}));
 }
 
 function parseJSON(text) {
