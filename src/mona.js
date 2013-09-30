@@ -319,6 +319,16 @@ function eof() {
  * @param {...Any} args - Arguments to apply to the constructor.
  * @returns {core.Parser}
  * @memberof core
+ *
+ * @example
+ * // The following would usually result in an infinite loop:
+ * function foo() {
+ *   return or(x(), foo());
+ * }
+ * // But you can use delay() to remedy this...
+ * function foo() {
+ *   return or(x(), delay(foo));
+ * }
  */
 function delay(constructor) {
   var args = [].slice.call(arguments, 1);
