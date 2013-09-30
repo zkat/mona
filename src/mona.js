@@ -733,6 +733,7 @@ function exactly(parser, n) {
  *
  * @param {core.Parser} open - Opening parser.
  * @param {core.Parser} close - Closing parser.
+ * @param {core.Parser} parser - Parser to return the value of.
  * @returns {core.Parser}
  * @memberof combinators
  */
