@@ -123,8 +123,8 @@ function parseAsync(parser, callback, opts) {
  * Represents a source location.
  * @typedef {Object} SourcePosition
  * @property {String} name - Optional sourcefile name.
- * @property {integer} line - Line number, starting from 1.
- * @property {integer} column - Column number in the line, starting from 1.
+ * @property {Integer} line - Line number, starting from 1.
+ * @property {Integer} column - Column number in the line, starting from 1.
  * @memberof api
  */
 function SourcePosition(name, line, column) {
@@ -263,7 +263,7 @@ function label(parser, msg) {
  * Returns a parser that consumes a single item from the input, or fails with an
  * unexpected eof error if there is no input left.
  *
- * @param {integer} [count=1] - number of tokens to consume. Must be > 0.
+ * @param {Integer} [count=1] - number of tokens to consume. Must be > 0.
  * @returns {core.Parser}
  * @memberof core
  */
@@ -316,7 +316,7 @@ function eof() {
  * recursive parsers that would otherwise blow the stack at construction time.
  *
  * @param {Function} constructor - A function that returns a core.Parser.
- * @param {...Any} args - Arguments to apply to the constructor.
+ * @param {...*} args - Arguments to apply to the constructor.
  * @returns {core.Parser}
  * @memberof core
  *
@@ -644,8 +644,8 @@ function followedBy(parser) {
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum length of the resulting array.
- * @param {integer} [opts.max=0] - Maximum length of the resulting array.
+ * @param {Integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {Integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -674,10 +674,10 @@ function split(parser, separator, opts) {
  * @param {core.Parser} parser - Parser for matching and collecting results.
  * @param {core.Parser} separator - Parser for the separator
  * @param {Object} [opts]
- * @param {integer} [opts.enforceEnd=true] - If true, `separator` must be at the
+ * @param {Integer} [opts.enforceEnd=true] - If true, `separator` must be at the
  *                                           end of the parse.
- * @param {integer} [opts.min=0] - Minimum length of the resulting array.
- * @param {integer} [opts.max=0] - Maximum length of the resulting array.
+ * @param {Integer} [opts.min=0] - Minimum length of the resulting array.
+ * @param {Integer} [opts.max=0] - Maximum length of the resulting array.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -696,8 +696,8 @@ function splitEnd(parser, separator, opts){
  *
  * @param {core.Parser} parser - Parser to match.
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum number of matches.
- * @param {integer} [opts.max=Infinity] - Maximum number of matches.
+ * @param {Integer} [opts.min=0] - Minimum number of matches.
+ * @param {Integer} [opts.max=Infinity] - Maximum number of matches.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -729,7 +729,7 @@ function collect(parser, opts) {
  * `parser`.
  *
  * @param {core.Parser} parser - The parser to collect results for.
- * @param {integer} n - exact number of results to collect.
+ * @param {Integer} n - exact number of results to collect.
  * @returns {core.Parser}
  * @memberof combinators
  */
@@ -903,7 +903,7 @@ function alpha() {
 /**
  * Returns a parser that parses a single digit character token from the input.
  *
- * @param {integer} [base=10] - Optional base for the digit.
+ * @param {Integer} [base=10] - Optional base for the digit.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -916,7 +916,7 @@ function digit(base) {
 /**
  * Returns a parser that matches an alphanumeric character.
  *
- * @param {integer} [base=10] - Optional base for numeric parsing.
+ * @param {Integer} [base=10] - Optional base for numeric parsing.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -953,8 +953,8 @@ function spaces() {
  *
  * @param {core.Parser} [parser=token()] - Parser to use to collect the results.
  * @param {Object} [opts]
- * @param {integer} [opts.min=0] - Minimum number of matches.
- * @param {integer} [opts.max=Infinity] - Maximum number of matches.
+ * @param {Integer} [opts.min=0] - Minimum number of matches.
+ * @param {Integer} [opts.max=Infinity] - Maximum number of matches.
  * @returns {core.Parser}
  * @memberof strings
  */
@@ -1009,7 +1009,7 @@ function trimRight(parser) {
  * Returns a parser that matches a natural number. That is, a number without a
  * positive/negative sign or decimal places, and returns a positive integer.
  *
- * @param {integer} [base=10] - Base to use when parsing the number.
+ * @param {Integer} [base=10] - Base to use when parsing the number.
  * @returns {core.Parser}
  * @memberof numbers
  */
@@ -1022,7 +1022,7 @@ function natural(base) {
 /**
  * Returns a parser that matches an integer, with an optional + or - sign.
  *
- * @param {integer} [base=10] - Base to use when parsing the integer.
+ * @param {Integer} [base=10] - Base to use when parsing the integer.
  * @returns {core.Parser}
  * @memberof numbers
  */
