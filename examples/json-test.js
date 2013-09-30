@@ -8,6 +8,7 @@ var assert = require("assert"),
 function testJSON(data) {
   assert.deepEqual(parseJSON(JSON.stringify(data)), data);
 }
+
 describe("json", function() {
   describe("parseJSON()", function() {
     describe("object()", function() {
@@ -65,7 +66,7 @@ describe("json", function() {
       });
       it("handles escaped characters", function() {
         testJSON("\b\f\n\r\t\\");
-        testJSON("\u1234");
+        assert.equal(parseJSON('"\\u1234"'), "\u1234");
       });
     });
     describe("number()", function() {
