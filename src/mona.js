@@ -24,7 +24,6 @@ var VERSION = "0.6.0";
  *                                             if the parser fails and returns
  *                                             ParserState instead of its value.
  * @param {String} [opts.fileName] - filename to use for error messages.
- * @returns {value|api.ParserError}
  * @memberof module:mona/api
  * @instance
  *
@@ -69,7 +68,6 @@ function parse(parser, string, opts) {
  *                                         `parser`.
  * @param {Object} [opts] - Options object.
  * @param {String} [opts.fileName] - filename to use for error messages.
- * @returns {AsyncParserHandle}
  * @memberof module:mona/api
  * @instance
  *
@@ -197,7 +195,6 @@ ParserError.prototype.name = "ParserError";
  * Returns a parser that always succeeds without consuming input.
  *
  * @param [val=undefined] - value to use as this parser's value.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -220,7 +217,6 @@ function value(val) {
  * @param {Parser} parser - The parser to execute.
  * @param {Function} fun - Function called with the resulting value of
  *                         `parser`. Must return a parser.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -247,7 +243,6 @@ function bind(parser, fun) {
  *
  * @param {String} msg - Message to report with the failure.
  * @param {String} type - A type to apply to the ParserError.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  */
@@ -270,7 +265,6 @@ function fail(msg, type) {
  *
  * @param {Parser} parser - Parser whose errors to replace.
  * @param {String} msg - Error message to replace errors with.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -297,7 +291,6 @@ function label(parser, msg) {
  * unexpected eof error if there is no input left.
  *
  * @param {Integer} [count=1] - number of tokens to consume. Must be > 0.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -335,7 +328,6 @@ function token(count) {
  * Returns a parser that succeeds with a value of `true` if there is no more
  * input to consume.
  *
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -358,7 +350,6 @@ function eof() {
  *
  * @param {Function} constructor - A function that returns a Parser.
  * @param {...*} args - Arguments to apply to the constructor.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -385,7 +376,6 @@ function delay(constructor) {
  * @param {Parser} parser - Parser to wrap.
  * @param {String} tag - Tag to use when logging messages.
  * @param {String} [level="log"] - 'log', 'info', 'debug', 'warn', 'error'.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  */
@@ -408,7 +398,6 @@ function log(parser, tag, level) {
  *                                 return value will be used as the `map`
  *                                 parser's value.
  * @param {Parser} parser - Parser that will yield the input value.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -427,7 +416,6 @@ function map(transformer, parser) {
  *
  * @param {Parser} parser - Parser whose value will be tagged.
  * @param {String} tag - String to use as the object's key.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -443,7 +431,6 @@ function tag(parser, key) {
  * still returning a success or failure.
  *
  * @param {Parser} test - Parser to execute.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -464,7 +451,6 @@ function lookAhead(parser) {
  * `predicate` returns a truthy value when called on the token.
  *
  * @param {Function} predicate - Tests a token.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -482,7 +468,6 @@ function is(predicate) {
  * `predicate` returns a falsy value when called on the token.
  *
  * @param {Function} predicate - Tests a token.
- * @returns {Parser}
  * @memberof module:mona/core
  * @instance
  *
@@ -504,7 +489,6 @@ function isNot(predicate) {
  * returned parser uses the value of the last successful parser.
  *
  * @param {...Parser} parsers - One or more parsers to execute.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -529,7 +513,6 @@ function and(firstParser) {
  *
  * @param {...Parser} parsers - One or more parsers to execute.
  * @param {String} [label] - Label to replace the full message with.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -575,7 +558,6 @@ function or() {
  * otherwise succeeds with a value of `undefined` without consuming input.
  *
  * @param {Parser} parser - Parser to try.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -590,7 +572,6 @@ function maybe(parser) {
  * Returns a parser that succeeds if `parser` fails. Does not consume.
  *
  * @param {Parser} parser - parser to test.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -612,7 +593,6 @@ function not(parser) {
  *
  * @param {Parser} notParser - If this parser succeeds, `unless` will fail.
  * @param {...Parser} moreParsers - Rest of the parses to test.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -638,7 +618,6 @@ function unless(parser) {
  * sequence will fail with that parser's reason.
  *
  * @param {SequenceFn} fun - A sequence callback function to execute.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -709,7 +688,6 @@ function sequence(fun) {
  *                               succeeds.
  * @param {...Parser} moreParsers - These parsers must succeed in order for
  *                                       `followedBy` to succeed.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -734,7 +712,6 @@ function followedBy(parser) {
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum length of the resulting array.
  * @param {Integer} [opts.max=0] - Maximum length of the resulting array.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -770,7 +747,6 @@ function split(parser, separator, opts) {
  *                                           end of the parse.
  * @param {Integer} [opts.min=0] - Minimum length of the resulting array.
  * @param {Integer} [opts.max=Infinity] - Maximum length of the resulting array.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -794,7 +770,6 @@ function splitEnd(parser, separator, opts){
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum number of matches.
  * @param {Integer} [opts.max=Infinity] - Maximum number of matches.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -830,7 +805,6 @@ function collect(parser, opts) {
  *
  * @param {Parser} parser - The parser to collect results for.
  * @param {Integer} n - exact number of results to collect.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -848,7 +822,6 @@ function exactly(parser, n) {
  * @param {Parser} open - Opening parser.
  * @param {Parser} close - Closing parser.
  * @param {Parser} parser - Parser to return the value of.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -863,7 +836,6 @@ function between(open, close, parser) {
  * Returns a parser that skips input until `parser` stops matching.
  *
  * @param {Parser} parser - Determines whether to continue skipping.
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -882,7 +854,6 @@ function skip(parser) {
  * @param {*} end - higher bound of the range to accept.
  * @param {Parser} [parser=token()] - parser whose results to test
  * @param {Function} [predicate=function(x,y){return x<=y; }] - Tests range
- * @returns {Parser}
  * @memberof module:mona/combinators
  * @instance
  *
@@ -913,7 +884,6 @@ function range(start, end, parser, predicate) {
  * results.
  *
  * @param {Parser} parser - Parser that results in an array of strings.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -938,7 +908,6 @@ function stringOf(parser) {
  * @param {String|Array} chars - Character bag to match the next
  *                                          token against.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -960,7 +929,6 @@ function oneOf(chars, caseSensitive) {
  *
  * @param {String|Array} chars - Character bag to match against.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -982,7 +950,6 @@ function noneOf(chars, caseSensitive) {
  *
  * @param {String} str - String to match against.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1006,7 +973,6 @@ function string(str, caseSensitive) {
  * Returns a parser that matches a single non-unicode uppercase alphabetical
  * character.
  *
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1021,7 +987,6 @@ function alphaUpper() {
  * Returns a parser that matches a single non-unicode lowercase alphabetical
  * character.
  *
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1035,7 +1000,6 @@ function alphaLower() {
 /**
  * Returns a parser that matches a single non-unicode alphabetical character.
  *
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1051,7 +1015,6 @@ function alpha() {
  * Returns a parser that parses a single digit character token from the input.
  *
  * @param {Integer} [base=10] - Optional base for the digit.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1068,7 +1031,6 @@ function digit(base) {
  * Returns a parser that matches an alphanumeric character.
  *
  * @param {Integer} [base=10] - Optional base for numeric parsing.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1084,7 +1046,6 @@ function alphanum(base) {
 /**
  * Returns a parser that matches one whitespace character.
  *
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1100,7 +1061,6 @@ function space() {
  * single space character as its result, regardless of which whitespace
  * characters were matched.
  *
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1120,7 +1080,6 @@ function spaces() {
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum number of matches.
  * @param {Integer} [opts.max=Infinity] - Maximum number of matches.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1138,7 +1097,6 @@ function text(parser, opts) {
  * Returns a parser that trims any whitespace surrounding `parser`.
  *
  * @param {Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1155,7 +1113,6 @@ function trim(parser) {
  * Returns a parser that trims any leading whitespace before `parser`.
  *
  * @param {Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1170,7 +1127,6 @@ function trimLeft(parser) {
  * Returns a parser that trims any trailing whitespace before `parser`.
  *
  * @param {Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {Parser}
  * @memberof module:mona/strings
  * @instance
  *
@@ -1192,7 +1148,6 @@ function trimRight(parser) {
  * positive/negative sign or decimal places, and returns a positive integer.
  *
  * @param {Integer} [base=10] - Base to use when parsing the number.
- * @returns {Parser}
  * @memberof module:mona/numbers
  * @instance
  *
@@ -1209,7 +1164,6 @@ function natural(base) {
  * Returns a parser that matches an integer, with an optional + or - sign.
  *
  * @param {Integer} [base=10] - Base to use when parsing the integer.
- * @returns {Parser}
  * @memberof module:mona/numbers
  * @instance
  *
@@ -1229,7 +1183,6 @@ function integer(base) {
 /**
  * Returns a parser that will parse floating point numbers.
  *
- * @returns {Parser}
  * @memberof module:mona/numbers
  * @instance
  *
