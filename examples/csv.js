@@ -37,12 +37,11 @@ function quotedChar() {
 
 function eol() {
   var str = mona.string;
-  return mona.label(
-    mona.or(str("\n\r"),
-            str("\r\n"),
-            str("\n"),
-            str("\r")),
-    "end of line");
+  return mona.or(str("\n\r"),
+                 str("\r\n"),
+                 str("\n"),
+                 str("\r"),
+                 "end of line");
 }
 
 function parseCSV(text, minimumColumns) {
@@ -57,6 +56,11 @@ function runExample() {
                  '"Haskell Caps",15\r\n'+
                  ',\n');
   console.log("Parsing:\n", csvText,
-              "=>\n", parseCSV(csvText, 2));
+              "=>\n", parseCSV(csvText));
 }
 if (module.id === ".") runExample();
+
+module.exports = {
+  parseCSV: parseCSV,
+  runExample: runExample
+};
