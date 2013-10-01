@@ -6,6 +6,10 @@
   "templates": {
     "default": {
       "outputSourceFiles": true
-    }
+    },
+    "systemName": "mona",
+    "theme": "spacelab",
+    "linenums": true,
+    "inverseNav": true
   }
 }

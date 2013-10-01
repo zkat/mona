@@ -15,6 +15,7 @@ semver = $(module-root)/semver/bin/semver
 #
 mocha-opts = --check-leaks
 linter-opts =
+jsdoc-opts = -t $(module-root)/ink-docstrap/template
 
 #
 # Files
@@ -72,7 +73,7 @@ $(build-dir):
 	mkdir -p $@
 
 $(docs-dir): $(jsdoc-config) $(source-files) $(readme)
-	$(jsdoc) -d $@ -c $(jsdoc-config) $(source-files) $(readme)
+	$(jsdoc) -d $@ $(jsdoc-opts) -c $(jsdoc-config) $(source-files) $(readme)
 
 .PHONY: clean
 clean:

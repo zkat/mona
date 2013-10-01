@@ -92,6 +92,10 @@ Documentation of the latest released version is
 the `npm` release. You can build the docs yourself by running
 `npm install && make docs` in the root of the source directory.
 
+The documentation is currently organized as if `mona` had multiple modules,
+although all modules' APIs are exported through a single module/namespace,
+`mona`. That means that `mona/api.parse()` is available through `mona.parse()`
+
 ### Building
 
 The `npm` version includes a build/ directory with both pre-built and
