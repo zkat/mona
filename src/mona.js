@@ -758,8 +758,30 @@ function splitEnd(parser, separator, opts){
   var enforceEnd = typeof opts.enforceEnd === "undefined" ?
         true :
         opts.enforceEnd;
-  return followedBy(split(parser, separator, {min: opts.min, max: opts.max}),
-                    enforceEnd ? separator : maybe(separator));
+  if (enforceEnd) {
+    return collect(followedBy(parser, separator), opts);
+  } else {
+    // TODO - This is bloody terrible and should die a horrible, painful death,
+    //        but at least the tests seem to pass. :\
+    return sequence(function(s) {
+      var min = opts.min || 0,
+          max = opts.max || Infinity,
+          last;
+      var results = s(splitEnd(parser, separator, {min: opts.min && min-1,
+                                                   max: opts.max && max-1}));
+      if (opts.min > results.length || opts.max) {
+        last = s(followedBy(parser, maybe(separator)));
+        return value(results.concat([last]));
+      } else {
+        last = s(maybe(parser));
+        if (last) {
+          return value(results.concat([last]));
+        } else {
+          return value(results);
+        }
+      }
+    });
+  }
 }
 
 /**
