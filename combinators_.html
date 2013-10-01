@@ -37,7 +37,7 @@
 						</li>
 						
 						<li>
-							<a href="combinators.html">mona/combinators</a>
+							<a href="combinators_.html">mona/combinators</a>
 						</li>
 						
 						<li>
@@ -111,7 +111,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-496">line 496</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-441">line 441</a>
     </li></ul></dd>
     
 
@@ -145,7 +145,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="and"><span class="type-signature"></span>and<span class="signature">(parsers)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="and"><span class="type-signature">&lt;static> </span>and<span class="signature">(parsers)</span><span class="type-signature"> &rarr; {core.Parser|*}</span></h4>
     
     
 </dt>
@@ -196,7 +196,7 @@ returned parser uses the value of the last successful parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -248,7 +248,7 @@ returned parser uses the value of the last successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-514">line 514</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-455">line 455</a>
     </li></ul></dd>
     
 
@@ -280,7 +280,10 @@ returned parser uses the value of the last successful parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
 
 
 	</dd>
@@ -290,18 +293,12 @@ returned parser uses the value of the last successful parser.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(and(token(), token()), "ab"); // => "b"</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="between"><span class="type-signature"></span>between<span class="signature">(open, close, parser)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="between"><span class="type-signature">&lt;static> </span>between<span class="signature">(open, close, parser)</span><span class="type-signature"> &rarr; {core.Parser}</span></h4>
     
     
 </dt>
@@ -350,7 +347,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -373,7 +370,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -396,7 +393,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -438,7 +435,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-868">line 868</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-768">line 768</a>
     </li></ul></dd>
     
 
@@ -470,7 +467,7 @@ parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
 	</dd>
@@ -480,18 +477,12 @@ parser.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(between(string("("), string(")"), token()), "(a)"); // => "a"</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="collect"><span class="type-signature"></span>collect<span class="signature">(parser, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="collect"><span class="type-signature">&lt;static> </span>collect<span class="signature">(parser, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {core.Parser}</span></h4>
     
     
 </dt>
@@ -542,7 +533,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -733,7 +724,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-814">line 814</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-722">line 722</a>
     </li></ul></dd>
     
 
@@ -765,7 +756,7 @@ parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
 	</dd>
@@ -775,18 +766,12 @@ parser.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(collect(token()), "abcd"); // => ["a", "b", "c", "d"]</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="exactly"><span class="type-signature"></span>exactly<span class="signature">(parser, n)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="exactly"><span class="type-signature">&lt;static> </span>exactly<span class="signature">(parser, n)</span><span class="type-signature"> &rarr; {core.Parser}</span></h4>
     
     
 </dt>
@@ -835,7 +820,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -900,7 +885,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-850">line 850</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-754">line 754</a>
     </li></ul></dd>
     
 
@@ -932,7 +917,7 @@ parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
 	</dd>
@@ -942,18 +927,12 @@ parser.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(exactly(token(), 4), "abcd"); // => ["a", "b", "c", "d"]</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="followedBy"><span class="type-signature"></span>followedBy<span class="signature">(parser, moreParsers)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="followedBy"><span class="type-signature">&lt;static> </span>followedBy<span class="signature">(parser, moreParsers)</span><span class="type-signature"> &rarr; {core.Parser|*}</span></h4>
     
     
 </dt>
@@ -1004,7 +983,7 @@ but fails if any of the following parsers fail.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -1036,7 +1015,7 @@ but fails if any of the following parsers fail.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -1089,7 +1068,7 @@ but fails if any of the following parsers fail.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-719">line 719</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-639">line 639</a>
     </li></ul></dd>
     
 
@@ -1121,7 +1100,10 @@ but fails if any of the following parsers fail.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
 
 
 	</dd>
@@ -1131,18 +1113,12 @@ but fails if any of the following parsers fail.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(followedBy(string("a"), string("b")), "ab"); // => "a"</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="maybe"><span class="type-signature"></span>maybe<span class="signature">(parser)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="maybe"><span class="type-signature">&lt;static> </span>maybe<span class="signature">(parser)</span><span class="type-signature"> &rarr; {core.Parser|*|undefined}</span></h4>
     
     
 </dt>
@@ -1191,7 +1167,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -1233,7 +1209,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-585">line 585</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-518">line 518</a>
     </li></ul></dd>
     
 
@@ -1265,7 +1241,13 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
+|
+
+<span class="param-type">undefined</span>
 
 
 	</dd>
@@ -1275,18 +1257,12 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(maybe(token()), ""); // => undefined</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="not"><span class="type-signature"></span>not<span class="signature">(parser)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="not"><span class="type-signature">&lt;static> </span>not<span class="signature">(parser)</span><span class="type-signature"> &rarr; {core.Parser|true}</span></h4>
     
     
 </dt>
@@ -1334,7 +1310,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -1376,7 +1352,7 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-600">line 600</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-529">line 529</a>
     </li></ul></dd>
     
 
@@ -1408,7 +1384,10 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">true</span>
 
 
 	</dd>
@@ -1418,18 +1397,12 @@ otherwise succeeds with a value of <code>undefined</code> without consuming inpu
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(and(not(string("a")), token()), "b"); // => "b"</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="or"><span class="type-signature"></span>or<span class="signature">(parsers, <span class="optional">label</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="or"><span class="type-signature">&lt;static> </span>or<span class="signature">(parsers, <span class="optional">label</span>)</span><span class="type-signature"> &rarr; {core.Parser|*}</span></h4>
     
     
 </dt>
@@ -1480,7 +1453,7 @@ suceeds. Uses the value of the first successful parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -1565,7 +1538,7 @@ suceeds. Uses the value of the first successful parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-539">line 539</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-476">line 476</a>
     </li></ul></dd>
     
 
@@ -1597,7 +1570,10 @@ suceeds. Uses the value of the first successful parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
 
 
 	</dd>
@@ -1607,291 +1583,12 @@ suceeds. Uses the value of the first successful parser.</p>
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(or(string("foo"), string("bar")), "bar"); // => "bar"</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="range"><span class="type-signature"></span>range<span class="signature">(start, end, <span class="optional">parser</span>, <span class="optional">predicate</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that accepts a parser if its result is within range of
-<code>start</code> and <code>end</code>.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-		<th>Default</th>
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>start</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>lower bound of the range to accept.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>end</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>higher bound of the range to accept.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>parser</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Parser</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    token()
-                
-                </td>
-            
-
-            <td class="description last"><p>parser whose results to test</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>predicate</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    function(x,y){return x&lt;=y; }
-                
-                </td>
-            
-
-            <td class="description last"><p>Tests range</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-902">line 902</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Parser</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(range("a", "z"), "d"); // => "d" </pre>
-
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="sequence"><span class="type-signature"></span>sequence<span class="signature">(fun)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="sequence"><span class="type-signature">&lt;static> </span>sequence<span class="signature">(fun)</span><span class="type-signature"> &rarr; {core.Parser|*}</span></h4>
     
     
 </dt>
@@ -1989,7 +1686,7 @@ sequence will fail with that parser's reason.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-652">line 652</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-576">line 576</a>
     </li></ul></dd>
     
 
@@ -2021,7 +1718,10 @@ sequence will fail with that parser's reason.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
 
 
 	</dd>
@@ -2046,150 +1746,7 @@ sequence will fail with that parser's reason.</p>
         
             
 <dt>
-    <h4 class="name" id="skip"><span class="type-signature"></span>skip<span class="signature">(parser)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that skips input until <code>parser</code> stops matching.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>parser</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Parser</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Determines whether to continue skipping.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-883">line 883</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Parser</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(and(skip(string("a")), token()), "aaaab"); // => "b"</pre>
-
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="split"><span class="type-signature"></span>split<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="split"><span class="type-signature">&lt;static> </span>split<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {core.Parser}</span></h4>
     
     
 </dt>
@@ -2240,7 +1797,7 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -2271,7 +1828,7 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -2462,7 +2019,7 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-744">line 744</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-660">line 660</a>
     </li></ul></dd>
     
 
@@ -2494,7 +2051,7 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
 	</dd>
@@ -2504,18 +2061,12 @@ parsed by <code>parser</code>, which were separated by <code>separator</code>.</
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(split(token(), space()), "a b c d"); // => ["a","b","c","d"]</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="splitEnd"><span class="type-signature"></span>splitEnd<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="splitEnd"><span class="type-signature">&lt;static> </span>splitEnd<span class="signature">(parser, separator, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {core.Parser|Array}</span></h4>
     
     
 </dt>
@@ -2566,7 +2117,7 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -2597,7 +2148,7 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -2828,7 +2379,7 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-780">line 780</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-692">line 692</a>
     </li></ul></dd>
     
 
@@ -2860,7 +2411,10 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">Array</span>
 
 
 	</dd>
@@ -2870,18 +2424,12 @@ parsed by <code>parser</code>, separated and ended by <code>separator</code>.</p
         
     
     
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(splitEnd(token(), space()), "a b c "); // => ["a", "b", "c"]</pre>
-
-
-    
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="unless"><span class="type-signature"></span>unless<span class="signature">(notParser, moreParsers)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="unless"><span class="type-signature">&lt;static> </span>unless<span class="signature">(notParser, moreParsers)</span><span class="type-signature"> &rarr; {core.Parser|*}</span></h4>
     
     
 </dt>
@@ -2933,7 +2481,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -2964,7 +2512,7 @@ parser.</p>
             <td class="type">
             
                 
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
             
@@ -3016,7 +2564,7 @@ parser.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-622">line 622</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-547">line 547</a>
     </li></ul></dd>
     
 
@@ -3048,7 +2596,10 @@ parser.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
+|
+
+<span class="param-type">*</span>
 
 
 	</dd>
@@ -3057,12 +2608,6 @@ parser.</p>
 
         
     
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(unless(string("a"), token()), "b"); // => "b"</pre>
-
-
     
 </dd>
 
@@ -3075,7 +2620,7 @@ parser.</p>
         <dl>
                 
 <dt>
-    <h4 class="name" id="SequenceFn"><span class="type-signature"></span>SequenceFn<span class="signature">(s)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="SequenceFn"><span class="type-signature"></span>SequenceFn<span class="signature">(s)</span><span class="type-signature"> &rarr; {core.Parser}</span></h4>
     
     
 </dt>
@@ -3091,7 +2636,7 @@ message, and none of the subsequent code will execute.</p>
 <p>Note that this callback may be called multiple times during parsing, and many
 of those calls might partially fail, so side-effects should be done with
 care.</p>
-<p>A <code>sequence</code> callback <em>must</em> return a <code>Parser</code>.</p>
+<p>A <code>sequence</code> callback <em>must</em> return a <code>core.Parser</code>.</p>
     </div>
     
 
@@ -3173,7 +2718,7 @@ care.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-683">line 683</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-607">line 607</a>
     </li></ul></dd>
     
 
@@ -3210,7 +2755,7 @@ care.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">core.Parser</span>
 
 
 	</dd>
@@ -3241,7 +2786,7 @@ care.</p>
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a>
-		on Mon Sep 30 2013 19:13:47 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Mon Sep 30 2013 17:40:08 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>

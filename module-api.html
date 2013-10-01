@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>mona Module: mona/numbers</title>
+	<title>mona Module: api</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -23,33 +23,43 @@
 			<ul class="nav">
 				
 				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="api.html">api</a>
+						</li>
+						
+						<li>
+							<a href="combinators.html">combinators</a>
+						</li>
+						
+						<li>
+							<a href="core.html">core</a>
+						</li>
+						
+						<li>
+							<a href="numbers.html">numbers</a>
+						</li>
+						
+						<li>
+							<a href="strings.html">strings</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
 					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
 						class="caret"></b></a>
 
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="module-mona.html">mona</a>
-						</li>
-						
-						<li>
-							<a href="api_.html">mona/api</a>
-						</li>
-						
-						<li>
-							<a href="combinators.html">mona/combinators</a>
-						</li>
-						
-						<li>
-							<a href="core.html">mona/core</a>
-						</li>
-						
-						<li>
-							<a href="numbers.html">mona/numbers</a>
-						</li>
-						
-						<li>
-							<a href="strings.html">mona/strings</a>
+							<a href="module-api.html">api</a>
 						</li>
 						
 
@@ -69,12 +79,12 @@
 					
 
 
-	<h1 class="page-title">Module: mona/numbers</h1>
+	<h1 class="page-title">Module: api</h1>
 <section>
 
 <header>
     <h2>
-    mona/numbers
+    api
     </h2>
     
 </header>
@@ -85,7 +95,7 @@
 
     
         
-            <div class="description"><p>Number-related parsers and combinators</p></div>
+            <div class="description"><p>API!</p></div>
         
 
         
@@ -111,7 +121,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1194">line 1194</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-3">line 3</a>
     </li></ul></dd>
     
 
@@ -145,7 +155,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="float"><span class="type-signature"></span>float<span class="signature">()</span><span class="type-signature"> &rarr; {Parser}</span></h4>
+    <h4 class="name" id="parse"><span class="type-signature">&lt;static> </span>parse<span class="signature">(parser, string, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {value|<a href="api.html#ParserError">api.ParserError</a>}</span></h4>
     
     
 </dt>
@@ -153,101 +163,7 @@
     
     
     <div class="description">
-        <p>Returns a parser that will parse floating point numbers.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1249">line 1249</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Parser</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(float(), "-1234e-10"); // => -1.234e-7</pre>
-
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="integer"><span class="type-signature"></span>integer<span class="signature">(<span class="optional">base</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that matches an integer, with an optional + or - sign.</p>
+        <p>Executes a parser and returns the result.</p>
     </div>
     
 
@@ -258,6 +174,122 @@
     
         <h5>Parameters:</h5>
         
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The parser to execute.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>string</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>String to parse.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Options object.</p>
+                <h6>Properties</h6>
+                
 
 <table class="params table table-striped">
     <thead>
@@ -285,13 +317,13 @@
 
         <tr>
             
-                <td class="name"><code>base</code></td>
+                <td class="name"><code>throwOnError</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Integer</span>
+<span class="param-type">Boolean</span>
 
 
             
@@ -312,12 +344,58 @@
             
                 <td class="default">
                 
-                    10
+                    true
                 
                 </td>
             
 
-            <td class="description last"><p>Base to use when parsing the integer.</p></td>
+            <td class="description last"><p>If truthy, throws a ParserError
+                                            if the parser fails and returns
+                                            ParserState instead of its value.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>fileName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>filename to use for error messages.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
         </tr>
 
 	
@@ -349,7 +427,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1229">line 1229</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-28">line 28</a>
     </li></ul></dd>
     
 
@@ -381,7 +459,10 @@
 	</dt>
 	<dd>
 		
-<span class="param-type">Parser</span>
+<span class="param-type">value</span>
+|
+
+<span class="param-type"><a href="api.html#ParserError">api.ParserError</a></span>
 
 
 	</dd>
@@ -390,176 +471,6 @@
 
         
     
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(integer(), "-1234"); // => -1234</pre>
-
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="natural"><span class="type-signature"></span>natural<span class="signature">(<span class="optional">base</span>)</span><span class="type-signature"> &rarr; {Parser}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Returns a parser that matches a natural number. That is, a number without a
-positive/negative sign or decimal places, and returns a positive integer.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-		<th>Default</th>
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>base</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    10
-                
-                </td>
-            
-
-            <td class="description last"><p>Base to use when parsing the number.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1212">line 1212</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Parser</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">parse(natural(), "1234"); // => 1234</pre>
-
-
     
 </dd>
 
@@ -584,7 +495,7 @@ positive/negative sign or decimal places, and returns a positive integer.</p>
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a>
-		on Mon Sep 30 2013 19:13:47 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Mon Sep 30 2013 17:20:53 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>

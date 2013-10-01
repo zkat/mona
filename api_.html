@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>mona Namespace: api</title>
+	<title>mona Module: mona/api</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -23,29 +23,33 @@
 			<ul class="nav">
 				
 				<li class="dropdown">
-					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
 						class="caret"></b></a>
 
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="api.html">api</a>
+							<a href="module-mona.html">mona</a>
 						</li>
 						
 						<li>
-							<a href="combinators.html">combinators</a>
+							<a href="api_.html">mona/api</a>
 						</li>
 						
 						<li>
-							<a href="core.html">core</a>
+							<a href="combinators.html">mona/combinators</a>
 						</li>
 						
 						<li>
-							<a href="numbers.html">numbers</a>
+							<a href="core.html">mona/core</a>
 						</li>
 						
 						<li>
-							<a href="strings.html">strings</a>
+							<a href="numbers.html">mona/numbers</a>
+						</li>
+						
+						<li>
+							<a href="strings.html">mona/strings</a>
 						</li>
 						
 
@@ -65,12 +69,12 @@
 					
 
 
-	<h1 class="page-title">Namespace: api</h1>
+	<h1 class="page-title">Module: mona/api</h1>
 <section>
 
 <header>
     <h2>
-    api
+    mona/api
     </h2>
     
 </header>
@@ -107,7 +111,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-3">line 3</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-5">line 5</a>
     </li></ul></dd>
     
 
@@ -141,7 +145,335 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="parseAsync"><span class="type-signature">&lt;static> </span>parseAsync<span class="signature">(parser, callback, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {AsyncParserHandle}</span></h4>
+    <h4 class="name" id="parse"><span class="type-signature"></span>parse<span class="signature">(parser, string, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {value|api.ParserError}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Executes a parser and returns the result.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The parser to execute.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>string</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>String to parse.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Options object.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>throwOnError</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last"><p>If truthy, throws a ParserError
+                                            if the parser fails and returns
+                                            ParserState instead of its value.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>fileName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>filename to use for error messages.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">value</span>
+|
+
+<span class="param-type">api.ParserError</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">parse(token(), "a"); // => "a"</pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="parseAsync"><span class="type-signature"></span>parseAsync<span class="signature">(parser, callback, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {AsyncParserHandle}</span></h4>
     
     
 </dt>
@@ -370,7 +702,7 @@ parsing will continue until the parser's done() function is called.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-64">line 64</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-82">line 82</a>
     </li></ul></dd>
     
 
@@ -412,313 +744,12 @@ parsing will continue until the parser's done() function is called.</p>
         
     
     
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="parseStream"><span class="type-signature">&lt;static> </span>parseStream<span class="signature">(parser, <span class="optional">opts</span>)</span><span class="type-signature"> &rarr; {stream.Transform}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Implements node.js' transformer stream API. That is, it implements the
-<a href="http://nodejs.org/api/stream.html#stream_class_stream_transform">transform</a>
-stream interface.</p>
-<p>By default, <code>parseStream</code> is a passthrough stream for incoming data, and a
-&quot;parsed&quot; event is emitted on the results of successful parses. If your parser
-returns string/binary chunks, you can use the <code>transformOutput</code> option to
-make <code>parseStream</code>'s output be the parser's &quot;data&quot; output instead of just the
-incoming data.</p>
-<p>For now, <code>parseStream</code> only supports utf8 streams.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>parser</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The parser to execute.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>opts</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Options object.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-		<th>Default</th>
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>transformOutput</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last"><p>use the parser's output as
-                                                the outgoing &quot;data&quot; forr this
-                                                stream.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>fileName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>filename to use for error messages.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-            </td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="stream.js.html">stream.js</a>, <a href="stream.js.html#sunlight-1-line-41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">stream.Transform</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
         <h5>Example</h5>
         
-    <pre class="sunlight-highlight-javascript">var source = fs.createReadStream("/some/file.csv", {encoding: "utf8"});
-var destination = fs.createWriteStream("/tmp/final-dest.txt");
-var handle = parseStream(csvLine());
-handle.on("parse", function(line) {
-  console.log("Got a csv line with ", line.length, "columns.");
+    <pre class="sunlight-highlight-javascript">var handle = parseAsync(token(), function(tok) {
+ console.log("Got a token: ", tok);
 });
-deepEqual(fs.readFileSync("/some/file.csv"),
-          fs.readFileSync("/tmp/final-dest.txt"));
-// => true</pre>
+handle.data("foobarbaz");</pre>
 
 
     
@@ -792,7 +823,7 @@ deepEqual(fs.readFileSync("/some/file.csv"),
             <td class="type">
             
                 
-<span class="param-type"><a href="api.html#SourcePosition">api.SourcePosition</a></span>
+<span class="param-type">api.SourcePosition</span>
 
 
             
@@ -877,7 +908,7 @@ deepEqual(fs.readFileSync("/some/file.csv"),
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-136">line 136</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-155">line 155</a>
     </li></ul></dd>
     
 
@@ -1039,7 +1070,7 @@ deepEqual(fs.readFileSync("/some/file.csv"),
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-122">line 122</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-140">line 140</a>
     </li></ul></dd>
     
 
@@ -1073,7 +1104,7 @@ deepEqual(fs.readFileSync("/some/file.csv"),
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a>
-		on Mon Sep 30 2013 17:21:17 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Mon Sep 30 2013 19:13:47 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
