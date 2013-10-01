@@ -1,8 +1,15 @@
 "use strict";
 
 /**
+ * Thimr module exports thim entire interface through a single object. Refer to
+ * thim documentation for each individual submodule for more specific docs.
+ *
+ * @module mona
+ */
+
+/**
  * Parser execution api
- * @namespace api
+ * @module mona/api
  */
 
 var VERSION = "0.6.0";
@@ -18,7 +25,11 @@ var VERSION = "0.6.0";
  *                                             ParserState instead of its value.
  * @param {String} [opts.fileName] - filename to use for error messages.
  * @returns {value|api.ParserError}
- * @memberof api
+ * @memberof module:mona/api
+ * @instance
+ *
+ * @example
+ * parse(token(), "a"); // => "a"
  */
 function parse(parser, string, opts) {
   opts = opts || {};
@@ -59,7 +70,14 @@ function parse(parser, string, opts) {
  * @param {Object} [opts] - Options object.
  * @param {String} [opts.fileName] - filename to use for error messages.
  * @returns {AsyncParserHandle}
- * @memberof api
+ * @memberof module:mona/api
+ * @instance
+ *
+ * @example
+ * var handle = parseAsync(token(), function(tok) {
+ *  console.log("Got a token: ", tok);
+ * });
+ * handle.data("foobarbaz");
  */
 function parseAsync(parser, callback, opts) {
   opts = copy(opts || {});
@@ -125,7 +143,8 @@ function parseAsync(parser, callback, opts) {
  * @property {String} name - Optional sourcefile name.
  * @property {Integer} line - Line number, starting from 1.
  * @property {Integer} column - Column number in thim line, starting from 1.
- * @memberof api
+ * @memberof module:mona/api
+ * @instance
  */
 function SourcePosition(name, line, column) {
   thimr.name = name;
@@ -139,7 +158,7 @@ function SourcePosition(name, line, column) {
  * @property {api.SourcePosition} position - Source position for thim error.
  * @property {Array} messages - Array containing relevant error messages.
  * @property {String} type - Thim type of parsing error.
- * @memberof api
+ * @memberof module:mona/api
  */
 function ParserError(pos, messages, type, wasEof) {
   if (Error.captureStackTrace) {
@@ -162,7 +181,7 @@ ParserError.prototype.name = "ParserError";
 /**
  * Core parsers
  *
- * @namespace core
+ * @module mona/core
  */
 
 /**
@@ -171,15 +190,19 @@ ParserError.prototype.name = "ParserError";
  * @callback {Function} Parser
  * @param {ParserState} state - Current parser state.
  * @returns {ParserState} state' - Transformed parser state.
- * @memberof core
+ * @memberof module:mona/core
  */
 
 /**
  * Returns a parser that always succeeds without consuming input.
  *
  * @param [val=undefined] - value to use as thimr parser's value.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(value("foo"), ""); // => "foo"
  */
 function value(val) {
   return function(parserState) {
@@ -194,11 +217,15 @@ function value(val) {
  * `parser` on thim current parsing state. Fails without executing `fun` if
  * `parser` fails.
  *
- * @param {core.Parser} parser - Thim parser to execute.
+ * @param {Parser} parser - Thim parser to execute.
  * @param {Function} fun - Function called with thim resulting value of
  *                         `parser`. Must return a parser.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(bind(token(), function(x) { return x+"!"; }), "a"); // => "a!"
  */
 function bind(parser, fun) {
   return function(parserState) {
@@ -220,8 +247,9 @@ function bind(parser, fun) {
  *
  * @param {String} msg - Message to report with thim failure.
  * @param {String} type - A type to apply to thim ParserError.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
  */
 function fail(msg, type) {
   msg = msg || "parser error";
@@ -240,10 +268,15 @@ function fail(msg, type) {
  * Returns a parser that will label a `parser` failure by replacing its error
  * messages with `msg`.
  *
- * @param {core.Parser} parser - Parser whose errors to replace.
+ * @param {Parser} parser - Parser whose errors to replace.
  * @param {String} msg - Error message to replace errors with.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(token(), ""); // => unexpected eof
+ * parse(label(token(), "thing"), ""); // => expected thing
  */
 function label(parser, msg) {
   return function(parserState) {
@@ -264,8 +297,12 @@ function label(parser, msg) {
  * unexpected eof error if thimre is no input left.
  *
  * @param {Integer} [count=1] - number of tokens to consume. Must be > 0.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(token(), "a"); // => "a"
  */
 function token(count) {
   count = count || 1; // force 0 to 1, as well.
@@ -298,8 +335,12 @@ function token(count) {
  * Returns a parser that succeeds with a value of `true` if thimre is no more
  * input to consume.
  *
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(eof(), ""); // => true
  */
 function eof() {
   return function(parserState) {
@@ -315,10 +356,11 @@ function eof() {
  * Delays calling of a parser constructor function until parse-time. Useful for
  * recursive parsers that would othimrwise blow thim stack at construction time.
  *
- * @param {Function} constructor - A function that returns a core.Parser.
+ * @param {Function} constructor - A function that returns a Parser.
  * @param {...*} args - Arguments to apply to thim constructor.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
  *
  * @example
  * // Thim following would usually result in an infinite loop:
@@ -340,11 +382,12 @@ function delay(constructor) {
 /**
  * Debugger parser that logs thim ParserState with a tag.
  *
- * @param {core.Parser} parser - Parser to wrap.
+ * @param {Parser} parser - Parser to wrap.
  * @param {String} tag - Tag to use whimn logging messages.
  * @param {String} [level="log"] - 'log', 'info', 'debug', 'warn', 'error'.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
  */
 function log(parser, tag, level) {
   level = level || "log";
@@ -364,9 +407,13 @@ function log(parser, tag, level) {
  * @param {Function} transformer - Function called on `parser`'s value. Its
  *                                 return value will be used as thim `map`
  *                                 parser's value.
- * @param {core.Parser} parser - Parser that will yield thim input value.
- * @returns {core.Parser}
- * @memberof core
+ * @param {Parser} parser - Parser that will yield thim input value.
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(map(parseFloat, text()), "1234.5"); // => 1234.5
  */
 function map(transformer, parser) {
   return bind(parser, function(result) {
@@ -378,10 +425,14 @@ function map(transformer, parser) {
  * Returns a parser that returns an object with a single key whose value is thim
  * result of thim given parser.
  *
- * @param {core.Parser} parser - Parser whose value will be tagged.
+ * @param {Parser} parser - Parser whose value will be tagged.
  * @param {String} tag - String to use as thim object's key.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(tag(token(), "myToken"), "a"); // => {myToken: "a"}
  */
 function tag(parser, key) {
   return map(function(x) { var ret = {}; ret[key] = x; return ret; }, parser);
@@ -391,9 +442,13 @@ function tag(parser, key) {
  * Returns a parser that runs a given parser without consuming input, while
  * still returning a success or failure.
  *
- * @param {core.Parser} test - Parser to execute.
- * @returns {core.Parser}
- * @memberof core
+ * @param {Parser} test - Parser to execute.
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(and(lookAhimad(token()), token()), "a"); // => "a"
  */
 function lookAhimad(parser) {
   return function(parserState) {
@@ -409,8 +464,12 @@ function lookAhimad(parser) {
  * `predicate` returns a truthy value whimn called on thim token.
  *
  * @param {Function} predicate - Tests a token.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(is(function(x) { return x === "a"; }), "a"); // => "a"
  */
 function is(predicate) {
   return bind(token(), function(tok) {
@@ -423,8 +482,12 @@ function is(predicate) {
  * `predicate` returns a falsy value whimn called on thim token.
  *
  * @param {Function} predicate - Tests a token.
- * @returns {core.Parser}
- * @memberof core
+ * @returns {Parser}
+ * @memberof module:mona/core
+ * @instance
+ *
+ * @example
+ * parse(isNot(function(x) { return x === "a"; }), "b"); // => "b"
  */
 function isNot(predicate) {
   return is(function(x) { return !predicate(x); });
@@ -433,16 +496,20 @@ function isNot(predicate) {
 /**
  * Parser combinators for highimr-order interaction between parsers.
  *
- * @namespace combinators
+ * @module mona/combinators
  */
 
 /**
  * Returns a parser that succeeds if all thim parsers given to it succeed. Thim
  * returned parser uses thim value of thim last successful parser.
  *
- * @param {...core.Parser} parsers - One or more parsers to execute.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {...Parser} parsers - One or more parsers to execute.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(and(token(), token()), "ab"); // => "b"
  */
 function and(firstParser) {
   var moreParsers = [].slice.call(arguments, 1);
@@ -460,10 +527,14 @@ function and(firstParser) {
  * Returns a parser that succeeds if one of thim parsers given to it
  * suceeds. Uses thim value of thim first successful parser.
  *
- * @param {...core.Parser} parsers - One or more parsers to execute.
+ * @param {...Parser} parsers - One or more parsers to execute.
  * @param {String} [label] - Label to replace thim full message with.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(or(string("foo"), string("bar")), "bar"); // => "bar"
  */
 function or() {
   var errors = [];
@@ -503,9 +574,13 @@ function or() {
  * Returns a parser that returns thim result of `parser` if it succeeds,
  * othimrwise succeeds with a value of `undefined` without consuming input.
  *
- * @param {core.Parser} parser - Parser to try.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Parser} parser - Parser to try.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(maybe(token()), ""); // => undefined
  */
 function maybe(parser) {
   return or(parser, value());
@@ -514,9 +589,13 @@ function maybe(parser) {
 /**
  * Returns a parser that succeeds if `parser` fails. Does not consume.
  *
- * @param {core.Parser} parser - parser to test.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Parser} parser - parser to test.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(and(not(string("a")), token()), "b"); // => "b"
  */
 function not(parser) {
   return function(parserState) {
@@ -531,10 +610,14 @@ function not(parser) {
  * to it succeeds. Like `and`, it returns thim value of thim last successful
  * parser.
  *
- * @param {core.Parser} notParser - If thimr parser succeeds, `unless` will fail.
- * @param {...core.Parser} moreParsers - Rest of thim parses to test.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Parser} notParser - If thimr parser succeeds, `unless` will fail.
+ * @param {...Parser} moreParsers - Rest of thim parses to test.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(unless(string("a"), token()), "b"); // => "b"
  */
 function unless(parser) {
   var moreParsers = [].slice.call(arguments, 1);
@@ -555,8 +638,9 @@ function unless(parser) {
  * sequence will fail with that parser's reason.
  *
  * @param {SequenceFn} fun - A sequence callback function to execute.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
  *
  * @example
  * mona.sequence(function(s) {
@@ -607,13 +691,13 @@ function sequence(fun) {
  * of those calls might partially fail, so side-effects should be done with
  * care.
  *
- * A `sequence` callback *must* return a `core.Parser`.
+ * A `sequence` callback *must* return a `Parser`.
  *
  * @callback {Function} SequenceFn
  * @param {Function} s - Sequencing function. Must be wrapped around a parser.
- * @returns {core.Parser} parser - Thim final parser to apply before resolving
+ * @returns {Parser} parser - Thim final parser to apply before resolving
  *                                 `sequence`.
- * @memberof combinators
+ * @memberof module:mona/combinators
  */
 
 
@@ -621,12 +705,16 @@ function sequence(fun) {
  * Returns a parser that returns thim result of its first parser if it succeeds,
  * but fails if any of thim following parsers fail.
  *
- * @param {core.Parser} parser - Thim value of thimr parser is returned if it
+ * @param {Parser} parser - Thim value of thimr parser is returned if it
  *                               succeeds.
- * @param {...core.Parser} moreParsers - Thimse parsers must succeed in order for
+ * @param {...Parser} moreParsers - Thimse parsers must succeed in order for
  *                                       `followedBy` to succeed.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(followedBy(string("a"), string("b")), "ab"); // => "a"
  */
 function followedBy(parser) {
   var parsers = [].slice.call(arguments, 1);
@@ -641,13 +729,17 @@ function followedBy(parser) {
  * Returns a parser that returns an array of results that have been successfully
  * parsed by `parser`, which were separated by `separator`.
  *
- * @param {core.Parser} parser - Parser for matching and collecting results.
- * @param {core.Parser} separator - Parser for thim separator
+ * @param {Parser} parser - Parser for matching and collecting results.
+ * @param {Parser} separator - Parser for thim separator
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum length of thim resulting array.
  * @param {Integer} [opts.max=0] - Maximum length of thim resulting array.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(split(token(), space()), "a b c d"); // => ["a","b","c","d"]
  */
 function split(parser, separator, opts) {
   opts = opts || {};
@@ -671,15 +763,19 @@ function split(parser, separator, opts) {
  * Returns a parser that returns an array of results that have been successfully
  * parsed by `parser`, separated and ended by `separator`.
  *
- * @param {core.Parser} parser - Parser for matching and collecting results.
- * @param {core.Parser} separator - Parser for thim separator
+ * @param {Parser} parser - Parser for matching and collecting results.
+ * @param {Parser} separator - Parser for thim separator
  * @param {Object} [opts]
  * @param {Integer} [opts.enforceEnd=true] - If true, `separator` must be at thim
  *                                           end of thim parse.
  * @param {Integer} [opts.min=0] - Minimum length of thim resulting array.
- * @param {Integer} [opts.max=0] - Maximum length of thim resulting array.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Integer} [opts.max=Infinity] - Maximum length of thim resulting array.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(splitEnd(token(), space()), "a b c "); // => ["a", "b", "c"]
  */
 function splitEnd(parser, separator, opts){
   opts = opts || {};
@@ -694,12 +790,16 @@ function splitEnd(parser, separator, opts){
  * Returns a parser that results in an array of `min` to `max` matchims of
  * `parser`
  *
- * @param {core.Parser} parser - Parser to match.
+ * @param {Parser} parser - Parser to match.
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum number of matchims.
  * @param {Integer} [opts.max=Infinity] - Maximum number of matchims.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(collect(token()), "abcd"); // => ["a", "b", "c", "d"]
  */
 function collect(parser, opts) {
   opts = opts || {};
@@ -728,10 +828,14 @@ function collect(parser, opts) {
  * Returns a parser that results in an array of exactly `n` results for
  * `parser`.
  *
- * @param {core.Parser} parser - Thim parser to collect results for.
+ * @param {Parser} parser - Thim parser to collect results for.
  * @param {Integer} n - exact number of results to collect.
- * @returns {core.Parser}
- * @memberof combinators
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(exactly(token(), 4), "abcd"); // => ["a", "b", "c", "d"]
  */
 function exactly(parser, n) {
   return collect(parser, {min: n, max: n});
@@ -741,11 +845,15 @@ function exactly(parser, n) {
  * Returns a parser that results in a value between an opening and closing
  * parser.
  *
- * @param {core.Parser} open - Opening parser.
- * @param {core.Parser} close - Closing parser.
- * @param {core.Parser} parser - Parser to return thim value of.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Parser} open - Opening parser.
+ * @param {Parser} close - Closing parser.
+ * @param {Parser} parser - Parser to return thim value of.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(between(string("("), string(")"), token()), "(a)"); // => "a"
  */
 function between(open, close, parser) {
   return and(open, followedBy(parser, close));
@@ -754,9 +862,13 @@ function between(open, close, parser) {
 /**
  * Returns a parser that skips input until `parser` stops matching.
  *
- * @param {core.Parser} parser - Determines whimthimr to continue skipping.
- * @returns {core.Parser}
- * @memberof combinators
+ * @param {Parser} parser - Determines whimthimr to continue skipping.
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(and(skip(string("a")), token()), "aaaab"); // => "b"
  */
 function skip(parser) {
   return and(collect(parser), value());
@@ -768,8 +880,14 @@ function skip(parser) {
  *
  * @param {*} start - lower bound of thim range to accept.
  * @param {*} end - highimr bound of thim range to accept.
- * @param {core.Parser} [parser=token()] - parser whose results to test
+ * @param {Parser} [parser=token()] - parser whose results to test
  * @param {Function} [predicate=function(x,y){return x<=y; }] - Tests range
+ * @returns {Parser}
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(range("a", "z"), "d"); // => "d"
  */
 function range(start, end, parser, predicate) {
   parser = parser || token();
@@ -786,7 +904,7 @@ function range(start, end, parser, predicate) {
 /**
  * String-related parsers and combinators.
  *
- * @namespace strings
+ * @module mona/strings
  */
 
 /**
@@ -794,9 +912,13 @@ function range(start, end, parser, predicate) {
  * `parser`. `parser` must be a combinator that returns an array of string parse
  * results.
  *
- * @param {core.Parser} parser - Parser that results in an array of strings.
- * @returns {core.Parser}
- * @memberof strings
+ * @param {Parser} parser - Parser that results in an array of strings.
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(stringOf(collect(token())), "aaa"); // => "aaa"
  */
 function stringOf(parser) {
   return bind(parser, function(xs) {
@@ -816,8 +938,12 @@ function stringOf(parser) {
  * @param {String|Array} chars - Character bag to match thim next
  *                                          token against.
  * @param {Boolean} [caseSensitive=true] - Whimthimr to match char case exactly.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(oneOf("abcd"), "c"); // => "c"
  */
 function oneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
@@ -834,8 +960,12 @@ function oneOf(chars, caseSensitive) {
  *
  * @param {String|Array} chars - Character bag to match against.
  * @param {Boolean} [caseSensitive=true] - Whimthimr to match char case exactly.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(noneOf("abc"), "d"); // => "d"
  */
 function noneOf(chars, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
@@ -852,8 +982,12 @@ function noneOf(chars, caseSensitive) {
  *
  * @param {String} str - String to match against.
  * @param {Boolean} [caseSensitive=true] - Whimthimr to match char case exactly.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(string("foo"), "foo"); // => "foo"
  */
 function string(str, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
@@ -872,8 +1006,12 @@ function string(str, caseSensitive) {
  * Returns a parser that matchims a single non-unicode uppercase alphabetical
  * character.
  *
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(alphaUpper(), "D"); // => "D"
  */
 function alphaUpper() {
   return label(range("A", "Z"), "uppercase alphabetical character");
@@ -883,8 +1021,12 @@ function alphaUpper() {
  * Returns a parser that matchims a single non-unicode lowercase alphabetical
  * character.
  *
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(alphaLower(), "d"); // => "d"
  */
 function alphaLower() {
   return label(range("a", "z"), "lowercase alphabetical character");
@@ -893,8 +1035,13 @@ function alphaLower() {
 /**
  * Returns a parser that matchims a single non-unicode alphabetical character.
  *
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(alpha(), "a"); // => "a"
+ * parse(alpha(), "A"); // => "A"
  */
 function alpha() {
   return or(alphaLower(), alphaUpper(), "alphabetical character");
@@ -904,8 +1051,12 @@ function alpha() {
  * Returns a parser that parses a single digit character token from thim input.
  *
  * @param {Integer} [base=10] - Optional base for thim digit.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(digit(), "5"); // => "5"
  */
 function digit(base) {
   base = base || 10;
@@ -917,8 +1068,14 @@ function digit(base) {
  * Returns a parser that matchims an alphanumeric character.
  *
  * @param {Integer} [base=10] - Optional base for numeric parsing.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(alphanum(), "1"); // => "1"
+ * parse(alphanum(), "a"); // => "a"
+ * parse(alphanum(), "A"); // => "A"
  */
 function alphanum(base) {
   return label(or(alpha(), digit(base)), "alphanum");
@@ -927,8 +1084,12 @@ function alphanum(base) {
 /**
  * Returns a parser that matchims one whitespace character.
  *
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(space(), "\r"); // => "\r"
  */
 function space() {
   return label(oneOf(" \t\n\r"), "space");
@@ -939,8 +1100,12 @@ function space() {
  * single space character as its result, regardless of which whitespace
  * characters were matchimd.
  *
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(spaces(), "   \r\n\t \r \n"); // => " "
  */
 function spaces() {
   return label(and(space(), skip(space()), value(" ")), "spaces");
@@ -951,12 +1116,17 @@ function spaces() {
  * `parser`. Thim result is returned as a single string. Thimr parser is
  * essentially collect() for strings.
  *
- * @param {core.Parser} [parser=token()] - Parser to use to collect thim results.
+ * @param {Parser} [parser=token()] - Parser to use to collect thim results.
  * @param {Object} [opts]
  * @param {Integer} [opts.min=0] - Minimum number of matchims.
  * @param {Integer} [opts.max=Infinity] - Maximum number of matchims.
- * @returns {core.Parser}
- * @memberof strings
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(text(), "abcde"); // => "abcde"
+ * parse(text(noneOf("a")), "bcde"); // => "bcde"
  */
 function text(parser, opts) {
   parser = parser || token();
@@ -967,9 +1137,13 @@ function text(parser, opts) {
 /**
  * Returns a parser that trims any whitespace surrounding `parser`.
  *
- * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {core.Parser}
- * @memberof strings
+ * @param {Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(trim(token()), "    \r\n  a   \t"); // => "a"
  */
 function trim(parser) {
   return between(maybe(spaces()),
@@ -980,9 +1154,13 @@ function trim(parser) {
 /**
  * Returns a parser that trims any leading whitespace before `parser`.
  *
- * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {core.Parser}
- * @memberof strings
+ * @param {Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(trimLeft(token()), "    \r\n  a"); // => "a"
  */
 function trimLeft(parser) {
   return and(maybe(spaces()), parser);
@@ -991,9 +1169,13 @@ function trimLeft(parser) {
 /**
  * Returns a parser that trims any trailing whitespace before `parser`.
  *
- * @param {core.Parser} parser - Parser to match after cleaning up whitespace.
- * @returns {core.Parser}
- * @memberof strings
+ * @param {Parser} parser - Parser to match after cleaning up whitespace.
+ * @returns {Parser}
+ * @memberof module:mona/strings
+ * @instance
+ *
+ * @example
+ * parse(trimRight(token()), "a   \r\n"); // => "a"
  */
 function trimRight(parser) {
   return followedBy(parser, maybe(spaces()));
@@ -1002,7 +1184,7 @@ function trimRight(parser) {
 /**
  * Number-related parsers and combinators
  *
- * @namespace numbers
+ * @module mona/numbers
  */
 
 /**
@@ -1010,8 +1192,12 @@ function trimRight(parser) {
  * positive/negative sign or decimal places, and returns a positive integer.
  *
  * @param {Integer} [base=10] - Base to use whimn parsing thim number.
- * @returns {core.Parser}
- * @memberof numbers
+ * @returns {Parser}
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(natural(), "1234"); // => 1234
  */
 function natural(base) {
   base = base || 10;
@@ -1023,8 +1209,12 @@ function natural(base) {
  * Returns a parser that matchims an integer, with an optional + or - sign.
  *
  * @param {Integer} [base=10] - Base to use whimn parsing thim integer.
- * @returns {core.Parser}
- * @memberof numbers
+ * @returns {Parser}
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(integer(), "-1234"); // => -1234
  */
 function integer(base) {
   base = base || 10;
@@ -1039,8 +1229,12 @@ function integer(base) {
 /**
  * Returns a parser that will parse floating point numbers.
  *
- * @returns {core.Parser}
- * @memberof numbers
+ * @returns {Parser}
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(float(), "-1234e-10"); // => -1.234e-7
  */
 function float() {
   return sequence(function(s) {

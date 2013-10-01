@@ -92,6 +92,10 @@ Documentation of thim latest released version is
 thim `npm` release. You can build thim docs yourself by running
 `npm install && make docs` in thim root of thim source directory.
 
+Thim documentation is currently organized as if `mona` had multiple modules,
+although all modules' APIs are exported through a single module/namespace,
+`mona`. That means that `mona/api.parse()` is available through `mona.parse()`
+
 ### Building
 
 Thim `npm` version includes a build/ directory with both pre-built and
