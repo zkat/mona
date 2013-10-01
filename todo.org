@@ -1,4 +1,4 @@
-* archive [52/52]
+* archive [63/63]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -199,67 +199,12 @@
 ** DONE Use foo() to refer to parser constructors in tests            :tests:
    CLOSED: [2013-09-27 Fri 23:24]
    It's kinda confusing to read right now without that.
-* backlog [0/20]
-** TODO breakpoint() combinator                                         :API:
-   Insert a debugger; statement before and after a parser is executed. Give a
-   choice as to whether to break before, after, or both?
-** TODO Write a CL-style extensible reader example                 :examples:
-** TODO Write some tutorials                                           :docs:
-** TODO Write cardinal and ordinal number parsers                       :API:
-   Including the english counterparts:
-   ordinals: 1st, 2nd, third, fourth...
-   cardinals: 1, 2, three, four...
-** TODO Split mona up into multiple modules                             :API:
-   Could still export all of mona from just the mona module, but it might be
-   nicer for documentation and code organization if there's topic-based modules.
-** TODO Support userState                                               :API:
-** TODO Make a note in the docs about recursive parsers                :docs:
-   Instruct people to use either sequence or delay, or some similar
-   construct. Might be good to just put this in a tutorial.
-** TODO Bring back nondeterministic parsing                         :parsing:
-   AAaaaargh why can't frickin' sequence() support this? examples/context.js
-   would actually work with token() if we had amb(). I also have no idea how to
-   support nice error messages when amb() exists. What branch would report the
-   error? Would branches that disappear as parses succeed still report?
-** TODO Add a zip file parser                                      :examples:
-** TODO Write a streaming unzipping csv parser                     :examples:
-   This would be fairly impressive, so you could do:
-   parseAsync(zipChunk(csvLine()), function(err, line) { ... }).data(....)
-** TODO Change between()                                                :API:
-   between(wrapper, parser[, trailing=wrapper])
-   
-   Meh. Not sure if I want this change.
-** TODO Benchmark tests                                         :tests:speed:
-   No optimization until we have some reasonable benchmarks to test
-   against. The html parser should be a good starting point.
-** TODO Add a streaming CSV parser example                         :examples:
-** TODO Write a 'make' target that will update the docs                :docs:
-   It should probably really just be part of `make release`
-** TODO Make the docs prettier                                         :docs:
-** TODO Figure out why uglifyjs is dumping such big files               :etc:
-   It looks like it isn't renaming functions at all. The output could really be
-   significantly smaller. :(
-** TODO Get tests to run on node 0.6 and 0.8 again                    :tests:
+** DONE Get tests to run on node 0.6 and 0.8 again                    :tests:
+   CLOSED: [2013-09-28 Sat 14:38]
    The stream and utils stuff isn't supported, but raw mona should still pass
    those tests. Put a conditional somewhere.
-** TODO Add a custom tag to JSDoc for @value                           :docs:
-   To document the value returned by a successful parse.
-** TODO Write an html parser and compare it                           :speed:
-   http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
-   regexes, which should be fairly fast. I don't expect to be able to -beat- its
-   speed, but it might be a useful point of reference.
-** TODO mona.parserify                                                  :API:
-   Write a function that will wrap a given function to make it a 'nice' mona
-   parser constructor. This wrapper can be used to give names (for debugging!)
-   to the returned parser functions, as well as for memoizing pure
-   parsers. Probably not worth doing until the future when performance matters
-   more, and it does add some noise to the syntax/API.
-* active [0/8]
-** TODO range()                                                         :API:
-   range(start, end[, parser=token()[, predicate="<"]]) 
-** TODO Better name for followedBy                                      :API:
-   It's a real mouthful, and it's used all the time :(
-** TODO expected() and or()                                             :API:
+** DONE expected() and or()                                             :API:
+   CLOSED: [2013-09-29 Sun 11:20]
    The way expected() works right now kinda clobbers error messages in
    annoying ways. Perhaps the right thing is to have or() accept a string
    as an optional final parser, in which case it'll use that as the
@@ -273,15 +218,94 @@
    a label() combinator that does the actual error message replacement. or()
    can then have a "shorthand" than simply wraps the whole or() in a label(),
    with the or()'s final string being the argument to label().
-** TODO More error reporting testing                                  :tests:
-   It would be really nice to have nicer test coverage for the error
-   reporting system.
-** TODO throwOnError                                                    :API:
+** DONE range()                                                         :API:
+   CLOSED: [2013-09-29 Sun 13:19]
+   range(start, end[, parser=token()[, predicate="<"]]) 
+** DONE throwOnError                                                    :API:
+   CLOSED: [2013-09-29 Sun 13:49]
    Either get rid of this altogether (since you can just try/catch), or
    have the option return ParserState|ParseError
-** TODO parseState/ParseError/etc                                   :nitpick:
+** DONE More error reporting testing                                  :tests:
+   CLOSED: [2013-09-29 Sun 14:01]
+   It would be really nice to have nicer test coverage for the error
+   reporting system.
+** DONE parseState/ParseError/etc                                   :nitpick:
+   CLOSED: [2013-09-29 Sun 14:19]
    use 'parse' only for the function. Everything else should use 'parser',
    so 'parserState', 'ParserError", etc.
-** TODO Write tests for examples                                      :tests:
+** DONE Make a note in the docs about recursive parsers                :docs:
+   CLOSED: [2013-09-29 Sun 20:46]
+   Instruct people to use either sequence or delay, or some similar
+   construct. Might be good to just put this in a tutorial.
+** DONE Make the docs prettier                                         :docs:
+   CLOSED: [2013-09-30 Mon 18:14]
+** DONE Write examples for everything                                  :docs:
+   CLOSED: [2013-09-30 Mon 19:13]
+** DONE Figure out wtf is up with splitEnd                            :tests:
+   CLOSED: [2013-09-30 Mon 22:09]
+   the csv() example is acting funny.
+   Ok, got it. Now fix it...
+** DONE Write tests for examples                                      :tests:
+   CLOSED: [2013-09-30 Mon 22:19]
+* backlog [0/16]
+** TODO breakpoint() combinator                                         :API:
+   Insert a debugger; statement before and after a parser is executed. Give a
+   choice as to whether to break before, after, or both?
+** TODO Write a CL-style extensible reader example                 :examples:
+** TODO Write some tutorials                                           :docs:
+** TODO Write cardinal and ordinal number parsers                       :API:
+   Including the english counterparts:
+   ordinals: 1st, 2nd, third, fourth...
+   cardinals: 1, 2, three, four...
+** TODO Split mona up into multiple modules                             :API:
+   Could still export all of mona from just the mona module, but it might be
+   nicer for documentation and code organization if there's topic-based modules.
+** TODO Support userState                                               :API:
+** TODO Bring back nondeterministic parsing                         :parsing:
+   AAaaaargh why can't frickin' sequence() support this? examples/context.js
+   would actually work with token() if we had amb(). I also have no idea how to
+   support nice error messages when amb() exists. What branch would report the
+   error? Would branches that disappear as parses succeed still report?
+** TODO Add a zip file parser                                      :examples:
+** TODO Write a streaming unzipping csv parser                     :examples:
+   This would be fairly impressive, so you could do:
+   parseAsync(zipChunk(csvLine()), function(err, line) { ... }).data(....)
+** TODO Benchmark tests                                         :tests:speed:
+   No optimization until we have some reasonable benchmarks to test
+   against. The html parser should be a good starting point.
+** TODO Add a streaming CSV parser example                         :examples:
+** TODO Write a 'make' target that will update the docs                :docs:
+   It should probably really just be part of `make release`
+** TODO Figure out why uglifyjs is dumping such big files               :etc:
+   It looks like it isn't renaming functions at all. The output could really be
+   significantly smaller. :(
+** TODO Write an html parser and compare it                           :speed:
+   http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
+   regexes, which should be fairly fast. I don't expect to be able to -beat- its
+   speed, but it might be a useful point of reference.
+** TODO mona.parserify                                                  :API:
+   Write a function that will wrap a given function to make it a 'nice' mona
+   parser constructor. This wrapper can be used to give names (for debugging!)
+   to the returned parser functions, as well as for memoizing pure
+   parsers. Probably not worth doing until the future when performance matters
+   more, and it does add some noise to the syntax/API.
+** TODO Better name for followedBy                                      :API:
+   It's a real mouthful, and it's used all the time :(
+* active [0/3]
+** TODO Distinguish between failures if they consume                 :errors:
+   I think I get why Parsec makes the consumed/empty distinction...
+
+   cell = quotedCell <|> many (noneOf ",\n\r")
+ 
+   If we were working on parsing a cell with a ", we know we were on track to
+   parse something successfully, so <|> fails with the left-hand-side error,
+   which ends up reporting "quote at end of cell" as the parsing failure. mona,
+   on the other hand, complains about expecting an eof, because we're using
+   parsers that just collect (and those succeed even after partial consumption)
+** TODO Better error reporting for csv and json examples           :examples:
+   Right now, getting nicer error reporting from those parsers seems like a bit
+   of work, and I don't want to make them too complicated. That said,
+   you *shouldn't* have to make things more complicated just to get better
+   error messages out. Try and address the situation with better parsers.
 ** TODO Support parsing binary buffers                                  :API:
    Just define a protocol for arbitrary input streams.
