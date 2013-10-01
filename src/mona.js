@@ -221,7 +221,7 @@ function value(val) {
  * @instance
  *
  * @example
- * parse(bind(token(), function(x) { return x+"!"; }), "a"); // => "a!"
+ * parse(bind(token(), function(x) { return value(x+"!"); }), "a"); // => "a!"
  */
 function bind(parser, fun) {
   return function(parserState) {
