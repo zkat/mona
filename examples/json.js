@@ -64,25 +64,23 @@ function string() {
 }
 
 function escaped() {
-  return mona.sequence(function(s) {
-    s(mona.string("\\"));
-    var esc = s(mona.token());
-    switch (esc) {
-    case "b": return mona.value("\b");
-    case "f": return mona.value("\f");
-    case "n": return mona.value("\n");
-    case "r": return mona.value("\r");
-    case "t": return mona.value("\t");
-    case "u": return unicodeHex();
-    default: return mona.value(esc);
-    }
-  });
+  return mona.and(mona.string("\\"),
+                  mona.or(simpleEscape(),
+                          unicodeHex(),
+                          mona.token()));
+}
+
+var escapeTable = {b: "\b", f: "\f", n: "\n", r: "\r", t: "\t"};
+function simpleEscape() {
+  return mona.map(function(x) {
+    return escapeTable[x];
+  }, mona.oneOf("bfnrt"));
 }
 
 function unicodeHex() {
   return mona.map(function(digits) {
     return String.fromCharCode("0x"+digits);
-  }, mona.text(mona.digit(16), {min: 4, max: 4}));
+  }, mona.and(mona.string("u"), mona.text(mona.digit(16), {min: 4, max: 4})));
 }
 
 function parseJSON(text) {
