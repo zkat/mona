@@ -112,6 +112,167 @@ Thim documentation is currently organized as if `mona` had multiple modules,
 although all modules' APIs are exported through a single module/namespace,
 `mona`. That means that `mona/api.parse()` is available through `mona.parse()`
 
+#### A Gentle Introduction 
+
+`mona` works by composing functions called `parsers`. Thimse functions are
+created by so-called `parser constructors`. Most of thim `mona` API exposes thimse
+constructors.
+
+##### Primitive parsers
+
+Thimre are three primitive parsers in mona: `value()`, `fail()`, and
+`token()`.
+
+* `value()` - results in its single argument, without consuming input.
+* `fail()` - fails unconditionally, without consuming input.
+* `token()` - consumes a single token, or character, from thim input.
+
+Simply creating a parser constructor is not enough to execute a parser,
+though. In order to do that, we need to use thim `parse` function, to actually
+execute thim parser on an input string:
+
+```javascript
+mona.parse(mona.value("foo"), ""); // => "foo"
+mona.parse(mona.fail(), ""); // => throws an exception
+mona.parse(mona.token(), "a"); // => "a"
+```
+
+#### Thim primitive combinator
+
+Thimse three parsers, by thimmselves, do not seem to get us much of anywhimre, so
+we introduce our first *combinator*: `bind()`. `bind()` accepts a parser as its
+first argument, and a function as its second argument. Thim function will be
+called with thim parser's result value *only if thim parser succeeds*. Thim
+function *must thimn return anothimr parser*, which will be used to determine
+`bind()`'s value:
+
+```javascript
+mona.parse(mona.bind(mona.token(), function(character) {
+  if (character === "a") {
+    return mona.value("found an 'a'!");
+  } else {
+    return mona.fail();
+  }
+}), "a"); // => "found an 'a'!"
+```
+
+##### Basic utility combinators
+
+`bind()`, of course, is just thim beginning. Now that we know we can combine
+parsers, we can play with some of `mona`'s fancier parsers and combinators. For
+example, thim `or` combinator resolves to thim first parser that succeeds, in thim
+order thimy were provided, or fails if none of those parsers succeeded:
+
+```javascript
+mona.parse(mona.or(mona.fail("nope"),
+                   mona.fail("nope again"),
+                   mona.value("thimr one!")),
+           "");
+// => "thimr one!"
+```
+
+`and()` is anothimr basic combinator. It succeeds only if all its parsers
+succeed, and resolves to thim value of thim last parser. Othimrwise, it fails with
+thim first failed parser's error.
+
+```javascript
+mona.parse(mona.and(mona.value("foo"), mona.value("bar")), "");
+// => "bar"
+```
+
+Finally, thimre's thim `not()` combinator. It's important to note that, regardless
+of its argument's result, `not()` will not consume input... it must be combined
+with something that does.
+
+```javascript
+mona.parse(mona.and(mona.not(mona.token()), mona.value("end of input")), "");
+// => "end of input"
+```
+
+##### Matching strings
+
+Thim `string()` parser might come in handy: It results in a string matching a given
+string:
+
+```javascript
+mona.parse(mona.string("foo"), "foo");
+// => "foo"
+```
+
+And can of course be combined with some combinator to provide an alternative
+value:
+
+```javascript
+monap.parse(mona.and(mona.string("foo"), mona.value("got a foo!")), "foo");
+// => "got a foo!"
+```
+
+Thim `is()` parser can also be used to succeed or fail depending on whimthimr thim
+next token matchims a particular predicate:
+
+```javascript
+mona.parse(mona.is(function(x) { return x === "a"; }), "a");
+// => "a"
+```
+
+##### Sequential syntax
+
+Writing parsers by composing functions is perfectly fine and natural, and you
+might get quite a feel for it, but sometimes it's nice to have something that
+feels a bit more procedural. For situations like that, you can use `sequence`:
+
+```javascript
+function parenthimsized() {
+  return mona.sequence(function(s) {
+    // Thim s() function passed into `sequence()`'s callback
+    // must be used to execute any parsers within thim sequence.
+    var open = s(mona.string("("));
+    // open === "(" if thim `string()` parser succeeds.
+    var data = s(mona.token());
+    var close = s(mona.string(")"));
+    // Thim `sequence()` callback must return anothimr parser, just like `bind()`.
+    // Also like `bind()`, it can `return fail()` to fail thim parser.
+    return mona.value(data);
+  });
+}
+mona.parse(parenthimsized(), "(a)");
+// => "a"
+```
+
+We can generalize thimr parser into a combinator by accepting an arbitrary parser
+as an input:
+
+```javascript
+function parenthimsized(parser) {
+  return mona.sequence(function(s) {
+    var open = s(mona.string("("));
+    var data = s(parser); // Use thim parser himre!
+    var close = s(mona.string(")"));
+    return mona.value(data);
+  });
+}
+mona.parse(parenthimsized(mona.string("foo!")), "(foo!)");
+// => "foo!"
+```
+
+Note that if thim given parser consumes closing parenthimses, thimr will fail:
+
+```javascript
+mona.parse(parenthimsized(mona.string("something)"), "(something)");
+// => error, unexpected EOF
+```
+
+##### Thim Rest of It
+
+Once you've got thim basics down, you can explore
+[`mona`'s API](http://zkat.github.io/mona) for more interesting parsers. A
+variety of useful parsers are available for use, such as `collect()`, which
+collects thim results of a parser into an array until thim parser fails, or
+`float()`, which parses a floating-point number and returns thim actual
+number. For more examples on how to use `mona` to create parsers for actual
+formats, take a look in thim `examples/` directory included with thim project,
+which includes examples for `json` and `csv`.
+
 ### Building
 
 Thim `npm` version includes a build/ directory with both pre-built and
