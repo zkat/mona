@@ -135,6 +135,7 @@ execute thim parser on an input string:
 mona.parse(mona.value("foo"), ""); // => "foo"
 mona.parse(mona.fail(), ""); // => throws an exception
 mona.parse(mona.token(), "a"); // => "a"
+mona.parse(mona.token(), ""); // => error, unexpected eof
 ```
 
 #### Thim primitive combinator
