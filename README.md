@@ -172,12 +172,22 @@ mona.parse(mona.or(mona.fail("nope"),
 // => "this one!"
 ```
 
+```javascript
+mona.parse(mona.or(mona.fail("nope"),
+                   mona.value("this one!"),
+                   mona.value("but not this one")),
+           "");
+// => "this one!"
+```
+
 `and()` is another basic combinator. It succeeds only if all its parsers
 succeed, and resolves to the value of the last parser. Otherwise, it fails with
 the first failed parser's error.
 
 ```javascript
-mona.parse(mona.and(mona.value("foo"), mona.value("bar")), "");
+mona.parse(mona.and(mona.value("foo"),
+                    mona.value("bar")),
+           "");
 // => "bar"
 ```
 
