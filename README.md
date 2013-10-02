@@ -138,7 +138,7 @@ mona.parse(mona.token(), "a"); // => "a"
 mona.parse(mona.token(), ""); // => error, unexpected eof
 ```
 
-#### Thim primitive combinator
+##### Thim primitive combinator
 
 Thimse three parsers, by thimmselves, do not seem to get us much of anywhimre, so
 we introduce our first *combinator*: `bind()`. `bind()` accepts a parser as its
