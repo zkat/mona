@@ -116,31 +116,47 @@ or
 for minified version)</li>
 </ul>
 <h3>Example</h3>
-<pre><code class="lang-javascript">function sexp() {
-  return mona.or(list(), atom());
+<pre><code class="lang-javascript">function csv() {
+  return mona.splitEnd(line(), eol());
 }
 
-function atom() {
-  return mona.or(mona.integer(), symbol());
+function line() {
+  return mona.split(cell(), mona.string(&quot;,&quot;));
 }
 
-function symbol() {
-  return mona.text(symbolToken(), {min: 1});
+function cell() {
+  return mona.or(quotedCell(),
+                 mona.text(mona.noneOf(&quot;,\n\r&quot;)));
+
 }
 
-function symbolToken() {
-  return mona.unless(mona.space(),
-                     mona.noneOf(&quot;()&quot;));
+function quotedCell() {
+  return mona.between(mona.string('&quot;'),
+                      mona.string('&quot;'),
+                      mona.text(quotedChar()));
 }
 
-function list() {
-  return mona.between(mona.string(&quot;(&quot;),
-                      mona.string(&quot;)&quot;),
-                      mona.split(mona.delay(sexp), mona.spaces()));
+function quotedChar() {
+  return mona.or(mona.noneOf('&quot;'),
+                 mona.and(mona.string('&quot;&quot;'),
+                          mona.value('&quot;')));
 }
 
-mona.parse(sexp(), &quot;(1 23 (foo 6) () bar! -10 baz)&quot;);
-// =&gt; [1, 23, ['foo',6], [], 'bar!', -10, 'baz']</code></pre>
+function eol() {
+  var str = mona.string;
+  return mona.or(str(&quot;\n\r&quot;),
+                 str(&quot;\r\n&quot;),
+                 str(&quot;\n&quot;),
+                 str(&quot;\r&quot;),
+                 &quot;end of line&quot;);
+}
+
+function parseCSV(text) {
+  return mona.parse(csv(), text);
+}
+
+parseCSV('foo,&quot;bar&quot;\n&quot;b&quot;&quot;az&quot;,quux\n');
+// =&gt; [['foo', 'bar'], ['b&quot;az', 'quux']]</code></pre>
 <h1>Introduction</h1>
 <p>Writing parsers with <code>mona</code> involves writing a number of individually-testable
 <code>parser constructors</code> which return parsers that <code>mona.parse()</code> can then
@@ -173,6 +189,122 @@ the <code>npm</code> release. You can build the docs yourself by running
 <p>The documentation is currently organized as if <code>mona</code> had multiple modules,
 although all modules' APIs are exported through a single module/namespace,
 <code>mona</code>. That means that <code>mona/api.parse()</code> is available through <code>mona.parse()</code></p>
+<h4>A Gentle Introduction</h4>
+<p><code>mona</code> works by composing functions called <code>parsers</code>. These functions are
+created by so-called <code>parser constructors</code>. Most of the <code>mona</code> API exposes these
+constructors.</p>
+<h5>Primitive parsers</h5>
+<p>There are three primitive parsers in mona: <code>value()</code>, <code>fail()</code>, and
+<code>token()</code>.</p>
+<ul>
+<li><code>value()</code> - results in its single argument, without consuming input.</li>
+<li><code>fail()</code> - fails unconditionally, without consuming input.</li>
+<li><code>token()</code> - consumes a single token, or character, from the input.</li>
+</ul>
+<p>Simply creating a parser constructor is not enough to execute a parser,
+though. In order to do that, we need to use the <code>parse</code> function, to actually
+execute the parser on an input string:</p>
+<pre><code class="lang-javascript">mona.parse(mona.value(&quot;foo&quot;), &quot;&quot;); // =&gt; &quot;foo&quot;
+mona.parse(mona.fail(), &quot;&quot;); // =&gt; throws an exception
+mona.parse(mona.token(), &quot;a&quot;); // =&gt; &quot;a&quot;
+mona.parse(mona.token(), &quot;&quot;); // =&gt; error, unexpected eof</code></pre>
+<h4>The primitive combinator</h4>
+<p>These three parsers, by themselves, do not seem to get us much of anywhere, so
+we introduce our first <em>combinator</em>: <code>bind()</code>. <code>bind()</code> accepts a parser as its
+first argument, and a function as its second argument. The function will be
+called with the parser's result value <em>only if the parser succeeds</em>. The
+function <em>must then return another parser</em>, which will be used to determine
+<code>bind()</code>'s value:</p>
+<pre><code class="lang-javascript">mona.parse(mona.bind(mona.token(), function(character) {
+  if (character === &quot;a&quot;) {
+    return mona.value(&quot;found an 'a'!&quot;);
+  } else {
+    return mona.fail();
+  }
+}), &quot;a&quot;); // =&gt; &quot;found an 'a'!&quot;</code></pre>
+<h5>Basic utility combinators</h5>
+<p><code>bind()</code>, of course, is just the beginning. Now that we know we can combine
+parsers, we can play with some of <code>mona</code>'s fancier parsers and combinators. For
+example, the <code>or</code> combinator resolves to the first parser that succeeds, in the
+order they were provided, or fails if none of those parsers succeeded:</p>
+<pre><code class="lang-javascript">mona.parse(mona.or(mona.fail(&quot;nope&quot;),
+                   mona.fail(&quot;nope again&quot;),
+                   mona.value(&quot;this one!&quot;)),
+           &quot;&quot;);
+// =&gt; &quot;this one!&quot;</code></pre>
+<pre><code class="lang-javascript">mona.parse(mona.or(mona.fail(&quot;nope&quot;),
+                   mona.value(&quot;this one!&quot;),
+                   mona.value(&quot;but not this one&quot;)),
+           &quot;&quot;);
+// =&gt; &quot;this one!&quot;</code></pre>
+<p><code>and()</code> is another basic combinator. It succeeds only if all its parsers
+succeed, and resolves to the value of the last parser. Otherwise, it fails with
+the first failed parser's error.</p>
+<pre><code class="lang-javascript">mona.parse(mona.and(mona.value(&quot;foo&quot;),
+                    mona.value(&quot;bar&quot;)),
+           &quot;&quot;);
+// =&gt; &quot;bar&quot;</code></pre>
+<p>Finally, there's the <code>not()</code> combinator. It's important to note that, regardless
+of its argument's result, <code>not()</code> will not consume input... it must be combined
+with something that does.</p>
+<pre><code class="lang-javascript">mona.parse(mona.and(mona.not(mona.token()), mona.value(&quot;end of input&quot;)), &quot;&quot;);
+// =&gt; &quot;end of input&quot;</code></pre>
+<h5>Matching strings</h5>
+<p>The <code>string()</code> parser might come in handy: It results in a string matching a given
+string:</p>
+<pre><code class="lang-javascript">mona.parse(mona.string(&quot;foo&quot;), &quot;foo&quot;);
+// =&gt; &quot;foo&quot;</code></pre>
+<p>And can of course be combined with some combinator to provide an alternative
+value:</p>
+<pre><code class="lang-javascript">monap.parse(mona.and(mona.string(&quot;foo&quot;), mona.value(&quot;got a foo!&quot;)), &quot;foo&quot;);
+// =&gt; &quot;got a foo!&quot;</code></pre>
+<p>The <code>is()</code> parser can also be used to succeed or fail depending on whether the
+next token matches a particular predicate:</p>
+<pre><code class="lang-javascript">mona.parse(mona.is(function(x) { return x === &quot;a&quot;; }), &quot;a&quot;);
+// =&gt; &quot;a&quot;</code></pre>
+<h5>Sequential syntax</h5>
+<p>Writing parsers by composing functions is perfectly fine and natural, and you
+might get quite a feel for it, but sometimes it's nice to have something that
+feels a bit more procedural. For situations like that, you can use <code>sequence</code>:</p>
+<pre><code class="lang-javascript">function parenthesized() {
+  return mona.sequence(function(s) {
+    // The s() function passed into `sequence()`'s callback
+    // must be used to execute any parsers within the sequence.
+    var open = s(mona.string(&quot;(&quot;));
+    // open === &quot;(&quot; if the `string()` parser succeeds.
+    var data = s(mona.token());
+    var close = s(mona.string(&quot;)&quot;));
+    // The `sequence()` callback must return another parser, just like `bind()`.
+    // Also like `bind()`, it can `return fail()` to fail the parser.
+    return mona.value(data);
+  });
+}
+mona.parse(parenthesized(), &quot;(a)&quot;);
+// =&gt; &quot;a&quot;</code></pre>
+<p>We can generalize this parser into a combinator by accepting an arbitrary parser
+as an input:</p>
+<pre><code class="lang-javascript">function parenthesized(parser) {
+  return mona.sequence(function(s) {
+    var open = s(mona.string(&quot;(&quot;));
+    var data = s(parser); // Use the parser here!
+    var close = s(mona.string(&quot;)&quot;));
+    return mona.value(data);
+  });
+}
+mona.parse(parenthesized(mona.string(&quot;foo!&quot;)), &quot;(foo!)&quot;);
+// =&gt; &quot;foo!&quot;</code></pre>
+<p>Note that if the given parser consumes closing parentheses, this will fail:</p>
+<pre><code class="lang-javascript">mona.parse(parenthesized(mona.string(&quot;something)&quot;), &quot;(something)&quot;);
+// =&gt; error, unexpected EOF</code></pre>
+<h5>The Rest of It</h5>
+<p>Once you've got the basics down, you can explore
+<a href="http://zkat.github.io/mona"><code>mona</code>'s API</a> for more interesting parsers. A
+variety of useful parsers are available for use, such as <code>collect()</code>, which
+collects the results of a parser into an array until the parser fails, or
+<code>float()</code>, which parses a floating-point number and returns the actual
+number. For more examples on how to use <code>mona</code> to create parsers for actual
+formats, take a look in the <code>examples/</code> directory included with the project,
+which includes examples for <code>json</code> and <code>csv</code>.</p>
 <h3>Building</h3>
 <p>The <code>npm</code> version includes a build/ directory with both pre-built and
 minified <a href="https://github.com/umdjs/umd">UMD</a> versions of <code>mona</code> which
@@ -203,7 +335,7 @@ $ make</code></pre>
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a>
-		on Mon Sep 30 2013 22:30:44 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Tue Oct 01 2013 20:57:15 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
