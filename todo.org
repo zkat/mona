@@ -1,4 +1,4 @@
-* archive [63/63]
+* archive [65/65]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -247,12 +247,17 @@
    Ok, got it. Now fix it...
 ** DONE Write tests for examples                                      :tests:
    CLOSED: [2013-09-30 Mon 22:19]
+** DONE Replace the README example with the csv parser             :examples:
+   CLOSED: [2013-10-01 Tue 19:49]
+   because sex doesn't sell enough.
+** DONE Write a basic tutorial                                         :docs:
+   CLOSED: [2013-10-01 Tue 20:56]
 * backlog [0/16]
+** TODO Fix example formatting in docs                                 :docs:
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
    choice as to whether to break before, after, or both?
 ** TODO Write a CL-style extensible reader example                 :examples:
-** TODO Write some tutorials                                           :docs:
 ** TODO Write cardinal and ordinal number parsers                       :API:
    Including the english counterparts:
    ordinals: 1st, 2nd, third, fourth...
