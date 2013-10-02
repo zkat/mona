@@ -30,31 +30,47 @@ You can also download a prebuilt `UMD` version of `mona` from the
 ### Example
 
 ```javascript
-function sexp() {
-  return mona.or(list(), atom());
+function csv() {
+  return mona.splitEnd(line(), eol());
 }
 
-function atom() {
-  return mona.or(mona.integer(), symbol());
+function line() {
+  return mona.split(cell(), mona.string(","));
 }
 
-function symbol() {
-  return mona.text(symbolToken(), {min: 1});
+function cell() {
+  return mona.or(quotedCell(),
+                 mona.text(mona.noneOf(",\n\r")));
+
 }
 
-function symbolToken() {
-  return mona.unless(mona.space(),
-                     mona.noneOf("()"));
+function quotedCell() {
+  return mona.between(mona.string('"'),
+                      mona.string('"'),
+                      mona.text(quotedChar()));
 }
 
-function list() {
-  return mona.between(mona.string("("),
-                      mona.string(")"),
-                      mona.split(mona.delay(sexp), mona.spaces()));
+function quotedChar() {
+  return mona.or(mona.noneOf('"'),
+                 mona.and(mona.string('""'),
+                          mona.value('"')));
 }
 
-mona.parse(sexp(), "(1 23 (foo 6) () bar! -10 baz)");
-// => [1, 23, ['foo',6], [], 'bar!', -10, 'baz']
+function eol() {
+  var str = mona.string;
+  return mona.or(str("\n\r"),
+                 str("\r\n"),
+                 str("\n"),
+                 str("\r"),
+                 "end of line");
+}
+
+function parseCSV(text) {
+  return mona.parse(csv(), text);
+}
+
+parseCSV('foo,"bar"\n"b""az",quux\n');
+// => [['foo', 'bar'], ['b"az', 'quux']]
 ```
 
 # Introduction
