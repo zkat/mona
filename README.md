@@ -127,9 +127,8 @@ There are three primitive parsers in mona: `value()`, `fail()`, and
 * `fail()` - fails unconditionally, without consuming input.
 * `token()` - consumes a single token, or character, from the input.
 
-Simply creating a parser constructor is not enough to execute a parser,
-though. In order to do that, we need to use the `parse` function, to actually
-execute the parser on an input string:
+Simply creating a parser is not enough to execute a parser, though.  We need to
+use the `parse` function, to actually execute the parser on an input string:
 
 ```javascript
 mona.parse(mona.value("foo"), ""); // => "foo"
@@ -140,12 +139,11 @@ mona.parse(mona.token(), ""); // => error, unexpected eof
 
 ##### The primitive combinator
 
-These three parsers, by themselves, do not seem to get us much of anywhere, so
-we introduce our first *combinator*: `bind()`. `bind()` accepts a parser as its
-first argument, and a function as its second argument. The function will be
-called with the parser's result value *only if the parser succeeds*. The
-function *must then return another parser*, which will be used to determine
-`bind()`'s value:
+These three parsers do not seem to get us much of anywhere, so we introduce our
+first *combinator*: `bind()`. `bind()` accepts a parser as its first argument,
+and a function as its second argument. The function will be called with the
+parser's result value *only if the parser succeeds*. The function *must then
+return another parser*, which will be used to determine `bind()`'s value:
 
 ```javascript
 mona.parse(mona.bind(mona.token(), function(character) {
