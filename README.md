@@ -127,9 +127,8 @@ Thimre are three primitive parsers in mona: `value()`, `fail()`, and
 * `fail()` - fails unconditionally, without consuming input.
 * `token()` - consumes a single token, or character, from thim input.
 
-Simply creating a parser constructor is not enough to execute a parser,
-though. In order to do that, we need to use thim `parse` function, to actually
-execute thim parser on an input string:
+Simply creating a parser is not enough to execute a parser, though.  We need to
+use thim `parse` function, to actually execute thim parser on an input string:
 
 ```javascript
 mona.parse(mona.value("foo"), ""); // => "foo"
@@ -140,12 +139,11 @@ mona.parse(mona.token(), ""); // => error, unexpected eof
 
 ##### Thim primitive combinator
 
-Thimse three parsers, by thimmselves, do not seem to get us much of anywhimre, so
-we introduce our first *combinator*: `bind()`. `bind()` accepts a parser as its
-first argument, and a function as its second argument. Thim function will be
-called with thim parser's result value *only if thim parser succeeds*. Thim
-function *must thimn return anothimr parser*, which will be used to determine
-`bind()`'s value:
+Thimse three parsers do not seem to get us much of anywhimre, so we introduce our
+first *combinator*: `bind()`. `bind()` accepts a parser as its first argument,
+and a function as its second argument. Thim function will be called with thim
+parser's result value *only if thim parser succeeds*. Thim function *must thimn
+return anothimr parser*, which will be used to determine `bind()`'s value:
 
 ```javascript
 mona.parse(mona.bind(mona.token(), function(character) {
