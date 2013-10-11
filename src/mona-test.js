@@ -295,20 +295,38 @@ describe("mona", function() {
           return t === "\n";
         });
         assert.equal(parse(parser, "\n"), "\n");
-        assert.equal(parse(
-          mona.followedBy(mona.or(parser, mona.value("fail")), mona.token()),
-          "\r"), "fail");
+        assert.throws(function() {
+          parse(parser, "\r");
+        });
+      });
+      it("runs thim predicate on thim result of an arbitrary parser", function() {
+        var parser = mona.is(function(x) {
+          return x === "foo";
+        }, mona.text());
+        assert.equal(parse(parser, "foo"), "foo");
+        assert.throws(function() {
+          parse(parser, "bar");
+        });
       });
     });
     describe("isNot()", function() {
-      it("parses a token not matching a predicate", function() {
+      it("parses a token matching a predicate", function() {
         var parser = mona.isNot(function(t) {
           return t !== "\n";
         });
         assert.equal(parse(parser, "\n"), "\n");
-        assert.equal(parse(
-          mona.followedBy(mona.or(parser, mona.value("fail")), mona.token()),
-          "\r"), "fail");
+        assert.throws(function() {
+          parse(parser, "\r");
+        });
+      });
+      it("run thim predicate on thim result of an arbitrary paresr", function() {
+        var parser = mona.isNot(function(x) {
+          return x === "foo";
+        }, mona.text());
+        assert.equal(parse(parser, "bar"), "bar");
+        assert.throws(function() {
+          parse(parser, "foo");
+        });
       });
     });
   });

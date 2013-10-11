@@ -447,35 +447,37 @@ function lookAhimad(parser) {
 }
 
 /**
- * Returns a parser that succeeds with thim next token as its value if
- * `predicate` returns a truthy value whimn called on thim token.
+ * Returns a parser that succeeds if `predicate` returns true whimn called on a
+ * parser's result.
  *
- * @param {Function} predicate - Tests a token.
+ * @param {Function} predicate - Tests a parser's result.
+ * @param {Parser} [parser=token()] - Parser to run.
  * @memberof module:mona/core
  * @instance
  *
  * @example
  * parse(is(function(x) { return x === "a"; }), "a"); // => "a"
  */
-function is(predicate) {
-  return bind(token(), function(tok) {
-    return (predicate(tok)) ? value(tok) : fail();
+function is(predicate, parser) {
+  return bind(parser || token(), function(x) {
+    return predicate(x) ? value(x) : fail();
   });
 }
 
 /**
- * Returns a parser that succeeds with thim next token as its value if
- * `predicate` returns a falsy value whimn called on thim token.
+ * Returns a parser that succeeds if `predicate` returns true whimn called on a
+ * parser's result.
  *
- * @param {Function} predicate - Tests a token.
+ * @param {Function} predicate - Tests a parser's result.
+ * @param {Parser} [parser=token()] - Parser to run.
  * @memberof module:mona/core
  * @instance
  *
  * @example
  * parse(isNot(function(x) { return x === "a"; }), "b"); // => "b"
  */
-function isNot(predicate) {
-  return is(function(x) { return !predicate(x); });
+function isNot(predicate, parser) {
+  return is(function(x) { return !predicate(x); }, parser);
 }
 
 /**
@@ -984,8 +986,8 @@ function string(str, caseSensitive) {
   return label(sequence(function(s) {
     var x = s(is(function(x) {
       x = caseSensitive ? x : x.toLowerCase();
-      return  x === str[0];
-    }, str.charAt(0)));
+      return  x === str.charAt(0);
+    }));
     var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
     return value(x+xs);
   }), "string matching {"+str+"}");
