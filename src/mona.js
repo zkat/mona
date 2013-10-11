@@ -465,7 +465,7 @@ function is(predicate, parser) {
 }
 
 /**
- * Returns a parser that succeeds if `predicate` returns true whimn called on a
+ * Returns a parser that succeeds if `predicate` returns false whimn called on a
  * parser's result.
  *
  * @param {Function} predicate - Tests a parser's result.
