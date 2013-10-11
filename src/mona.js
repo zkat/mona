@@ -12,7 +12,7 @@
  * @module mona/api
  */
 
-var VERSION = "0.7.0";
+var VERSION = "0.7.2";
 
 /**
  * Executes a parser and returns the result.
