@@ -1211,9 +1211,9 @@ function integer(base) {
  * @instance
  *
  * @example
- * parse(float(), "-1234e-10"); // => -1.234e-7
+ * parse(real(), "-1234e-10"); // => -1.234e-7
  */
-function float() {
+function real() {
   return sequence(function(s) {
     var leftSide = s(integer());
     var rightSide = s(or(and(string("."),
@@ -1283,7 +1283,8 @@ module.exports = {
   // Numbers
   natural: natural,
   integer: integer,
-  float: float
+  "float": real, // For compatibility
+  real: real
 };
 
 /*
