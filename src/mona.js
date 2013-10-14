@@ -1242,7 +1242,7 @@ function real() {
  * parse(cardinal(), "two thousand"); // => 2000
  */
 function cardinal() {
-  return or(cardinalUpToVeryBig(),
+  return or(numeralUpToVeryBig(),
             "cardinal");
 }
 
@@ -1257,56 +1257,56 @@ function cardinal() {
  * parse(ordinal(), "one-hundred thousand and fifth"); // 100005
  */
 function ordinal() {
-  return or(cardinalUpToVeryBig(true),
+  return or(numeralUpToVeryBig(true),
             "ordinal");
 }
 
 /*
- * Cardinal support
+ * Englinh numbers support
  */
-function cardinalUpToVeryBig(ordinalMode) {
+function numeralUpToVeryBig(ordinalMode) {
   return or(sequence(function(s) {
-    var numOfBigs = s(cardinalUpToThreeNines());
-    s(cardinalSeparator());
+    var numOfBigs = s(numeralUpToThreeNines());
+    s(numeralSeparator());
     var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
     var bigUnitIndex = CARDINALS["evenBigger"].indexOf(bigUnit.toLowerCase());
     var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
     var lesserUnit = s(is(function(x) {
       return x < bigUnitMultiplier;
     }, or(and(or(and(string(","), spaces()),
-                 cardinalSeparator()),
-              cardinalUpToVeryBig(ordinalMode)),
-          and(cardinalSeparator(), string("and"), cardinalSeparator(),
-              cardinalUpToThreeNines(ordinalMode)),
+                 numeralSeparator()),
+              numeralUpToVeryBig(ordinalMode)),
+          and(numeralSeparator(), string("and"), numeralSeparator(),
+              numeralUpToThreeNines(ordinalMode)),
           value(null))));
     if (lesserUnit === null && ordinalMode) {
       s(string("th"));
       lesserUnit = 0;
     }
     return value((numOfBigs * bigUnitMultiplier) + lesserUnit);
-  }), cardinalUpToThreeNines(ordinalMode));
+  }), numeralUpToThreeNines(ordinalMode));
 }
 
-function cardinalUpToThreeNines(ordinalMode) {
-  return or(cardinalHundreds(cardinalUpToNinetyNine(ordinalMode),
+function numeralUpToThreeNines(ordinalMode) {
+  return or(numeralHundreds(numeralUpToNinetyNine(ordinalMode),
                              1, ordinalMode),
-            cardinalUpToNinetyNine(ordinalMode));
+            numeralUpToNinetyNine(ordinalMode));
 }
 
-function cardinalSeparator() {
+function numeralSeparator() {
   return or(spaces(), string("-"));
 }
 
-function cardinalHundreds(nextParser, multiplier, ordinalMode) {
+function numeralHundreds(nextParser, multiplier, ordinalMode) {
   return sequence(function(s) {
-    var numOfHundreds = s(cardinalOneThroughNine());
-    s(cardinalSeparator());
+    var numOfHundreds = s(numeralOneThroughNine());
+    s(numeralSeparator());
     s(string("hundred"));
     var smallNum = s(or(
-      and(cardinalSeparator(),
+      and(numeralSeparator(),
           multiplier > 1 ?
           value() :
-          maybe(and(string("and"), cardinalSeparator())),
+          maybe(and(string("and"), numeralSeparator())),
           nextParser),
       value(null)));
     if (smallNum === null && ordinalMode) {
@@ -1317,29 +1317,29 @@ function cardinalHundreds(nextParser, multiplier, ordinalMode) {
   });
 }
 
-function cardinalUpToNinetyNine(ordinalMode) {
+function numeralUpToNinetyNine(ordinalMode) {
   return or(sequence(function(s) {
     var ten = s(oneOf(CARDINALS["tens sorted"], false));
     var tenIndex = CARDINALS["tens"].indexOf(ten.toLowerCase());
-    var small = s(or(and(cardinalSeparator(),
-                         cardinalOneThroughNine(ordinalMode)),
+    var small = s(or(and(numeralSeparator(),
+                         numeralOneThroughNine(ordinalMode)),
                      value(0)));
     return value(((tenIndex + 2) * 10) + small);
   }), !ordinalMode?fail():sequence(function(s) {
     var ten = s(oneOf(ORDINALS["tens sorted"], false));
     var tenIndex = ORDINALS["tens"].indexOf(ten.toLowerCase());
     return value((tenIndex + 2) * 10);
-  }), cardinalUpToNineteen(ordinalMode));
+  }), numeralUpToNineteen(ordinalMode));
 }
 
-function cardinalOneThroughNine(ordinalMode) {
+function numeralOneThroughNine(ordinalMode) {
   var source = ordinalMode ? ORDINALS : CARDINALS;
   return map(function(x) {
     return source["1-9"].indexOf(x.toLowerCase()) + 1;
   }, oneOf(source["1-9 sorted"], false));
 }
 
-function cardinalUpToNineteen(ordinalMode) {
+function numeralUpToNineteen(ordinalMode) {
   var source = ordinalMode ? ORDINALS : CARDINALS;
   return map(function(x) {
     return source["0-19"].indexOf(x.toLowerCase());
