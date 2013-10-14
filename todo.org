@@ -1,4 +1,4 @@
-* archive [65/65]
+* archive [66/66]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -252,16 +252,17 @@
    because sex doesn't sell enough.
 ** DONE Write a basic tutorial                                         :docs:
    CLOSED: [2013-10-01 Tue 20:56]
+** DONE Write cardinal and ordinal number parsers                       :API:
+   CLOSED: [2013-10-13 Sun 22:28]
+   Including the english counterparts:
+   ordinals: 1st, 2nd, third, fourth...
+   cardinals: 1, 2, three, four...
 * backlog [0/16]
 ** TODO Fix example formatting in docs                                 :docs:
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
    choice as to whether to break before, after, or both?
 ** TODO Write a CL-style extensible reader example                 :examples:
-** TODO Write cardinal and ordinal number parsers                       :API:
-   Including the english counterparts:
-   ordinals: 1st, 2nd, third, fourth...
-   cardinals: 1, 2, three, four...
 ** TODO Split mona up into multiple modules                             :API:
    Could still export all of mona from just the mona module, but it might be
    nicer for documentation and code organization if there's topic-based modules.
@@ -296,7 +297,9 @@
    more, and it does add some noise to the syntax/API.
 ** TODO Better name for followedBy                                      :API:
    It's a real mouthful, and it's used all the time :(
-* active [0/3]
+* active [0/4]
+** TODO Make noneOf a bit better                                    :parsers:
+   It might be a bit confusing now that oneOf() works the way it does.
 ** TODO Distinguish between failures if they consume                 :errors:
    I think I get why Parsec makes the consumed/empty distinction...
 
