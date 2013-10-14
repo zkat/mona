@@ -53,7 +53,8 @@ release-%: all
 
 .PHONY: publish
 publish:
-	git push
+	git push origin develop:develop
+	git push origin master:master
 	git push --tags
 	npm publish .
 
