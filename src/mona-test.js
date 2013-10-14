@@ -622,18 +622,18 @@ describe("mona", function() {
         assert.equal(parse(mona.oneOf("abc"), "b"), "b");
         assert.throws(function() {
           parse(mona.oneOf("abc"), "d");
-        }, /expected one of {abc}/);
+        }, /expected one of {a,b,c}/);
       });
       it("optionally does a case-insensitive match", function() {
         assert.equal(parse(mona.oneOf("abc", false), "B"), "B");
         assert.throws(function() {
           parse(mona.oneOf("abc", true), "B");
-        }, /expected one of {abc}/);
+        }, /expected one of {a,b,c}/);
       });
       it("defaults to being case-sensitive", function() {
         assert.throws(function() {
           parse(mona.oneOf("abc"), "B");
-        }, /expected one of {abc}/);
+        }, /expected one of {a,b,c}/);
       });
     });
     describe("noneOf()", function() {
