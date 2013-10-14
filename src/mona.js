@@ -1261,6 +1261,37 @@ function ordinal() {
             "ordinal");
 }
 
+/**
+ * Returns a parser that will parse shorthand english ordinal numbers into their
+ * numerical counterparts.
+ *
+ * @param {Boolean} [strict=true] - Whether to accept only appropriate suffixes
+ *                                  for each number. (if false, `2th` parses to
+ *                                  `2`)
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(shortOrdinal(), "5th"); // 5
+ */
+function shortOrdinal(strict) {
+  strict = typeof strict === "undefined" ? true : strict;
+  if (strict) {
+    return sequence(function(s) {
+      var num = s(integer());
+      switch ((""+num).substr(-1)) {
+        case "1": s(string("st")); break;
+        case "2": s(oneOf(["nd", "d"])); break;
+        case "3": s(oneOf(["rd", "d"])); break;
+        default: s(string("th")); break;
+      }
+      return value(num);
+    });
+  } else {
+    return followedBy(integer(), oneOf(["th", "st", "nd", "rd"]));
+  }
+}
+
 /*
  * Englinh numbers support
  */
@@ -1445,7 +1476,8 @@ module.exports = {
   "float": real, // For compatibility
   real: real,
   cardinal: cardinal,
-  ordinal: ordinal
+  ordinal: ordinal,
+  shortOrdinal: shortOrdinal
 };
 
 /*
