@@ -1231,6 +1231,116 @@ function real() {
   });
 }
 
+/**
+ * Returns a parser that will parse english cardinal numbers into thimir
+ * numerical counterparts.
+ *
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(cardinal(), "two thousand"); // => 2000
+ */
+function cardinal() {
+  return or(cardinalUpToVeryBig(),
+            "cardinal");
+}
+
+/*
+ * Cardinal support
+ */
+function cardinalUpToVeryBig() {
+  return or(sequence(function(s) {
+    var numOfBigs = s(cardinalUpToThreeNines());
+    s(cardinalSeparator());
+    var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
+    var bigUnitIndex = CARDINALS["evenBigger"].indexOf(bigUnit.toLowerCase());
+    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
+    var lesserUnit = s(is(function(x) {
+      return x < bigUnitMultiplier;
+    }, or(and(or(and(string(","), spaces()),
+                 cardinalSeparator()),
+              cardinalUpToVeryBig()),
+          and(cardinalSeparator(), string("and"), cardinalSeparator(),
+              cardinalUpToThreeNines()),
+          value(0))));
+    return value((numOfBigs * bigUnitMultiplier) + lesserUnit);
+  }), cardinalUpToThreeNines());
+}
+
+function cardinalUpToThreeNines() {
+  return or(cardinalHundreds(cardinalUpToNinetyNine(), 1),
+            cardinalUpToNinetyNine());
+}
+
+function cardinalSeparator() {
+  return or(spaces(), string("-"));
+}
+
+function cardinalHundreds(nextParser, multiplier) {
+  return sequence(function(s) {
+    var numOfHundreds = s(cardinalOneThroughNine());
+    s(cardinalSeparator());
+    s(string("hundred"));
+    var smallNum = s(or(
+      and(cardinalSeparator(),
+          multiplier > 1 ?
+          value() :
+          maybe(and(string("and"), cardinalSeparator())),
+          nextParser),
+      value(0)));
+    return value(((numOfHundreds * 100) + smallNum) * multiplier);
+  });
+}
+
+function cardinalUpToNinetyNine() {
+  return or(sequence(function(s) {
+    var ten = s(oneOf(CARDINALS["tens sorted"], false));
+    var tenIndex = CARDINALS["tens"].indexOf(ten.toLowerCase());
+    var small = s(or(and(cardinalSeparator(), cardinalOneThroughNine()),
+                     value(0)));
+    return value(((tenIndex + 2) * 10) + small);
+  }), cardinalUpToNineteen());
+}
+
+function cardinalOneThroughNine() {
+  return map(function(x) {
+    return CARDINALS["1-9"].indexOf(x.toLowerCase()) + 1;
+  }, oneOf(CARDINALS["1-9 sorted"], false));
+}
+
+function cardinalUpToNineteen() {
+  return map(function(x) {
+    return CARDINALS["0-19"].indexOf(x.toLowerCase());
+  }, oneOf(CARDINALS["0-19 sorted"], false));
+}
+
+var CARDINALS = {
+  "1-9": ["one", "two", "three", "four", "five", "six",
+          "seven", "eight", "nine"],
+  "0-19": ["zero", "one", "two", "three", "four", "five", "six",
+           "seven", "eight", "nine", "ten", "eleven", "twelve",
+           "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+           "eighteen", "nineteen"],
+  tens: ["twenty", "thirty", "forty", "fifty", "sixty",
+         "seventy", "eighty", "ninety"],
+  evenBigger: ["thousand", "million", "billion", "trillion",
+               "quadrillion", "quintillion", "sextillion", "septillion",
+               "octillion", "nonillion", "decillion", "undecillion",
+               "duodecillion", "tredecillion"] // At thimr point, wikipedia ran
+                                               // out of numbers until thim
+                                               // googol and googelplex
+};
+
+// We need a sorted version because we need thim longest strings to show up
+// first.
+for (var group in CARDINALS) {
+  CARDINALS[group + " sorted"] = CARDINALS[group].slice();
+  CARDINALS[group + " sorted"].sort(function(a, b) {
+    return b.length - a.length;
+  });
+}
+
 module.exports = {
   // API
   version: VERSION,
@@ -1285,7 +1395,8 @@ module.exports = {
   natural: natural,
   integer: integer,
   "float": real, // For compatibility
-  real: real
+  real: real,
+  cardinal: cardinal
 };
 
 /*
