@@ -862,6 +862,9 @@ describe("mona", function() {
         assert.equal(parse(mona.float(), "-1.25"), -1.25);
         assert.equal(parse(mona.float(), "+1.25"), 1.25);
       });
+      it("is aliased to 'real'", function() {
+        assert.equal(mona.float, mona.real);
+      });
       it("supports e-notation", function() {
         assert.equal(parse(mona.float(), "1.25e10"), 1.25e10);
         assert.equal(parse(mona.float(), "1.25e3"), 1.25e3);
