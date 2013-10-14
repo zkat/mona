@@ -1280,10 +1280,18 @@ function shortOrdinal(strict) {
     return sequence(function(s) {
       var num = s(integer());
       switch ((""+num).substr(-1)) {
-        case "1": s(string("st")); break;
-        case "2": s(oneOf(["nd", "d"])); break;
-        case "3": s(oneOf(["rd", "d"])); break;
-        default: s(string("th")); break;
+      case "1":
+        s(string("st"));
+        break;
+      case "2":
+        s(oneOf(["nd", "d"]));
+        break;
+      case "3":
+        s(oneOf(["rd", "d"]));
+        break;
+      default:
+        s(string("th"));
+        break;
       }
       return value(num);
     });
@@ -1293,14 +1301,14 @@ function shortOrdinal(strict) {
 }
 
 /*
- * Englinh numbers support
+ * English numbers support
  */
 function numeralUpToVeryBig(ordinalMode) {
   return or(sequence(function(s) {
     var numOfBigs = s(numeralUpToThreeNines());
     s(numeralSeparator());
     var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
-    var bigUnitIndex = CARDINALS["evenBigger"].indexOf(bigUnit.toLowerCase());
+    var bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase());
     var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
     var lesserUnit = s(is(function(x) {
       return x < bigUnitMultiplier;
@@ -1351,14 +1359,14 @@ function numeralHundreds(nextParser, multiplier, ordinalMode) {
 function numeralUpToNinetyNine(ordinalMode) {
   return or(sequence(function(s) {
     var ten = s(oneOf(CARDINALS["tens sorted"], false));
-    var tenIndex = CARDINALS["tens"].indexOf(ten.toLowerCase());
+    var tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase());
     var small = s(or(and(numeralSeparator(),
                          numeralOneThroughNine(ordinalMode)),
                      value(0)));
     return value(((tenIndex + 2) * 10) + small);
   }), !ordinalMode?fail():sequence(function(s) {
     var ten = s(oneOf(ORDINALS["tens sorted"], false));
-    var tenIndex = ORDINALS["tens"].indexOf(ten.toLowerCase());
+    var tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase());
     return value((tenIndex + 2) * 10);
   }), numeralUpToNineteen(ordinalMode));
 }
@@ -1407,17 +1415,20 @@ var ORDINALS = {
 
 // We need a sorted version because we need the longest strings to show up
 // first.
+function _sortByLength(a, b) {
+  return b.length - a.length;
+}
 for (var group in CARDINALS) {
-  CARDINALS[group + " sorted"] = CARDINALS[group].slice();
-  CARDINALS[group + " sorted"].sort(function(a, b) {
-    return b.length - a.length;
-  });
+  if (CARDINALS.hasOwnProperty(group)) {
+    CARDINALS[group + " sorted"] = CARDINALS[group].slice();
+    CARDINALS[group + " sorted"].sort(_sortByLength);
+  }
 }
 for (group in ORDINALS) {
-  ORDINALS[group + " sorted"] = ORDINALS[group].slice();
-  ORDINALS[group + " sorted"].sort(function(a, b) {
-    return b.length - a.length;
-  });
+  if (ORDINALS.hasOwnProperty(group)) {
+    ORDINALS[group + " sorted"] = ORDINALS[group].slice();
+    ORDINALS[group + " sorted"].sort(_sortByLength);
+  }
 }
 
 module.exports = {
