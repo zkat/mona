@@ -1231,6 +1231,164 @@ function real() {
   });
 }
 
+/**
+ * Returns a parser that will parse english cardinal numbers into their
+ * numerical counterparts.
+ *
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(cardinal(), "two thousand"); // => 2000
+ */
+function cardinal() {
+  return or(numeralUpToVeryBig(),
+            "cardinal");
+}
+
+/**
+ * Returns a parser that will parse english ordinal numbers into their numerical
+ * counterparts.
+ *
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(ordinal(), "one-hundred thousand and fifth"); // 100005
+ */
+function ordinal() {
+  return or(numeralUpToVeryBig(true),
+            "ordinal");
+}
+
+/*
+ * Englinh numbers support
+ */
+function numeralUpToVeryBig(ordinalMode) {
+  return or(sequence(function(s) {
+    var numOfBigs = s(numeralUpToThreeNines());
+    s(numeralSeparator());
+    var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
+    var bigUnitIndex = CARDINALS["evenBigger"].indexOf(bigUnit.toLowerCase());
+    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
+    var lesserUnit = s(is(function(x) {
+      return x < bigUnitMultiplier;
+    }, or(and(or(and(string(","), spaces()),
+                 numeralSeparator()),
+              numeralUpToVeryBig(ordinalMode)),
+          and(numeralSeparator(), string("and"), numeralSeparator(),
+              numeralUpToThreeNines(ordinalMode)),
+          value(null))));
+    if (lesserUnit === null && ordinalMode) {
+      s(string("th"));
+      lesserUnit = 0;
+    }
+    return value((numOfBigs * bigUnitMultiplier) + lesserUnit);
+  }), numeralUpToThreeNines(ordinalMode));
+}
+
+function numeralUpToThreeNines(ordinalMode) {
+  return or(numeralHundreds(numeralUpToNinetyNine(ordinalMode),
+                             1, ordinalMode),
+            numeralUpToNinetyNine(ordinalMode));
+}
+
+function numeralSeparator() {
+  return or(spaces(), string("-"));
+}
+
+function numeralHundreds(nextParser, multiplier, ordinalMode) {
+  return sequence(function(s) {
+    var numOfHundreds = s(numeralOneThroughNine());
+    s(numeralSeparator());
+    s(string("hundred"));
+    var smallNum = s(or(
+      and(numeralSeparator(),
+          multiplier > 1 ?
+          value() :
+          maybe(and(string("and"), numeralSeparator())),
+          nextParser),
+      value(null)));
+    if (smallNum === null && ordinalMode) {
+      s(string("th"));
+      smallNum = 0;
+    }
+    return value(((numOfHundreds * 100) + smallNum) * multiplier);
+  });
+}
+
+function numeralUpToNinetyNine(ordinalMode) {
+  return or(sequence(function(s) {
+    var ten = s(oneOf(CARDINALS["tens sorted"], false));
+    var tenIndex = CARDINALS["tens"].indexOf(ten.toLowerCase());
+    var small = s(or(and(numeralSeparator(),
+                         numeralOneThroughNine(ordinalMode)),
+                     value(0)));
+    return value(((tenIndex + 2) * 10) + small);
+  }), !ordinalMode?fail():sequence(function(s) {
+    var ten = s(oneOf(ORDINALS["tens sorted"], false));
+    var tenIndex = ORDINALS["tens"].indexOf(ten.toLowerCase());
+    return value((tenIndex + 2) * 10);
+  }), numeralUpToNineteen(ordinalMode));
+}
+
+function numeralOneThroughNine(ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS;
+  return map(function(x) {
+    return source["1-9"].indexOf(x.toLowerCase()) + 1;
+  }, oneOf(source["1-9 sorted"], false));
+}
+
+function numeralUpToNineteen(ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS;
+  return map(function(x) {
+    return source["0-19"].indexOf(x.toLowerCase());
+  }, oneOf(source["0-19 sorted"], false));
+}
+
+var CARDINALS = {
+  "1-9": ["one", "two", "three", "four", "five", "six",
+          "seven", "eight", "nine"],
+  "0-19": ["zero", "one", "two", "three", "four", "five", "six",
+           "seven", "eight", "nine", "ten", "eleven", "twelve",
+           "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+           "eighteen", "nineteen"],
+  tens: ["twenty", "thirty", "forty", "fifty", "sixty",
+         "seventy", "eighty", "ninety"],
+  evenBigger: ["thousand", "million", "billion", "trillion",
+               "quadrillion", "quintillion", "sextillion", "septillion",
+               "octillion", "nonillion", "decillion", "undecillion",
+               "duodecillion", "tredecillion"] // At this point, wikipedia ran
+                                               // out of numbers until the
+                                               // googol and googelplex
+};
+
+var ORDINALS = {
+  "1-9": ["first", "second", "third", "fourth", "fifth", "sixth",
+          "seventh", "eighth", "ninth"],
+  "0-19": ["zeroeth", "first", "second", "third", "fourth", "fifth",
+           "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh",
+           "twelfth", "thirteenth", "fourteenth", "fifteenth",
+           "sixteenth", "seventeenth", "eighteenth", "nineteenth"],
+  tens: ["twentieth", "thirtieth", "fortieth", "fiftieth",
+         "sixtieth", "seventieth", "eightieth", "ninetieth"]
+};
+
+// We need a sorted version because we need the longest strings to show up
+// first.
+for (var group in CARDINALS) {
+  CARDINALS[group + " sorted"] = CARDINALS[group].slice();
+  CARDINALS[group + " sorted"].sort(function(a, b) {
+    return b.length - a.length;
+  });
+}
+for (group in ORDINALS) {
+  ORDINALS[group + " sorted"] = ORDINALS[group].slice();
+  ORDINALS[group + " sorted"].sort(function(a, b) {
+    return b.length - a.length;
+  });
+}
+
 module.exports = {
   // API
   version: VERSION,
@@ -1285,7 +1443,9 @@ module.exports = {
   natural: natural,
   integer: integer,
   "float": real, // For compatibility
-  real: real
+  real: real,
+  cardinal: cardinal,
+  ordinal: ordinal
 };
 
 /*
