@@ -926,25 +926,26 @@ function stringOf(parser) {
 }
 
 /**
- * Returns a parser that succeeds if the next token is one of the provided
- * `chars`.
+ * Returns a parser that succeeds if the next token or string matches one of the
+ * given inputs.
  *
- * @param {String|Array} chars - Character bag to match the next
- *                                          token against.
+ * @param {String|Array} matches - Characters or strings to match. If this
+ *                                 argument is a string, it will be treated as
+ *                                 if matches.split("") were passed in.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @memberof module:mona/strings
  * @instance
  *
  * @example
  * parse(oneOf("abcd"), "c"); // => "c"
+ * parse(oneOf(["foo", "bar", "baz"]), "bar"); // => "bar"
  */
-function oneOf(chars, caseSensitive) {
+function oneOf(_matches, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  chars = caseSensitive ? chars : chars.toLowerCase();
-  return label(is(function(x) {
-    x = caseSensitive ? x : x.toLowerCase();
-    return ~chars.indexOf(x);
-  }), "one of {"+chars+"}");
+  var matches = typeof _matches === "string" ? _matches.split("") : _matches;
+  return or.apply(null, matches.map(function(m) {
+    return string(m, caseSensitive);
+  }).concat(["one of {"+matches+"}"]));
 }
 
 /**
