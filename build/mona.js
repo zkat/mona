@@ -14,7 +14,7 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
  * @module mona/api
  */
 
-var VERSION = "0.7.2";
+var VERSION = "0.8.0";
 
 /**
  * Executes a parser and returns the result.
@@ -467,7 +467,7 @@ function is(predicate, parser) {
 }
 
 /**
- * Returns a parser that succeeds if `predicate` returns true when called on a
+ * Returns a parser that succeeds if `predicate` returns false when called on a
  * parser's result.
  *
  * @param {Function} predicate - Tests a parser's result.
@@ -928,25 +928,26 @@ function stringOf(parser) {
 }
 
 /**
- * Returns a parser that succeeds if the next token is one of the provided
- * `chars`.
+ * Returns a parser that succeeds if the next token or string matches one of the
+ * given inputs.
  *
- * @param {String|Array} chars - Character bag to match the next
- *                                          token against.
+ * @param {String|Array} matches - Characters or strings to match. If this
+ *                                 argument is a string, it will be treated as
+ *                                 if matches.split("") were passed in.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @memberof module:mona/strings
  * @instance
  *
  * @example
  * parse(oneOf("abcd"), "c"); // => "c"
+ * parse(oneOf(["foo", "bar", "baz"]), "bar"); // => "bar"
  */
-function oneOf(chars, caseSensitive) {
+function oneOf(_matches, caseSensitive) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  chars = caseSensitive ? chars : chars.toLowerCase();
-  return label(is(function(x) {
-    x = caseSensitive ? x : x.toLowerCase();
-    return ~chars.indexOf(x);
-  }), "one of {"+chars+"}");
+  var matches = typeof _matches === "string" ? _matches.split("") : _matches;
+  return or.apply(null, matches.map(function(m) {
+    return string(m, caseSensitive);
+  }).concat(["one of {"+matches+"}"]));
 }
 
 /**
@@ -1213,9 +1214,9 @@ function integer(base) {
  * @instance
  *
  * @example
- * parse(float(), "-1234e-10"); // => -1.234e-7
+ * parse(real(), "-1234e-10"); // => -1.234e-7
  */
-function float() {
+function real() {
   return sequence(function(s) {
     var leftSide = s(integer());
     var rightSide = s(or(and(string("."),
@@ -1230,6 +1231,206 @@ function float() {
                  value(0)));
     return value((leftSide + rightSide)*(Math.pow(10, e)));
   });
+}
+
+/**
+ * Returns a parser that will parse english cardinal numbers into their
+ * numerical counterparts.
+ *
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(cardinal(), "two thousand"); // => 2000
+ */
+function cardinal() {
+  return or(numeralUpToVeryBig(),
+            "cardinal");
+}
+
+/**
+ * Returns a parser that will parse english ordinal numbers into their numerical
+ * counterparts.
+ *
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(ordinal(), "one-hundred thousand and fifth"); // 100005
+ */
+function ordinal() {
+  return or(numeralUpToVeryBig(true),
+            "ordinal");
+}
+
+/**
+ * Returns a parser that will parse shorthand english ordinal numbers into their
+ * numerical counterparts.
+ *
+ * @param {Boolean} [strict=true] - Whether to accept only appropriate suffixes
+ *                                  for each number. (if false, `2th` parses to
+ *                                  `2`)
+ * @memberof module:mona/numbers
+ * @instance
+ *
+ * @example
+ * parse(shortOrdinal(), "5th"); // 5
+ */
+function shortOrdinal(strict) {
+  strict = typeof strict === "undefined" ? true : strict;
+  if (strict) {
+    return sequence(function(s) {
+      var num = s(integer());
+      switch ((""+num).substr(-1)) {
+      case "1":
+        s(string("st"));
+        break;
+      case "2":
+        s(oneOf(["nd", "d"]));
+        break;
+      case "3":
+        s(oneOf(["rd", "d"]));
+        break;
+      default:
+        s(string("th"));
+        break;
+      }
+      return value(num);
+    });
+  } else {
+    return followedBy(integer(), oneOf(["th", "st", "nd", "rd"]));
+  }
+}
+
+/*
+ * English numbers support
+ */
+function numeralUpToVeryBig(ordinalMode) {
+  return or(sequence(function(s) {
+    var numOfBigs = s(numeralUpToThreeNines());
+    s(numeralSeparator());
+    var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
+    var bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase());
+    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
+    var lesserUnit = s(is(function(x) {
+      return x < bigUnitMultiplier;
+    }, or(and(or(and(string(","), spaces()),
+                 numeralSeparator()),
+              numeralUpToVeryBig(ordinalMode)),
+          and(numeralSeparator(), string("and"), numeralSeparator(),
+              numeralUpToThreeNines(ordinalMode)),
+          value(null))));
+    if (lesserUnit === null && ordinalMode) {
+      s(string("th"));
+      lesserUnit = 0;
+    }
+    return value((numOfBigs * bigUnitMultiplier) + lesserUnit);
+  }), numeralUpToThreeNines(ordinalMode));
+}
+
+function numeralUpToThreeNines(ordinalMode) {
+  return or(numeralHundreds(numeralUpToNinetyNine(ordinalMode),
+                             1, ordinalMode),
+            numeralUpToNinetyNine(ordinalMode));
+}
+
+function numeralSeparator() {
+  return or(spaces(), string("-"));
+}
+
+function numeralHundreds(nextParser, multiplier, ordinalMode) {
+  return sequence(function(s) {
+    var numOfHundreds = s(numeralOneThroughNine());
+    s(numeralSeparator());
+    s(string("hundred"));
+    var smallNum = s(or(
+      and(numeralSeparator(),
+          multiplier > 1 ?
+          value() :
+          maybe(and(string("and"), numeralSeparator())),
+          nextParser),
+      value(null)));
+    if (smallNum === null && ordinalMode) {
+      s(string("th"));
+      smallNum = 0;
+    }
+    return value(((numOfHundreds * 100) + smallNum) * multiplier);
+  });
+}
+
+function numeralUpToNinetyNine(ordinalMode) {
+  return or(sequence(function(s) {
+    var ten = s(oneOf(CARDINALS["tens sorted"], false));
+    var tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase());
+    var small = s(or(and(numeralSeparator(),
+                         numeralOneThroughNine(ordinalMode)),
+                     value(0)));
+    return value(((tenIndex + 2) * 10) + small);
+  }), !ordinalMode?fail():sequence(function(s) {
+    var ten = s(oneOf(ORDINALS["tens sorted"], false));
+    var tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase());
+    return value((tenIndex + 2) * 10);
+  }), numeralUpToNineteen(ordinalMode));
+}
+
+function numeralOneThroughNine(ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS;
+  return map(function(x) {
+    return source["1-9"].indexOf(x.toLowerCase()) + 1;
+  }, oneOf(source["1-9 sorted"], false));
+}
+
+function numeralUpToNineteen(ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS;
+  return map(function(x) {
+    return source["0-19"].indexOf(x.toLowerCase());
+  }, oneOf(source["0-19 sorted"], false));
+}
+
+var CARDINALS = {
+  "1-9": ["one", "two", "three", "four", "five", "six",
+          "seven", "eight", "nine"],
+  "0-19": ["zero", "one", "two", "three", "four", "five", "six",
+           "seven", "eight", "nine", "ten", "eleven", "twelve",
+           "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+           "eighteen", "nineteen"],
+  tens: ["twenty", "thirty", "forty", "fifty", "sixty",
+         "seventy", "eighty", "ninety"],
+  evenBigger: ["thousand", "million", "billion", "trillion",
+               "quadrillion", "quintillion", "sextillion", "septillion",
+               "octillion", "nonillion", "decillion", "undecillion",
+               "duodecillion", "tredecillion"] // At this point, wikipedia ran
+                                               // out of numbers until the
+                                               // googol and googelplex
+};
+
+var ORDINALS = {
+  "1-9": ["first", "second", "third", "fourth", "fifth", "sixth",
+          "seventh", "eighth", "ninth"],
+  "0-19": ["zeroeth", "first", "second", "third", "fourth", "fifth",
+           "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh",
+           "twelfth", "thirteenth", "fourteenth", "fifteenth",
+           "sixteenth", "seventeenth", "eighteenth", "nineteenth"],
+  tens: ["twentieth", "thirtieth", "fortieth", "fiftieth",
+         "sixtieth", "seventieth", "eightieth", "ninetieth"]
+};
+
+// We need a sorted version because we need the longest strings to show up
+// first.
+function _sortByLength(a, b) {
+  return b.length - a.length;
+}
+for (var group in CARDINALS) {
+  if (CARDINALS.hasOwnProperty(group)) {
+    CARDINALS[group + " sorted"] = CARDINALS[group].slice();
+    CARDINALS[group + " sorted"].sort(_sortByLength);
+  }
+}
+for (group in ORDINALS) {
+  if (ORDINALS.hasOwnProperty(group)) {
+    ORDINALS[group + " sorted"] = ORDINALS[group].slice();
+    ORDINALS[group + " sorted"].sort(_sortByLength);
+  }
 }
 
 module.exports = {
@@ -1285,7 +1486,11 @@ module.exports = {
   // Numbers
   natural: natural,
   integer: integer,
-  float: float
+  "float": real, // For compatibility
+  real: real,
+  cardinal: cardinal,
+  ordinal: ordinal,
+  shortOrdinal: shortOrdinal
 };
 
 /*
