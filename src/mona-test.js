@@ -630,6 +630,12 @@ describe("mona", function() {
           parse(mona.oneOf("abc", true), "B");
         }, /expected one of {a,b,c}/);
       });
+      it("accepts an array of strings as matches", function() {
+        assert.equal(parse(mona.oneOf(["foo", "bar"]), "bar"), "bar");
+        assert.throws(function() {
+          parse(mona.oneOf(["foo", "bar"]), "baz");
+        }, /expected one of {foo,bar}/);
+      });
       it("defaults to being case-sensitive", function() {
         assert.throws(function() {
           parse(mona.oneOf("abc"), "B");
