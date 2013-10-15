@@ -949,24 +949,30 @@ function oneOf(_matches, caseSensitive) {
 }
 
 /**
- * Returns a parser that fails if the next token matches any of the provided
- * `chars`.
+ * Returns a parser that fails if the next token or string matches one of the
+ * given inputs. If the third `parser` argument is given, that parser will be
+ * used to collect the actual value of `noneOf`.
  *
- * @param {String|Array} chars - Character bag to match against.
+ * @param {String|Array} matches - Characters or strings to match. If this
+ *                                 argument is a string, it will be treated as
+ *                                 if matches.split("") were passed in.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
+ * @param {Parser} [parser=token()] - What to actually parse if none of the
+ *                                    given matches succeed.
  * @memberof module:mona/strings
  * @instance
  *
  * @example
  * parse(noneOf("abc"), "d"); // => "d"
+ * parse(noneOf(["foo", "bar", "baz"]), "frob"); // => "f"
+ * parse(noneOf(["foo", "bar", "baz"], true, text()), "frob"); // => "frob"
  */
-function noneOf(chars, caseSensitive) {
+function noneOf(_matches, caseSensitive, parser) {
   caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  chars = caseSensitive ? chars : chars.toLowerCase();
-  return label(is(function(x) {
-    x = caseSensitive ? x : x.toLowerCase();
-    return !~chars.indexOf(x);
-  }), "none of {"+chars+"}");
+  var matches = typeof _matches === "string" ? _matches.split("") : _matches;
+  return label(and(not(or.apply(null, matches.map(function(m) {
+    return string(m, caseSensitive);
+  }))), parser || token()), "none of {"+matches+"}");
 }
 
 /**
