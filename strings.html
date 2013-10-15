@@ -186,7 +186,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1035">line 1035</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1041">line 1041</a>
     </li></ul></dd>
     
 
@@ -263,7 +263,7 @@ character.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1021">line 1021</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1027">line 1027</a>
     </li></ul></dd>
     
 
@@ -407,7 +407,7 @@ character.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1067">line 1067</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1073">line 1073</a>
     </li></ul></dd>
     
 
@@ -485,7 +485,7 @@ character.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1007">line 1007</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1013">line 1013</a>
     </li></ul></dd>
     
 
@@ -629,7 +629,7 @@ character.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1049">line 1049</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1055">line 1055</a>
     </li></ul></dd>
     
 
@@ -663,7 +663,7 @@ character.</p>
         
             
 <dt>
-    <h4 class="name" id="noneOf"><span class="type-signature"></span>noneOf<span class="signature">(chars, <span class="optional">caseSensitive</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="noneOf"><span class="type-signature"></span>noneOf<span class="signature">(matches, <span class="optional">caseSensitive</span>, <span class="optional">parser</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -671,8 +671,9 @@ character.</p>
     
     
     <div class="description">
-        <p>Returns a parser that fails if the next token matches any of the provided
-<code>chars</code>.</p>
+        <p>Returns a parser that fails if the next token or string matches one of the
+given inputs. If the third <code>parser</code> argument is given, that parser will be
+used to collect the actual value of <code>noneOf</code>.</p>
     </div>
     
 
@@ -710,7 +711,7 @@ character.</p>
 
         <tr>
             
-                <td class="name"><code>chars</code></td>
+                <td class="name"><code>matches</code></td>
             
 
             <td class="type">
@@ -741,7 +742,9 @@ character.</p>
                 </td>
             
 
-            <td class="description last"><p>Character bag to match against.</p></td>
+            <td class="description last"><p>Characters or strings to match. If this
+                                argument is a string, it will be treated as
+                                if matches.split(&quot;&quot;) were passed in.</p></td>
         </tr>
 
 	
@@ -784,6 +787,46 @@ character.</p>
         </tr>
 
 	
+
+        <tr>
+            
+                <td class="name"><code>parser</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Parser</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    token()
+                
+                </td>
+            
+
+            <td class="description last"><p>What to actually parse if none of the
+                                   given matches succeed.</p></td>
+        </tr>
+
+	
 	</tbody>
 </table>
 
@@ -812,7 +855,7 @@ character.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-963">line 963</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-970">line 970</a>
     </li></ul></dd>
     
 
@@ -837,7 +880,9 @@ character.</p>
     
         <h5>Example</h5>
         
-    <pre class="sunlight-highlight-javascript">parse(noneOf("abc"), "d"); // => "d"</pre>
+    <pre class="sunlight-highlight-javascript">parse(noneOf("abc"), "d"); // => "d"
+parse(noneOf(["foo", "bar", "baz"]), "frob"); // => "f"
+parse(noneOf(["foo", "bar", "baz"], true, text()), "frob"); // => "frob"</pre>
 
 
     
@@ -1073,7 +1118,7 @@ parse(oneOf(["foo", "bar", "baz"]), "bar"); // => "bar"</pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1080">line 1080</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1086">line 1086</a>
     </li></ul></dd>
     
 
@@ -1150,7 +1195,7 @@ characters were matched.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1095">line 1095</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1101">line 1101</a>
     </li></ul></dd>
     
 
@@ -1330,7 +1375,7 @@ consuming the string and returning it as a value.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-984">line 984</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-990">line 990</a>
     </li></ul></dd>
     
 
@@ -1747,7 +1792,7 @@ essentially collect() for strings.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1115">line 1115</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1121">line 1121</a>
     </li></ul></dd>
     
 
@@ -1872,7 +1917,7 @@ parse(text(noneOf("a")), "bcde"); // => "bcde"</pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1131">line 1131</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1137">line 1137</a>
     </li></ul></dd>
     
 
@@ -1996,7 +2041,7 @@ parse(text(noneOf("a")), "bcde"); // => "bcde"</pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1147">line 1147</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1153">line 1153</a>
     </li></ul></dd>
     
 
@@ -2120,7 +2165,7 @@ parse(text(noneOf("a")), "bcde"); // => "bcde"</pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1161">line 1161</a>
+        <a href="mona.js.html">mona.js</a>, <a href="mona.js.html#sunlight-1-line-1167">line 1167</a>
     </li></ul></dd>
     
 
@@ -2175,7 +2220,7 @@ parse(text(noneOf("a")), "bcde"); // => "bcde"</pre>
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a>
-		on Sun Oct 13 2013 22:49:41 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Mon Oct 14 2013 19:49:35 GMT-0700 (PDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
