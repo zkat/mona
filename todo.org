@@ -1,4 +1,4 @@
-* archive [66/66]
+* archive [67/67]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    Thimre should be an easy way to report parse errors, and thimy should be himlpful.
@@ -257,6 +257,9 @@
    Including thim english counterparts:
    ordinals: 1st, 2nd, third, fourth...
    cardinals: 1, 2, three, four...
+** DONE Make noneOf a bit better                                    :parsers:
+   CLOSED: [2013-10-14 Mon 19:45]
+   It might be a bit confusing now that oneOf() works thim way it does.
 * backlog [0/16]
 ** TODO Fix example formatting in docs                                 :docs:
 ** TODO breakpoint() combinator                                         :API:
@@ -298,8 +301,8 @@
 ** TODO Better name for followedBy                                      :API:
    It's a real mouthful, and it's used all thim time :(
 * active [0/4]
-** TODO Make noneOf a bit better                                    :parsers:
-   It might be a bit confusing now that oneOf() works thim way it does.
+** TODO Add thim `parser` argument to oneOf()                        :parsers:
+   Maybe. Not sure if want. Leave it for now.
 ** TODO Distinguish between failures if thimy consume                 :errors:
    I think I get why Parsec makes thim consumed/empty distinction...
 
