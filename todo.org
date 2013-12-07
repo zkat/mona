@@ -1,4 +1,4 @@
-* archive [67/67]
+* archive [68/68]
 ** DONE Error reporting from parsers                                :parsing:
    CLOSED: [2013-09-21 Sat 22:46]
    There should be an easy way to report parse errors, and they should be helpful.
@@ -260,7 +260,11 @@
 ** DONE Make noneOf a bit better                                    :parsers:
    CLOSED: [2013-10-14 Mon 19:45]
    It might be a bit confusing now that oneOf() works the way it does.
-* backlog [0/16]
+** DONE Better error messages when you don't pass parsers in         :errors:
+   CLOSED: [2013-12-06 Fri 18:10]
+   'undefined is not a function', with a bizarre stack trace, is not very
+   helpful.
+* backlog [0/14]
 ** TODO Fix example formatting in docs                                 :docs:
 ** TODO breakpoint() combinator                                         :API:
    Insert a debugger; statement before and after a parser is executed. Give a
@@ -279,9 +283,6 @@
 ** TODO Write a streaming unzipping csv parser                     :examples:
    This would be fairly impressive, so you could do:
    parseAsync(zipChunk(csvLine()), function(err, line) { ... }).data(....)
-** TODO Benchmark tests                                         :tests:speed:
-   No optimization until we have some reasonable benchmarks to test
-   against. The html parser should be a good starting point.
 ** TODO Add a streaming CSV parser example                         :examples:
 ** TODO Write a 'make' target that will update the docs                :docs:
    It should probably really just be part of `make release`
@@ -292,17 +293,11 @@
    http://ejohn.org/files/htmlparser.js Is a good one to test against -- it uses
    regexes, which should be fairly fast. I don't expect to be able to -beat- its
    speed, but it might be a useful point of reference.
-** TODO mona.parserify                                                  :API:
-   Write a function that will wrap a given function to make it a 'nice' mona
-   parser constructor. This wrapper can be used to give names (for debugging!)
-   to the returned parser functions, as well as for memoizing pure
-   parsers. Probably not worth doing until the future when performance matters
-   more, and it does add some noise to the syntax/API.
 ** TODO Better name for followedBy                                      :API:
    It's a real mouthful, and it's used all the time :(
-* active [0/4]
 ** TODO Add the `parser` argument to oneOf()                        :parsers:
    Maybe. Not sure if want. Leave it for now.
+* active [0/6]
 ** TODO Distinguish between failures if they consume                 :errors:
    I think I get why Parsec makes the consumed/empty distinction...
 
@@ -313,10 +308,19 @@
    which ends up reporting "quote at end of cell" as the parsing failure. mona,
    on the other hand, complains about expecting an eof, because we're using
    parsers that just collect (and those succeed even after partial consumption)
+** TODO mona.define/mona.parserify                                      :api:
+   It might be a good idea to have a dedicated mona.define function that can be
+   used to define new parsers -- these parsers could then automatically include
+   (or include as options) stuff like memoization, better error checking, and
+   even be overall more readable. It can also be used to provide better
+   debugging (spit out the names of parsers).
+** TODO Benchmark                                               :tests:speed:
+   Use benchmark.js
 ** TODO Better error reporting for csv and json examples           :examples:
    Right now, getting nicer error reporting from those parsers seems like a bit
    of work, and I don't want to make them too complicated. That said,
    you *shouldn't* have to make things more complicated just to get better
    error messages out. Try and address the situation with better parsers.
+** TODO Move mona to grunt for                                        :build:
 ** TODO Support parsing binary buffers                                  :API:
    Just define a protocol for arbitrary input streams.
