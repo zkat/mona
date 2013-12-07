@@ -37,7 +37,8 @@ function parse(parser, string, opts) {
   if (!opts.allowTrailing) {
     parser = followedBy(parser, eof());
   }
-  var parserState = parser(
+  var parserState = invokeParser(
+    parser,
     new ParserState(undefined,
                     string,
                     0,
@@ -225,7 +226,7 @@ function value(val) {
  */
 function bind(parser, fun) {
   return function(parserState) {
-    var newParserState = parser(parserState);
+    var newParserState = invokeParser(parser, parserState);
     if (!(newParserState instanceof ParserState)) {
       throw new Error("Parsers must return a parser state object");
     }
@@ -274,7 +275,7 @@ function fail(msg, type) {
  */
 function label(parser, msg) {
   return function(parserState) {
-    var newState = parser(parserState);
+    var newState = invokeParser(parser, parserState);
     if (newState.failed) {
       newState = copy(newState);
       newState.error = new ParserError(newState.error.position,
@@ -382,7 +383,7 @@ function delay(constructor) {
 function log(parser, tag, level) {
   level = level || "log";
   return function(parserState) {
-    var newParserState = parser(parserState);
+    var newParserState = invokeParser(parser, parserState);
     console[level](tag+" :: ", parserState, " => ", newParserState);
     return newParserState;
   };
@@ -439,7 +440,7 @@ function tag(parser, key) {
  */
 function lookAhead(parser) {
   return function(parserState) {
-    var ret = parser(parserState),
+    var ret = invokeParser(parser, parserState),
         newState = copy(parserState);
     newState.value = ret.value;
     return newState;
@@ -582,9 +583,9 @@ function maybe(parser) {
  */
 function not(parser) {
   return function(parserState) {
-    return parser(parserState).failed ?
-      value(true)(parserState) :
-      fail("expected parser to fail", "expectation")(parserState);
+    return invokeParser(parser, parserState).failed ?
+      invokeParser(value(true), parserState) :
+      invokeParser(fail("expected parser to fail", "expectation"), parserState);
   };
 }
 
@@ -634,7 +635,7 @@ function sequence(fun) {
   return function(parserState) {
     var state = parserState, failwhale = {};
     function s(parser) {
-      state = parser(state);
+      state = invokeParser(parser, state);
       if (state.failed) {
         throw failwhale;
       } else {
@@ -810,7 +811,7 @@ function collect(parser, opts) {
         s = parserState,
         res = [],
         i = 0;
-    while(s = parser(s), i < max && !s.failed) {
+    while(s = invokeParser(parser, s), i < max && !s.failed) {
       res.push(s.value);
       i++;
       prev = s;
@@ -1508,6 +1509,17 @@ function copy(obj) {
     }
   }
   return newObj;
+}
+
+function invokeParser(parser, parserState) {
+  if (typeof parser !== "function") {
+    throw new Error("Parser needs to be a function, but got " +
+                    parser + " instead");
+  }
+  if (!(parserState instanceof ParserState)) {
+    throw new Error("Expected parserState to be a ParserState");
+  }
+  return parser(parserState);
 }
 
 function mergeErrors(err1, err2) {

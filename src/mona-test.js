@@ -30,6 +30,11 @@ describe("mona", function() {
         parse(mona.fail("nop"), "");
       });
     });
+    it("reports a nice error if parser argument isn't a function", function() {
+      assert.throws(function() {
+        parse(undefined, "parsemeplease");
+      }, /Parser needs to be a function, but got undefined instead/);
+    });
   });
   describe("parseAsync()", function() {
     it("executes a callback on asynchronous results", function(done) {
