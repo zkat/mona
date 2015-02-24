@@ -438,9 +438,9 @@ function tag(parser, key) {
  */
 function lookAhead(parser) {
   return function(parserState) {
-    var ret = invokeParser(parser, parserState),
-        newState = copy(parserState);
-    newState.value = ret.value;
+    var newState = invokeParser(parser, parserState);
+    newState.offset = parserState.offset;
+    newState.position = parserState.position;
     return newState;
   };
 }
