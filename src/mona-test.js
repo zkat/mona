@@ -885,6 +885,14 @@ describe("mona", function() {
         assert.equal(parse(mona.float(), "1.2"), 1.2);
         assert.equal(parse(mona.float(), "-1.25"), -1.25);
         assert.equal(parse(mona.float(), "+1.25"), 1.25);
+        assert.equal(parse(mona.float(), "0.100"), 0.1);
+        assert.equal(parse(mona.float(), "0.001"), 0.001);
+        assert.equal(parse(mona.float(), "0.800"), 0.8);
+        assert.equal(parse(mona.float(), "0.008"), 0.008);
+        assert.equal(parse(mona.float(), "1.008"), 1.008);
+        assert.equal(parse(mona.float(), "-0.800"), -0.8);
+        assert.equal(parse(mona.float(), "-1.008"), -1.008);
+        assert.equal(parse(mona.float(), "10.08"), 10.08);
       });
       it("is aliased to 'real'", function() {
         assert.equal(mona.float, mona.real);

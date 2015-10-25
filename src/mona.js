@@ -1222,19 +1222,21 @@ function integer(base) {
  * parse(real(), "-1234e-10"); // => -1.234e-7
  */
 function real() {
-  return sequence(function(s) {
-    var leftSide = s(integer());
+  return sequence(function (s) {
+    var sign = s(or(string("+"), string("-"), value("")));
+    var leftSide = s(text(digit(), {min: 1}));
     var rightSide = s(or(and(string("."),
-                             integer()),
-                         value(0)));
-    while (rightSide > 1) {
-      rightSide = rightSide / 10;
-    }
-    rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
-    var e = s(or(and(string("e", false),
-                     integer()),
-                 value(0)));
-    return value((leftSide + rightSide)*(Math.pow(10, e)));
+      map(function (str) { return "." + str; },
+        text(digit(), {min: 1}))),
+      value("")));
+    var exponent = s(or(and(string("e", false),
+      sequence(function (s) {
+        var exp_sign = s(or(string("+"), string("-"), value("")));
+        var exp_value = s(text(digit(), {min: 1}));
+        return value("e" + exp_sign + exp_value);
+      })),
+      value("")));
+    return value(parseFloat(sign + leftSide + rightSide + exponent));
   });
 }
 
