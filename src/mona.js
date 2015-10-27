@@ -227,9 +227,6 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = invokeParser(parser, parserState);
-    if (!(newParserState instanceof ParserState)) {
-      throw new Error("Parsers must return a parser state object");
-    }
     if (newParserState.failed) {
       return newParserState;
     } else {
@@ -1525,7 +1522,11 @@ function invokeParser(parser, parserState) {
   if (!(parserState instanceof ParserState)) {
     throw new Error("Expected parserState to be a ParserState");
   }
-  return parser(parserState);
+  var newParserState = parser(parserState);
+  if (!(newParserState instanceof ParserState)) {
+    throw new Error("Parsers must return a parser state object");
+  }
+  return newParserState;
 }
 
 function mergeErrors(err1, err2) {
