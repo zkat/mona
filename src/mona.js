@@ -664,6 +664,39 @@ function sequence(fun) {
 }
 
 /**
+ * Returns a parser that succeeds if all the parsers given to it succeed. The
+ * returned parser uses the values of the all joined parsers.
+ *
+ * @param {...Parser} parsers - One or more parsers to execute.
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(join(alpha(), integer()), "a1"); // => ["a", 1]
+ */
+function join(firstParser) {
+  if (!firstParser) {
+    throw new Error("join() requires at least one parser");
+  }
+  return joinHelper(arguments);
+}
+
+function joinHelper(parsers) {
+  return function (parserState) {
+    var s = parserState, res = [], i;
+    for (i = 0; i < parsers.length; i++) {
+      s = invokeParser(parsers[i], s);
+      if (s.failed) {
+        return s;
+      } else {
+        res.push(s.value);
+      }
+    }
+    return value(res)(s);
+  };
+}
+
+/**
  * Called by `sequence` to handle sequential syntax for parsing. Called with an
  * `s()` function that must be called each time a parser should be applied. The
  * `s()` function will return the unwrapped value returned by the parser. If any
@@ -1467,6 +1500,7 @@ module.exports = {
   not: not,
   unless: unless,
   sequence: sequence,
+  join: join,
   followedBy: followedBy,
   split: split,
   splitEnd: splitEnd,
