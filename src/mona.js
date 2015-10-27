@@ -499,15 +499,23 @@ function isNot(predicate, parser) {
  * parse(and(token(), token()), "ab"); // => "b"
  */
 function and(firstParser) {
-  var moreParsers = [].slice.call(arguments, 1);
   if (!firstParser) {
     throw new Error("and() requires at least one parser");
   }
-  return bind(firstParser, function(result) {
-    return moreParsers.length ?
-      and.apply(null, moreParsers) :
-      value(result);
-  });
+  return andHelper(arguments);
+}
+
+function andHelper(parsers) {
+  return function (parserState) {
+    var res = parserState, i;
+    for (i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], res);
+      if (res.failed) {
+        return res;
+      }
+    }
+    return res;
+  };
 }
 
 /**
@@ -523,37 +531,33 @@ function and(firstParser) {
  * parse(or(string("foo"), string("bar")), "bar"); // => "bar"
  */
 function or() {
-  var errors = [];
-  function orHelper() {
-    var parsers = [].slice.call(arguments);
-    return function(parserState) {
-      var res = parsers[0](parserState);
-      if (res.failed) {
-        errors.push(res.error);
-      }
-      if (res.failed && parsers[1]) {
-        return orHelper.apply(null, parsers.slice(1))(parserState);
-      } else if (res.failed) {
-        var finalState = copy(res);
-        finalState.error = errors.reduce(function(err1, err2) {
-          return mergeErrors(err1, err2);
-        });
-        return finalState;
-      } else {
-        return res;
-      }
-    };
-  }
   var labelMsg = (typeof arguments[arguments.length-1] === "string" &&
                   arguments[arguments.length-1]),
       args = labelMsg ?
         [].slice.call(arguments, 0, arguments.length-1) : arguments,
-      parser = orHelper.apply(null, args);
+      parser = orHelper(args);
   if (labelMsg) {
     return label(parser, labelMsg);
   } else {
     return parser;
   }
+}
+
+function orHelper(parsers) {
+  return function(parserState) {
+    var errors = [], res, i;
+    for (i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], parserState);
+      if (res.failed) {
+        errors.push(res.error);
+      } else {
+        return res;
+      }
+    }
+    var finalState = copy(res);
+    finalState.error = errors.reduce(mergeErrors);
+    return finalState;
+  };
 }
 
 /**
