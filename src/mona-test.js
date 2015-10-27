@@ -179,6 +179,11 @@ describe("mona", function() {
           parse(mona.bind(function() { return "nope"; }), "");
         }, /Parsers must return a parser state object/);
       });
+      it("access to a userState from function context", function() {
+        assert.equal(parse(mona.bind(mona.value("foo"), function(val) {
+          return mona.value(val + this.suffix);
+        }), "", {userState:{suffix:"bar"}}), "foobar");
+      });
     });
     describe("fail()", function() {
       it("fails the parse with the given message", function() {
@@ -278,6 +283,14 @@ describe("mona", function() {
         assert.throws(function() {
           parse(parser, "");
         }, /unexpected eof/);
+      });
+      it("access to a userState from function context", function() {
+        function toUpper(text){
+          return text.toUpperCase();
+        }
+        assert.equal(parse(mona.map(function(txt) {
+          return this.convert(txt);
+        }, mona.text()), "abc", {userState:{convert:toUpper}}), "ABC");
       });
     });
     describe("wrap()", function() {

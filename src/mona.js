@@ -230,7 +230,8 @@ function bind(parser, fun) {
     if (newParserState.failed) {
       return newParserState;
     } else {
-      return fun(newParserState.value)(newParserState);
+      return fun.call(newParserState.userState,
+                      newParserState.value)(newParserState);
     }
   };
 }
@@ -404,7 +405,7 @@ function log(parser, tag, level) {
  */
 function map(transformer, parser) {
   return bind(parser, function(result) {
-    return value(transformer(result));
+    return value(transformer.call(this, result));
   });
 }
 
