@@ -10,7 +10,7 @@
  * @module mona/api
  */
 
-var VERSION = '0.8.1'
+export const VERSION = '0.8.1'
 
 /**
  * Executes a parser and returns the result.
@@ -28,13 +28,13 @@ var VERSION = '0.8.1'
  * @example
  * parse(token(), 'a') // => 'a'
  */
-function parse (parser, string, opts) {
+export function parse (parser, string, opts = {}) {
   opts.throwOnError = (typeof opts.throwOnError === 'undefined'
                        ? true : opts.throwOnError)
   if (!opts.allowTrailing) {
     parser = followedBy(parser, eof())
   }
-  var parserState = invokeParser(
+  let parserState = invokeParser(
     parser,
     new ParserState(undefined,
                     string,
@@ -75,19 +75,19 @@ function parse (parser, string, opts) {
  * })
  * handle.data('foobarbaz')
  */
-function parseAsync (parser, callback, opts) {
-  opts = copy(opts || {})
+export function parseAsync (parser, callback, opts = {}) {
+  opts = copy(opts)
   // Force the matter in case someone gets clever.
   opts.throwOnError = true
   opts.returnState = true
   opts.allowTrailing = true
-  var done = false
-  var buffer = ''
+  let done = false
+  let buffer = ''
   function exec () {
     if (done && !buffer.length) {
       return false
     }
-    var res
+    let res
     try {
       res = parse(collect(parser, {min: 1}), buffer, opts)
       opts.position = res.position
@@ -98,33 +98,31 @@ function parseAsync (parser, callback, opts) {
       }
       return false
     }
-    res.value.forEach(function (val) {
-      return callback(null, val)
-    })
+    res.value.forEach(val => callback(null, val))
     return true
   }
   function errIfDone (cb) {
-    return function () {
+    return (...args) => {
       if (done) {
         throw new Error('AsyncParser closed')
       } else {
-        return cb.apply(null, arguments)
+        return cb(...args)
       }
     }
   }
-  var handle = {
-    done: errIfDone(function () {
+  const handle = {
+    done: errIfDone(() => {
       done = true
       buffer = ''
       while (exec()) {}
       return handle
     }),
-    data: errIfDone(function (data) {
+    data: errIfDone(data => {
       buffer += data
       while (exec()) {}
       return handle
     }),
-    error: errIfDone(function (error) {
+    error: errIfDone(error => {
       done = true
       callback(error)
       return handle
@@ -198,9 +196,9 @@ ParserError.prototype.name = 'ParserError'
  * @example
  * parse(value('foo'), '') // => 'foo'
  */
-function value (val) {
-  return function (parserState) {
-    var newState = copy(parserState)
+export function value (val) {
+  return parserState => {
+    let newState = copy(parserState)
     newState.value = val
     return newState
   }
@@ -220,9 +218,9 @@ function value (val) {
  * @example
  * parse(bind(token(), function(x) { return value(x+'!') }), 'a') // => 'a!'
  */
-function bind (parser, fun) {
-  return function (parserState) {
-    var newParserState = invokeParser(parser, parserState)
+export function bind (parser, fun) {
+  return parserState => {
+    const newParserState = invokeParser(parser, parserState)
     if (newParserState.failed) {
       return newParserState
     } else {
@@ -241,16 +239,14 @@ function bind (parser, fun) {
  * @memberof module:mona/core
  * @instance
  */
-function fail (msg, type) {
-  msg = msg || 'parser error'
-  type = type || 'failure'
+export function fail (msg = 'parser error', type = 'failure') {
   return function (parserState) {
-    parserState = copy(parserState)
-    parserState.failed = true
-    var newError = new ParserError(parserState.position, [msg],
+    let newParserState = copy(parserState)
+    newParserState.failed = true
+    var newError = new ParserError(newParserState.position, [msg],
                                    type, type === 'eof')
-    parserState.error = mergeErrors(parserState.error, newError)
-    return parserState
+    newParserState.error = mergeErrors(newParserState.error, newError)
+    return newParserState
   }
 }
 
@@ -267,9 +263,9 @@ function fail (msg, type) {
  * parse(token(), '') // => unexpected eof
  * parse(label(token(), 'thing'), '') // => expected thing
  */
-function label (parser, msg) {
-  return function (parserState) {
-    var newState = invokeParser(parser, parserState)
+export function label (parser, msg) {
+  return parserState => {
+    let newState = invokeParser(parser, parserState)
     if (newState.failed) {
       newState = copy(newState)
       newState.error = new ParserError(newState.error.position,
@@ -292,16 +288,16 @@ function label (parser, msg) {
  * @example
  * parse(token(), 'a') // => 'a'
  */
-function token (count) {
+export function token (count) {
   count = count || 1 // force 0 to 1, as well.
-  return function (parserState) {
-    var input = parserState.input
-    var offset = parserState.offset
-    var newOffset = offset + count
-    var newParserState = copy(parserState)
-    var newPosition = copy(parserState.position)
+  return parserState => {
+    const input = parserState.input
+    const offset = parserState.offset
+    const newOffset = offset + count
+    let newParserState = copy(parserState)
+    let newPosition = copy(parserState.position)
     newParserState.position = newPosition
-    for (var i = offset; i < newOffset && input.length >= i; i++) {
+    for (let i = offset; i < newOffset && input.length >= i; i++) {
       if (input.charAt(i) === '\n') {
         newPosition.column = 0
         newPosition.line += 1
@@ -329,14 +325,11 @@ function token (count) {
  * @example
  * parse(eof(), '') // => true
  */
-function eof () {
-  return function (parserState) {
-    if (parserState.input.length === parserState.offset) {
-      return value(true)(parserState)
-    } else {
-      return fail('expected end of input', 'expectation')(parserState)
-    }
-  }
+export function eof () {
+  return parserState =>
+    parserState.input.length === parserState.offset
+    ? value(true)(parserState)
+    : fail('expected end of input', 'expectation')(parserState)
 }
 
 /**
@@ -358,11 +351,8 @@ function eof () {
  *   return or(x(), delay(foo))
  * }
  */
-function delay (constructor) {
-  var args = [].slice.call(arguments, 1)
-  return function (parserState) {
-    return constructor.apply(null, args)(parserState)
-  }
+export function delay (constructor, ...args) {
+  return parserState => constructor(...args)(parserState)
 }
 
 /**
@@ -374,9 +364,8 @@ function delay (constructor) {
  * @memberof module:mona/core
  * @instance
  */
-function log (parser, tag, level) {
-  level = level || 'log'
-  return function (parserState) {
+export function log (parser, tag, level = 'log') {
+  return parserState => {
     var newParserState = invokeParser(parser, parserState)
     console[level](tag + ' :: ', parserState, ' => ', newParserState)
     return newParserState
@@ -399,7 +388,7 @@ function log (parser, tag, level) {
  * @example
  * parse(map(parseFloat, text()), '1234.5') // => 1234.5
  */
-function map (transformer, parser) {
+export function map (transformer, parser) {
   return bind(parser, function (result) {
     return value(transformer.call(this, result))
   })
@@ -417,8 +406,8 @@ function map (transformer, parser) {
  * @example
  * parse(tag(token(), 'myToken'), 'a') // => {myToken: 'a'}
  */
-function tag (parser, key) {
-  return map(function (x) {
+export function tag (parser, key) {
+  return map(x => {
     var ret = {}
     ret[key] = x
     return ret
@@ -436,9 +425,9 @@ function tag (parser, key) {
  * @example
  * parse(and(lookAhead(token()), token()), 'a') // => 'a'
  */
-function lookAhead (parser) {
-  return function (parserState) {
-    var newState = invokeParser(parser, parserState)
+export function lookAhead (parser) {
+  return parserState => {
+    let newState = invokeParser(parser, parserState)
     newState.offset = parserState.offset
     newState.position = parserState.position
     return newState
@@ -457,10 +446,8 @@ function lookAhead (parser) {
  * @example
  * parse(is(function(x) { return x === 'a' }), 'a') // => 'a'
  */
-function is (predicate, parser) {
-  return bind(parser || token(), function (x) {
-    return predicate(x) ? value(x) : fail()
-  })
+export function is (predicate, parser = token()) {
+  return bind(parser, x => predicate(x) ? value(x) : fail())
 }
 
 /**
@@ -475,8 +462,8 @@ function is (predicate, parser) {
  * @example
  * parse(isNot(function(x) { return x === 'a' }), 'b') // => 'b'
  */
-function isNot (predicate, parser) {
-  return is(function (x) { return !predicate(x) }, parser)
+export function isNot (predicate, parser) {
+  return is(x => !predicate(x), parser)
 }
 
 /**
@@ -496,7 +483,7 @@ function isNot (predicate, parser) {
  * @example
  * parse(and(token(), token()), 'ab') // => 'b'
  */
-function and (firstParser) {
+export function and (firstParser) {
   if (!firstParser) {
     throw new Error('and() requires at least one parser')
   }
@@ -504,12 +491,12 @@ function and (firstParser) {
 }
 
 function andHelper (parsers) {
-  return function (parserState) {
+  return parserState => {
     var res = parserState
-    for (var i = 0; i < parsers.length; i++) {
-      res = invokeParser(parsers[i], res)
+    for (let parser of parsers) {
+      res = invokeParser(parser, res)
       if (res.failed) {
-        return res
+        break
       }
     }
     return res
@@ -528,25 +515,21 @@ function andHelper (parsers) {
  * @example
  * parse(or(string('foo'), string('bar')), 'bar') // => 'bar'
  */
-function or () {
-  var labelMsg = (typeof arguments[arguments.length - 1] === 'string' &&
-                  arguments[arguments.length - 1])
-  var args = (labelMsg
-              ? [].slice.call(arguments, 0, arguments.length - 1) : arguments)
-  var parser = orHelper(args)
-  if (labelMsg) {
-    return label(parser, labelMsg)
-  } else {
-    return parser
-  }
+export function or (...parsers) {
+  const labelMsg =
+    typeof parsers[parsers.length - 1] === 'string' && parsers.pop()
+  const parser = orHelper(parsers)
+  return labelMsg
+    ? label(parser, labelMsg)
+    : parser
 }
 
 function orHelper (parsers) {
-  return function (parserState) {
-    var errors = []
-    var res
-    for (var i = 0; i < parsers.length; i++) {
-      res = invokeParser(parsers[i], parserState)
+  return parserState => {
+    let errors = []
+    let res
+    for (let parser of parsers) {
+      res = invokeParser(parser, parserState)
       if (res.failed) {
         errors.push(res.error)
       } else {
@@ -570,7 +553,7 @@ function orHelper (parsers) {
  * @example
  * parse(maybe(token()), '') // => undefined
  */
-function maybe (parser) {
+export function maybe (parser) {
   return or(parser, value())
 }
 
@@ -584,13 +567,11 @@ function maybe (parser) {
  * @example
  * parse(and(not(string('a')), token()), 'b') // => 'b'
  */
-function not (parser) {
-  return function (parserState) {
-    return invokeParser(parser, parserState).failed
-      ? invokeParser(value(true), parserState)
-      : invokeParser(fail('expected parser to fail', 'expectation'),
-                     parserState)
-  }
+export function not (parser) {
+  return parserState =>
+    invokeParser(parser, parserState).failed
+    ? invokeParser(value(true), parserState)
+    : invokeParser(fail('expected parser to fail', 'expectation'), parserState)
 }
 
 /**
@@ -606,9 +587,8 @@ function not (parser) {
  * @example
  * parse(unless(string('a'), token()), 'b') // => 'b'
  */
-function unless (parser) {
-  var moreParsers = [].slice.call(arguments, 1)
-  return and.apply(null, [not(parser)].concat(moreParsers))
+export function unless (parser, ...moreParsers) {
+  return and(not(parser), ...moreParsers)
 }
 
 /**
@@ -635,10 +615,10 @@ function unless (parser) {
  *  return mona.value(x+y)
  * })
  */
-function sequence (fun) {
-  return function (parserState) {
-    var state = parserState
-    var failwhale = {}
+export function sequence (fun) {
+  return parserState => {
+    let state = parserState
+    const failwhale = {}
     function s (parser) {
       state = invokeParser(parser, state)
       if (state.failed) {
@@ -648,11 +628,11 @@ function sequence (fun) {
       }
     }
     try {
-      var ret = fun(s)
+      const ret = fun(s)
       if (typeof ret !== 'function') {
         throw new Error('sequence function must return a parser')
       }
-      var newState = ret(state)
+      const newState = ret(state)
       if (!(newState instanceof ParserState)) {
         throw new Error('sequence function must return a parser')
       }
@@ -678,19 +658,19 @@ function sequence (fun) {
  * @example
  * parse(join(alpha(), integer()), 'a1') // => ['a', 1]
  */
-function join (firstParser) {
-  if (!firstParser) {
+export function join (...parsers) {
+  if (!parsers.length) {
     throw new Error('join() requires at least one parser')
   }
-  return joinHelper(arguments)
+  return joinHelper(parsers)
 }
 
 function joinHelper (parsers) {
-  return function (parserState) {
-    var s = parserState
-    var res = []
-    for (var i = 0; i < parsers.length; i++) {
-      s = invokeParser(parsers[i], s)
+  return parserState => {
+    let s = parserState
+    let res = []
+    for (let parser of parsers) {
+      s = invokeParser(parser, s)
       if (s.failed) {
         return s
       } else {
@@ -735,13 +715,9 @@ function joinHelper (parsers) {
  * @example
  * parse(followedBy(string('a'), string('b')), 'ab') // => 'a'
  */
-function followedBy (parser) {
-  var parsers = [].slice.call(arguments, 1)
-  return bind(parser, function (result) {
-    return bind(and.apply(null, parsers), function () {
-      return value(result)
-    })
-  })
+export function followedBy (parser, ...moreParsers) {
+  return bind(parser, result =>
+    bind(and(...moreParsers), () => value(result)))
 }
 
 /**
@@ -759,20 +735,18 @@ function followedBy (parser) {
  * @example
  * parse(split(token(), space()), 'a b c d') // => ['a','b','c','d']
  */
-function split (parser, separator, opts) {
-  opts = opts || {}
+export function split (parser, separator, opts = {}) {
   if (!opts.min) {
     return or(split(parser, separator, {min: 1, max: opts.max}),
               value([]))
   } else {
-    opts = copy(opts)
-    opts.min = opts.min && opts.min - 1
-    opts.max = opts.max && opts.max - 1
-    return sequence(function (s) {
-      var x = s(parser)
-      var xs = s(collect(and(separator, parser), opts))
-      var result = [x].concat(xs)
-      return value(result)
+    let newOpts = copy(opts)
+    newOpts.min = opts.min && opts.min - 1
+    newOpts.max = opts.max && opts.max - 1
+    return sequence(s => {
+      const x = s(parser)
+      const xs = s(collect(and(separator, parser), newOpts))
+      return value([x].concat(xs))
     })
   }
 }
@@ -794,23 +768,22 @@ function split (parser, separator, opts) {
  * @example
  * parse(splitEnd(token(), space()), 'a b c ') // => ['a', 'b', 'c']
  */
-function splitEnd (parser, separator, opts) {
-  opts = opts || {}
-  var enforceEnd = typeof opts.enforceEnd === 'undefined'
-    ? true : opts.enforceEnd
-  if (enforceEnd) {
+export function splitEnd (parser, separator, opts = {}) {
+  if (typeof opts.enforceEnd === 'undefined'
+      ? true
+      : opts.enforceEnd) {
     return collect(followedBy(parser, separator), opts)
   } else {
     // TODO - This is bloody terrible and should die a horrible, painful death,
     //        but at least the tests seem to pass. :\
-    return sequence(function (s) {
-      var min = opts.min || 0
-      var max = opts.max || Infinity
-      var last
-      var results = s(splitEnd(parser, separator, {
+    return sequence(s => {
+      const min = opts.min || 0
+      const max = opts.max || Infinity
+      const results = s(splitEnd(parser, separator, {
         min: opts.min && min - 1,
         max: opts.max && max - 1
       }))
+      let last
       if (opts.min > results.length || opts.max) {
         last = s(followedBy(parser, maybe(separator)))
         return value(results.concat([last]))
@@ -840,14 +813,13 @@ function splitEnd (parser, separator, opts) {
  * @example
  * parse(collect(token()), 'abcd') // => ['a', 'b', 'c', 'd']
  */
-function collect (parser, opts) {
-  opts = opts || {}
-  var min = opts.min || 0
-  var max = typeof opts.max === 'undefined' ? Infinity : opts.max
+export function collect (parser, opts = {}) {
+  const min = opts.min || 0
+  const max = typeof opts.max === 'undefined' ? Infinity : opts.max
   if (min > max) {
     throw new Error('min must be less than or equal to max')
   }
-  return function (parserState) {
+  return parserState => {
     var prev = parserState
     var s = invokeParser(parser, parserState)
     var res = []
@@ -876,7 +848,7 @@ function collect (parser, opts) {
  * @example
  * parse(exactly(token(), 4), 'abcd') // => ['a', 'b', 'c', 'd']
  */
-function exactly (parser, n) {
+export function exactly (parser, n) {
   return collect(parser, {min: n, max: n})
 }
 
@@ -893,7 +865,7 @@ function exactly (parser, n) {
  * @example
  * parse(between(string('('), string(')'), token()), '(a)') // => 'a'
  */
-function between (open, close, parser) {
+export function between (open, close, parser) {
   return and(open, followedBy(parser, close))
 }
 
@@ -907,7 +879,7 @@ function between (open, close, parser) {
  * @example
  * parse(and(skip(string('a')), token()), 'aaaab') // => 'b'
  */
-function skip (parser) {
+export function skip (parser) {
   return and(collect(parser), value())
 }
 
@@ -925,16 +897,12 @@ function skip (parser) {
  * @example
  * parse(range('a', 'z'), 'd') // => 'd'
  */
-function range (start, end, parser, predicate) {
-  parser = parser || token()
-  predicate = predicate || function (x, y) { return x <= y }
-  return label(bind(parser, function (result) {
-    if (predicate(start, result) && predicate(result, end)) {
-      return value(result)
-    } else {
-      return fail()
-    }
-  }), 'value between {' + start + '} and {' + end + '}')
+export function range (start, end, parser = token(), predicate = (x, y) => x <= y) {
+  return label(bind(parser, result =>
+    (predicate(start, result) && predicate(result, end))
+    ? value(result)
+    : fail()),
+  `value between {${start}} and {${end}}`)
 }
 
 /**
@@ -955,14 +923,11 @@ function range (start, end, parser, predicate) {
  * @example
  * parse(stringOf(collect(token())), 'aaa') // => 'aaa'
  */
-function stringOf (parser) {
-  return bind(parser, function (xs) {
-    if (xs.hasOwnProperty('length') && xs.join) {
-      return value(xs.join(''))
-    } else {
-      return fail()
-    }
-  })
+export function stringOf (parser) {
+  return bind(parser, xs =>
+    (xs.hasOwnProperty('length') && xs.join)
+    ? value(xs.join(''))
+    : fail())
 }
 
 /**
@@ -980,12 +945,12 @@ function stringOf (parser) {
  * parse(oneOf('abcd'), 'c') // => 'c'
  * parse(oneOf(['foo', 'bar', 'baz']), 'bar') // => 'bar'
  */
-function oneOf (_matches, caseSensitive) {
-  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
-  var matches = typeof _matches === 'string' ? _matches.split('') : _matches
-  return or.apply(null, matches.map(function (m) {
-    return string(m, caseSensitive)
-  }).concat(['one of {' + matches + '}']))
+export function oneOf (matches, caseSensitive = true) {
+  const splitMatches = typeof matches === 'string'
+    ? matches.split('')
+    : matches
+  const matchParsers = splitMatches.map(m => string(m, caseSensitive))
+  return or(...matchParsers, `one of {${splitMatches}}`)
 }
 
 /**
@@ -1007,12 +972,14 @@ function oneOf (_matches, caseSensitive) {
  * parse(noneOf(['foo', 'bar', 'baz']), 'frob') // => 'f'
  * parse(noneOf(['foo', 'bar', 'baz'], true, text()), 'frob') // => 'frob'
  */
-function noneOf (_matches, caseSensitive, parser) {
-  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
-  var matches = typeof _matches === 'string' ? _matches.split('') : _matches
-  return label(and(not(or.apply(null, matches.map(function (m) {
-    return string(m, caseSensitive)
-  }))), parser || token()), 'none of {' + matches + '}')
+export function noneOf (matches, caseSensitive = true, parser = token()) {
+  const splitMatches = typeof matches === 'string'
+    ? matches.split('')
+    : matches
+  const matchParsers = splitMatches.map(m => string(m, caseSensitive))
+  const noneOfParser = and(not(or(...matchParsers)),
+                           parser)
+  return label(noneOfParser, `none of {${splitMatches}}`)
 }
 
 /**
@@ -1027,17 +994,18 @@ function noneOf (_matches, caseSensitive, parser) {
  * @example
  * parse(string('foo'), 'foo') // => 'foo'
  */
-function string (str, caseSensitive) {
-  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
-  str = caseSensitive ? str : str.toLowerCase()
+export function string (matchStr, caseSensitive = true) {
+  const str = caseSensitive ? matchStr : matchStr.toLowerCase()
   return label(sequence(function (s) {
-    var x = s(is(function (x) {
+    let x = s(is(x => {
       x = caseSensitive ? x : x.toLowerCase()
       return x === str.charAt(0)
     }))
-    var xs = (str.length > 1) ? s(string(str.slice(1), caseSensitive)) : ''
+    const xs = str.length > 1
+      ? s(string(str.slice(1), caseSensitive))
+      : ''
     return value(x + xs)
-  }), 'string matching {' + str + '}')
+  }), `string matching {${matchStr}}`)
 }
 
 /**
@@ -1050,7 +1018,7 @@ function string (str, caseSensitive) {
  * @example
  * parse(alphaUpper(), 'D') // => 'D'
  */
-function alphaUpper () {
+export function alphaUpper () {
   return label(range('A', 'Z'), 'uppercase alphabetical character')
 }
 
@@ -1064,7 +1032,7 @@ function alphaUpper () {
  * @example
  * parse(alphaLower(), 'd') // => 'd'
  */
-function alphaLower () {
+export function alphaLower () {
   return label(range('a', 'z'), 'lowercase alphabetical character')
 }
 
@@ -1078,7 +1046,7 @@ function alphaLower () {
  * parse(alpha(), 'a') // => 'a'
  * parse(alpha(), 'A') // => 'A'
  */
-function alpha () {
+export function alpha () {
   return or(alphaLower(), alphaUpper(), 'alphabetical character')
 }
 
@@ -1092,10 +1060,8 @@ function alpha () {
  * @example
  * parse(digit(), '5') // => '5'
  */
-function digit (base) {
-  base = base || 10
-  return label(is(function (x) { return !isNaN(parseInt(x, base)) }),
-               'digit')
+export function digit (base = 10) {
+  return label(is(x => !isNaN(parseInt(x, base))), 'digit')
 }
 
 /**
@@ -1110,7 +1076,7 @@ function digit (base) {
  * parse(alphanum(), 'a') // => 'a'
  * parse(alphanum(), 'A') // => 'A'
  */
-function alphanum (base) {
+export function alphanum (base) {
   return label(or(alpha(), digit(base)), 'alphanum')
 }
 
@@ -1123,7 +1089,7 @@ function alphanum (base) {
  * @example
  * parse(space(), '\r') // => '\r'
  */
-function space () {
+export function space () {
   return label(oneOf(' \t\n\r'), 'space')
 }
 
@@ -1138,7 +1104,7 @@ function space () {
  * @example
  * parse(spaces(), '   \r\n\t \r \n') // => ' '
  */
-function spaces () {
+export function spaces () {
   return label(and(space(), skip(space()), value(' ')), 'spaces')
 }
 
@@ -1158,9 +1124,7 @@ function spaces () {
  * parse(text(), 'abcde') // => 'abcde'
  * parse(text(noneOf('a')), 'bcde') // => 'bcde'
  */
-function text (parser, opts) {
-  parser = parser || token()
-  opts = opts || {}
+export function text (parser = token(), opts = {}) {
   return stringOf(collect(parser, opts))
 }
 
@@ -1174,7 +1138,7 @@ function text (parser, opts) {
  * @example
  * parse(trim(token()), '    \r\n  a   \t') // => 'a'
  */
-function trim (parser) {
+export function trim (parser) {
   return between(maybe(spaces()),
                  maybe(spaces()),
                  parser)
@@ -1190,7 +1154,7 @@ function trim (parser) {
  * @example
  * parse(trimLeft(token()), '    \r\n  a') // => 'a'
  */
-function trimLeft (parser) {
+export function trimLeft (parser) {
   return and(maybe(spaces()), parser)
 }
 
@@ -1204,7 +1168,7 @@ function trimLeft (parser) {
  * @example
  * parse(trimRight(token()), 'a   \r\n') // => 'a'
  */
-function trimRight (parser) {
+export function trimRight (parser) {
   return followedBy(parser, maybe(spaces()))
 }
 
@@ -1225,13 +1189,12 @@ function trimRight (parser) {
  * @example
  * parse(natural(), '1234') // => 1234
  */
-function natural (base) {
-  base = base || 10
-  return map(function (str) { return parseInt(str, base) },
+export function natural (base = 10) {
+  return map(str => parseInt(str, base),
              text(digit(base), {min: 1}))
 }
 
-function sign () {
+export function sign () {
   return or(and(string('+'), value(1)),
             and(string('-'), value(-1)))
 }
@@ -1246,11 +1209,10 @@ function sign () {
  * @example
  * parse(integer(), '-1234') // => -1234
  */
-function integer (base) {
-  base = base || 10
-  return sequence(function (s) {
-    var sig = s(or(sign(), value(1)))
-    var num = s(natural(base))
+export function integer (base = 10) {
+  return sequence(s => {
+    const sig = s(or(sign(), value(1)))
+    const num = s(natural(base))
     return value(num * sig)
   })
 }
@@ -1264,13 +1226,14 @@ function integer (base) {
  * @example
  * parse(real(), '-1234e-10') // => -1.234e-7
  */
-function real () {
-  return sequence(function (s) {
-    var sig = s(or(sign(), value(1)))
-    var leftSide = s(or(natural(), value(null)))
-    var hasDecimal = s(maybe(string('.')))
-    var zeros = hasDecimal ? s(text(string('0'))).length : 0
-    var rightSide = s(or(natural(), value(null)))
+export const float = real
+export function real () {
+  return sequence(s => {
+    const sig = s(or(sign(), value(1)))
+    let leftSide = s(or(natural(), value(null)))
+    const hasDecimal = s(maybe(string('.')))
+    const zeros = hasDecimal ? s(text(string('0'))).length : 0
+    let rightSide = s(or(natural(), value(null)))
     if (leftSide === null && rightSide === null) {
       return fail()
     }
@@ -1283,10 +1246,9 @@ function real () {
       rightSide = rightSide / 10
     }
     rightSide = leftSide >= 0 ? rightSide : (rightSide * -1)
-    var e = s(or(and(string('e', false),
-                     integer()),
-                 value(0)))
-    // TODO: get rid of zeros loop, do e - zeros instead!
+    const e = s(or(and(string('e', false),
+                       integer()),
+                   value(0)))
     return value(sig * (leftSide + rightSide) * (Math.pow(10, e)))
   })
 }
@@ -1301,9 +1263,8 @@ function real () {
  * @example
  * parse(cardinal(), 'two thousand') // => 2000
  */
-function cardinal () {
-  return or(numeralUpToVeryBig(),
-            'cardinal')
+export function cardinal () {
+  return or(numeralUpToVeryBig(), 'cardinal')
 }
 
 /**
@@ -1316,9 +1277,8 @@ function cardinal () {
  * @example
  * parse(ordinal(), 'one-hundred thousand and fifth') // 100005
  */
-function ordinal () {
-  return or(numeralUpToVeryBig(true),
-            'ordinal')
+export function ordinal () {
+  return or(numeralUpToVeryBig(true), 'ordinal')
 }
 
 /**
@@ -1334,11 +1294,10 @@ function ordinal () {
  * @example
  * parse(shortOrdinal(), '5th') // 5
  */
-function shortOrdinal (strict) {
-  strict = typeof strict === 'undefined' ? true : strict
+export function shortOrdinal (strict = true) {
   if (strict) {
-    return sequence(function (s) {
-      var num = s(integer())
+    return sequence(s => {
+      const num = s(natural())
       switch (('' + num).substr(-1)) {
         case '1':
           s(string('st'))
@@ -1364,20 +1323,22 @@ function shortOrdinal (strict) {
  * English numbers support
  */
 function numeralUpToVeryBig (ordinalMode) {
-  return or(sequence(function (s) {
-    var numOfBigs = s(numeralUpToThreeNines())
+  return or(sequence(s => {
+    const numOfBigs = s(numeralUpToThreeNines())
     s(numeralSeparator())
-    var bigUnit = s(oneOf(CARDINALS['evenBigger sorted'], false))
-    var bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase())
-    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex + 1) * 3)
-    var lesserUnit = s(is(function (x) {
-      return x < bigUnitMultiplier
-    }, or(and(or(and(string(','), spaces()),
-                 numeralSeparator()),
-              numeralUpToVeryBig(ordinalMode)),
-          and(numeralSeparator(), string('and'), numeralSeparator(),
-              numeralUpToThreeNines(ordinalMode)),
-          value(null))))
+    const bigUnit = s(oneOf(CARDINALS['evenBigger sorted'], false))
+    const bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase())
+    const bigUnitMultiplier = Math.pow(10, (bigUnitIndex + 1) * 3)
+    let lesserUnit = s(is(
+      x => x < bigUnitMultiplier,
+      or(and(or(and(string(','), spaces()),
+                numeralSeparator()),
+             numeralUpToVeryBig(ordinalMode)),
+         and(numeralSeparator(),
+             string('and'),
+             numeralSeparator(),
+             numeralUpToThreeNines(ordinalMode)),
+         value(null))))
     if (lesserUnit === null && ordinalMode) {
       s(string('th'))
       lesserUnit = 0
@@ -1388,7 +1349,8 @@ function numeralUpToVeryBig (ordinalMode) {
 
 function numeralUpToThreeNines (ordinalMode) {
   return or(numeralHundreds(numeralUpToNinetyNine(ordinalMode),
-                            1, ordinalMode),
+                            1,
+                            ordinalMode),
             numeralUpToNinetyNine(ordinalMode))
 }
 
@@ -1397,11 +1359,11 @@ function numeralSeparator () {
 }
 
 function numeralHundreds (nextParser, multiplier, ordinalMode) {
-  return sequence(function (s) {
-    var numOfHundreds = s(numeralOneThroughNine())
+  return sequence(s => {
+    const numOfHundreds = s(numeralOneThroughNine())
     s(numeralSeparator())
     s(string('hundred'))
-    var smallNum = s(or(
+    let smallNum = s(or(
       and(numeralSeparator(),
           (multiplier > 1
            ? value()
@@ -1417,32 +1379,30 @@ function numeralHundreds (nextParser, multiplier, ordinalMode) {
 }
 
 function numeralUpToNinetyNine (ordinalMode) {
-  return or(sequence(function (s) {
-    var ten = s(oneOf(CARDINALS['tens sorted'], false))
-    var tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase())
-    var small = s(or(and(numeralSeparator(),
-                         numeralOneThroughNine(ordinalMode)),
-                     value(0)))
+  return or(sequence(s => {
+    const ten = s(oneOf(CARDINALS['tens sorted'], false))
+    const tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase())
+    const small = s(or(and(numeralSeparator(),
+                           numeralOneThroughNine(ordinalMode)),
+                       value(0)))
     return value(((tenIndex + 2) * 10) + small)
-  }), !ordinalMode ? fail() : sequence(function (s) {
-    var ten = s(oneOf(ORDINALS['tens sorted'], false))
-    var tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase())
+  }), !ordinalMode ? fail() : sequence(s => {
+    const ten = s(oneOf(ORDINALS['tens sorted'], false))
+    const tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase())
     return value((tenIndex + 2) * 10)
   }), numeralUpToNineteen(ordinalMode))
 }
 
 function numeralOneThroughNine (ordinalMode) {
-  var source = ordinalMode ? ORDINALS : CARDINALS
-  return map(function (x) {
-    return source['1-9'].indexOf(x.toLowerCase()) + 1
-  }, oneOf(source['1-9 sorted'], false))
+  const source = ordinalMode ? ORDINALS : CARDINALS
+  return map(x => source['1-9'].indexOf(x.toLowerCase()) + 1,
+             oneOf(source['1-9 sorted'], false))
 }
 
 function numeralUpToNineteen (ordinalMode) {
-  var source = ordinalMode ? ORDINALS : CARDINALS
-  return map(function (x) {
-    return source['0-19'].indexOf(x.toLowerCase())
-  }, oneOf(source['0-19 sorted'], false))
+  const source = ordinalMode ? ORDINALS : CARDINALS
+  return map(x => source['0-19'].indexOf(x.toLowerCase()),
+             oneOf(source['0-19 sorted'], false))
 }
 
 var CARDINALS = {
@@ -1491,73 +1451,12 @@ for (group in ORDINALS) {
   }
 }
 
-module.exports = {
-  // API
-  version: VERSION,
-  parse: parse,
-  parseAsync: parseAsync,
-  // Base parsers
-  value: value,
-  bind: bind,
-  fail: fail,
-  label: label,
-  token: token,
-  eof: eof,
-  log: log,
-  delay: delay,
-  map: map,
-  tag: tag,
-  lookAhead: lookAhead,
-  is: is,
-  isNot: isNot,
-  // Combinators
-  and: and,
-  or: or,
-  maybe: maybe,
-  not: not,
-  unless: unless,
-  sequence: sequence,
-  join: join,
-  followedBy: followedBy,
-  split: split,
-  splitEnd: splitEnd,
-  collect: collect,
-  exactly: exactly,
-  between: between,
-  skip: skip,
-  range: range,
-  // String-related parsers
-  stringOf: stringOf,
-  oneOf: oneOf,
-  noneOf: noneOf,
-  string: string,
-  alphaLower: alphaLower,
-  alphaUpper: alphaUpper,
-  alpha: alpha,
-  digit: digit,
-  alphanum: alphanum,
-  space: space,
-  spaces: spaces,
-  text: text,
-  trim: trim,
-  trimLeft: trimLeft,
-  trimRight: trimRight,
-  // Numbers
-  natural: natural,
-  integer: integer,
-  'float': real, // For compatibility
-  real: real,
-  cardinal: cardinal,
-  ordinal: ordinal,
-  shortOrdinal: shortOrdinal
-}
-
 /*
  * Internals
  */
 function copy (obj) {
-  var newObj = Object.create(Object.getPrototypeOf(obj))
-  for (var key in obj) {
+  let newObj = Object.create(Object.getPrototypeOf(obj))
+  for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
       newObj[key] = obj[key]
     }
@@ -1593,7 +1492,7 @@ function mergeErrors (err1, err2) {
         return err2
       case 'eq':
         var newMessages =
-          (err1.messages.concat(err2.messages)).reduce(function (acc, x) {
+          (err1.messages.concat(err2.messages)).reduce((acc, x) => {
             return (~acc.indexOf(x)) ? acc : acc.concat([x])
           }, [])
         return new ParserError(err2.position,
