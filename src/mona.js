@@ -1271,6 +1271,8 @@ function real() {
     if (leftSide === null && rightSide === null) {
       return fail();
     }
+    leftSide = leftSide || 0
+    rightSide = rightSide || 0
     while (rightSide >= 1) {
       rightSide = rightSide / 10;
     }
