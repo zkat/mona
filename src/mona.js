@@ -1268,7 +1268,7 @@ function real() {
     var hasDecimal = s(maybe(string(".")));
     var zeros = hasDecimal ? s(text(string("0"))).length : 0;
     var rightSide = s(or(natural(), value(null)));
-    if (leftSide == null && rightSide == null) {
+    if (leftSide === null && rightSide === null) {
       return fail();
     }
     while (rightSide >= 1) {
