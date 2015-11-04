@@ -928,7 +928,7 @@ describe("mona", function() {
         assert.equal(parse(mona.float(), "-0.800"), -0.8);
         assert.equal(parse(mona.float(), "-1.008"), -1.008);
         assert.equal(parse(mona.float(), "10.08"), 10.08);
-        assert.equal(parse(mona.float(), "-.08"), -.08);
+        assert.equal(parse(mona.float(), "-.08"), -0.08);
       });
       it("is aliased to 'real'", function() {
         assert.equal(mona.float, mona.real);
