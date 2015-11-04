@@ -1264,10 +1264,13 @@ function integer(base) {
 function real() {
   return sequence(function(s) {
     var sig = s(or(sign(), value(1)));
-    var leftSide = s(or(natural(), value(0)));
+    var leftSide = s(or(natural(), value(null)));
     var hasDecimal = s(maybe(string(".")));
     var zeros = hasDecimal ? s(text(string("0"))).length : 0;
-    var rightSide = s(or(natural(), value(0)));
+    var rightSide = s(or(natural(), value(null)));
+    if (leftSide == null && rightSide == null) {
+      return fail();
+    }
     while (rightSide >= 1) {
       rightSide = rightSide / 10;
     }
