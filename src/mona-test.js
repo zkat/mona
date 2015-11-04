@@ -306,6 +306,17 @@ describe("mona", function() {
                            "a"),
                      "a");
       });
+      it("passes on a failure", function() {
+        assert.throws(function() {
+          parse(mona.lookAhead(mona.fail()), "a", {allowTrailing: true});
+        });
+      });
+      it("rejects input without consuming input", function() {
+        assert.equal(parse(mona.or(mona.lookAhead(mona.oneOf("a")),
+                                   mona.token()),
+                           "b"),
+                     "b");
+      });
     });
     describe("is()", function() {
       it("parses a token matching a predicate", function() {
