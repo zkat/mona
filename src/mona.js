@@ -227,13 +227,11 @@ function value(val) {
 function bind(parser, fun) {
   return function(parserState) {
     var newParserState = invokeParser(parser, parserState);
-    if (!(newParserState instanceof ParserState)) {
-      throw new Error("Parsers must return a parser state object");
-    }
     if (newParserState.failed) {
       return newParserState;
     } else {
-      return fun(newParserState.value)(newParserState);
+      return fun.call(newParserState.userState,
+                      newParserState.value)(newParserState);
     }
   };
 }
@@ -407,7 +405,7 @@ function log(parser, tag, level) {
  */
 function map(transformer, parser) {
   return bind(parser, function(result) {
-    return value(transformer(result));
+    return value(transformer.call(this, result));
   });
 }
 
@@ -499,15 +497,23 @@ function isNot(predicate, parser) {
  * parse(and(token(), token()), "ab"); // => "b"
  */
 function and(firstParser) {
-  var moreParsers = [].slice.call(arguments, 1);
   if (!firstParser) {
     throw new Error("and() requires at least one parser");
   }
-  return bind(firstParser, function(result) {
-    return moreParsers.length ?
-      and.apply(null, moreParsers) :
-      value(result);
-  });
+  return andHelper(arguments);
+}
+
+function andHelper(parsers) {
+  return function (parserState) {
+    var res = parserState, i;
+    for (i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], res);
+      if (res.failed) {
+        return res;
+      }
+    }
+    return res;
+  };
 }
 
 /**
@@ -523,37 +529,33 @@ function and(firstParser) {
  * parse(or(string("foo"), string("bar")), "bar"); // => "bar"
  */
 function or() {
-  var errors = [];
-  function orHelper() {
-    var parsers = [].slice.call(arguments);
-    return function(parserState) {
-      var res = parsers[0](parserState);
-      if (res.failed) {
-        errors.push(res.error);
-      }
-      if (res.failed && parsers[1]) {
-        return orHelper.apply(null, parsers.slice(1))(parserState);
-      } else if (res.failed) {
-        var finalState = copy(res);
-        finalState.error = errors.reduce(function(err1, err2) {
-          return mergeErrors(err1, err2);
-        });
-        return finalState;
-      } else {
-        return res;
-      }
-    };
-  }
   var labelMsg = (typeof arguments[arguments.length-1] === "string" &&
                   arguments[arguments.length-1]),
       args = labelMsg ?
         [].slice.call(arguments, 0, arguments.length-1) : arguments,
-      parser = orHelper.apply(null, args);
+      parser = orHelper(args);
   if (labelMsg) {
     return label(parser, labelMsg);
   } else {
     return parser;
   }
+}
+
+function orHelper(parsers) {
+  return function(parserState) {
+    var errors = [], res, i;
+    for (i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], parserState);
+      if (res.failed) {
+        errors.push(res.error);
+      } else {
+        return res;
+      }
+    }
+    var finalState = copy(res);
+    finalState.error = errors.reduce(mergeErrors);
+    return finalState;
+  };
 }
 
 /**
@@ -659,6 +661,39 @@ function sequence(fun) {
         throw x;
       }
     }
+  };
+}
+
+/**
+ * Returns a parser that succeeds if all the parsers given to it succeed. The
+ * returned parser uses the values of the all joined parsers.
+ *
+ * @param {...Parser} parsers - One or more parsers to execute.
+ * @memberof module:mona/combinators
+ * @instance
+ *
+ * @example
+ * parse(join(alpha(), integer()), "a1"); // => ["a", 1]
+ */
+function join(firstParser) {
+  if (!firstParser) {
+    throw new Error("join() requires at least one parser");
+  }
+  return joinHelper(arguments);
+}
+
+function joinHelper(parsers) {
+  return function (parserState) {
+    var s = parserState, res = [], i;
+    for (i = 0; i < parsers.length; i++) {
+      s = invokeParser(parsers[i], s);
+      if (s.failed) {
+        return s;
+      } else {
+        res.push(s.value);
+      }
+    }
+    return value(res)(s);
   };
 }
 
@@ -1192,6 +1227,12 @@ function natural(base) {
              text(digit(base), {min: 1}));
 }
 
+
+function sign() {
+  return or(and(string("+"), value(1)),
+            and(string("-"), value(-1)));
+}
+
 /**
  * Returns a parser that matches an integer, with an optional + or - sign.
  *
@@ -1205,10 +1246,9 @@ function natural(base) {
 function integer(base) {
   base = base || 10;
   return sequence(function(s) {
-    var sign = s(maybe(or(string("+"),
-                          string("-")))),
+    var sig = s(or(sign(), value(1))),
         num = s(natural(base));
-    return value(num * (sign === "-" ? -1 : 1));
+    return value(num * sig);
   });
 }
 
@@ -1223,18 +1263,22 @@ function integer(base) {
  */
 function real() {
   return sequence(function(s) {
-    var leftSide = s(integer());
-    var rightSide = s(or(and(string("."),
-                             integer()),
-                         value(0)));
-    while (rightSide > 1) {
+    var sig = s(or(sign(), value(1)))
+    var leftSide = s(or(natural(), value(0)));
+    var hasDecimal = s(maybe(string(".")));
+    var zeros = hasDecimal ? s(text(string("0"))).length : 0;
+    var rightSide = s(or(natural(), value(0)));
+    while (rightSide >= 1) {
+      rightSide = rightSide / 10;
+    }
+    for (var i = 0; i < zeros; i++) {
       rightSide = rightSide / 10;
     }
     rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
     var e = s(or(and(string("e", false),
                      integer()),
                  value(0)));
-    return value((leftSide + rightSide)*(Math.pow(10, e)));
+    return value(sig * (leftSide + rightSide) * (Math.pow(10, e)));
   });
 }
 
@@ -1464,6 +1508,7 @@ module.exports = {
   not: not,
   unless: unless,
   sequence: sequence,
+  join: join,
   followedBy: followedBy,
   split: split,
   splitEnd: splitEnd,
@@ -1519,7 +1564,11 @@ function invokeParser(parser, parserState) {
   if (!(parserState instanceof ParserState)) {
     throw new Error("Expected parserState to be a ParserState");
   }
-  return parser(parserState);
+  var newParserState = parser(parserState);
+  if (!(newParserState instanceof ParserState)) {
+    throw new Error("Parsers must return a parser state object");
+  }
+  return newParserState;
 }
 
 function mergeErrors(err1, err2) {

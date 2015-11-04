@@ -6,16 +6,6 @@ var assert = require("assert"),
     fs = require("fs");
 
 describe("stream", function() {
-
-  if (!process.version || !/^v0\.10\./.test(process.version)) {
-    it("can only be loaded on node 0.10", function() {
-      assert.throws(function() {
-        require("./stream");
-      });
-    });
-    return null;
-  }
-
   var stream = require("stream"),
       parseStream = require("./stream").parseStream;
   describe("parseStream()", function() {

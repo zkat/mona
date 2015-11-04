@@ -179,6 +179,11 @@ describe("mona", function() {
           parse(mona.bind(function() { return "nope"; }), "");
         }, /Parsers must return a parser state object/);
       });
+      it("access to a userState from function context", function() {
+        assert.equal(parse(mona.bind(mona.value("foo"), function(val) {
+          return mona.value(val + this.suffix);
+        }), "", {userState:{suffix:"bar"}}), "foobar");
+      });
     });
     describe("fail()", function() {
       it("fails the parse with the given message", function() {
@@ -278,6 +283,14 @@ describe("mona", function() {
         assert.throws(function() {
           parse(parser, "");
         }, /unexpected eof/);
+      });
+      it("access to a userState from function context", function() {
+        function toUpper(text){
+          return text.toUpperCase();
+        }
+        assert.equal(parse(mona.map(function(txt) {
+          return this.convert(txt);
+        }, mona.text()), "abc", {userState:{convert:toUpper}}), "ABC");
       });
     });
     describe("wrap()", function() {
@@ -459,6 +472,16 @@ describe("mona", function() {
         assert.throws(function() {
           parse(mona.sequence(function() { return function() {}; }), "");
         }, /must return a parser/);
+      });
+    });
+    describe("join()", function() {
+      it("returns the results as an array if all parsers succeed",  function() {
+        assert.deepEqual(parse(mona.join(mona.alpha(), mona.integer()), "a1"),
+                         ["a", 1]);
+        assert.deepEqual(parse(mona.join(mona.token()), "a"), ["a"]);
+        assert.throws(function() {
+          parse(mona.and(), "ab");
+        }, /requires at least one parser/);
       });
     });
     describe("followedBy()", function() {
@@ -885,6 +908,16 @@ describe("mona", function() {
         assert.equal(parse(mona.float(), "1.2"), 1.2);
         assert.equal(parse(mona.float(), "-1.25"), -1.25);
         assert.equal(parse(mona.float(), "+1.25"), 1.25);
+        assert.equal(parse(mona.float(), "0.100"), 0.1);
+        assert.equal(parse(mona.float(), "0.01"), 0.01);
+        assert.equal(parse(mona.float(), "0.001"), 0.001);
+        assert.equal(parse(mona.float(), "0.800"), 0.8);
+        assert.equal(parse(mona.float(), "0.008"), 0.008);
+        assert.equal(parse(mona.float(), "1.008"), 1.008);
+        assert.equal(parse(mona.float(), "-0.800"), -0.8);
+        assert.equal(parse(mona.float(), "-1.008"), -1.008);
+        assert.equal(parse(mona.float(), "10.08"), 10.08);
+        assert.equal(parse(mona.float(), "-.08"), -.08);
       });
       it("is aliased to 'real'", function() {
         assert.equal(mona.float, mona.real);
