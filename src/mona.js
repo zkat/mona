@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * This module exports the entire interface through a single object. Refer to
  * the documentation for each individual submodule for more specific docs.
@@ -12,7 +10,7 @@
  * @module mona/api
  */
 
-var VERSION = "0.8.1";
+var VERSION = '0.8.1'
 
 /**
  * Executes a parser and returns the result.
@@ -28,14 +26,13 @@ var VERSION = "0.8.1";
  * @instance
  *
  * @example
- * parse(token(), "a"); // => "a"
+ * parse(token(), 'a') // => 'a'
  */
-function parse(parser, string, opts) {
-  opts = opts || {};
-  opts.throwOnError = typeof opts.throwOnError === "undefined" ?
-    true : opts.throwOnError;
+function parse (parser, string, opts) {
+  opts.throwOnError = (typeof opts.throwOnError === 'undefined'
+                       ? true : opts.throwOnError)
   if (!opts.allowTrailing) {
-    parser = followedBy(parser, eof());
+    parser = followedBy(parser, eof())
   }
   var parserState = invokeParser(
     parser,
@@ -44,17 +41,17 @@ function parse(parser, string, opts) {
                     0,
                     opts.userState,
                     opts.position || new SourcePosition(opts.fileName),
-                    false));
+                    false))
   if (parserState.failed && opts.throwOnError) {
-    throw parserState.error;
+    throw parserState.error
   } else if (parserState.failed && !opts.throwOnError) {
-    return parserState.error;
+    return parserState.error
   } else if (!parserState.failed && !opts.throwOnError) {
-    return parserState;
+    return parserState
   } else if (opts.returnState) {
-    return parserState;
+    return parserState
   } else {
-    return parserState.value;
+    return parserState.value
   }
 }
 
@@ -74,66 +71,66 @@ function parse(parser, string, opts) {
  *
  * @example
  * var handle = parseAsync(token(), function(tok) {
- *  console.log("Got a token: ", tok);
- * });
- * handle.data("foobarbaz");
+ *  console.log('Got a token: ', tok)
+ * })
+ * handle.data('foobarbaz')
  */
-function parseAsync(parser, callback, opts) {
-  opts = copy(opts || {});
+function parseAsync (parser, callback, opts) {
+  opts = copy(opts || {})
   // Force the matter in case someone gets clever.
-  opts.throwOnError = true;
-  opts.returnState = true;
-  opts.allowTrailing = true;
-  var done = false,
-      buffer = "";
-  function exec() {
+  opts.throwOnError = true
+  opts.returnState = true
+  opts.allowTrailing = true
+  var done = false
+  var buffer = ''
+  function exec () {
     if (done && !buffer.length) {
-      return false;
+      return false
     }
-    var res;
+    var res
     try {
-      res = parse(collect(parser, {min: 1}), buffer, opts);
-      opts.position = res.position;
-      buffer = res.input.slice(res.offset);
+      res = parse(collect(parser, {min: 1}), buffer, opts)
+      opts.position = res.position
+      buffer = res.input.slice(res.offset)
     } catch (e) {
       if (!e.wasEof || done) {
-        callback(e);
+        callback(e)
       }
-      return false;
+      return false
     }
-    res.value.forEach(function(val) {
-      callback(null, val);
-    });
-    return true;
+    res.value.forEach(function (val) {
+      return callback(null, val)
+    })
+    return true
   }
-  function errIfDone(cb) {
-    return function() {
+  function errIfDone (cb) {
+    return function () {
       if (done) {
-        throw new Error("AsyncParser closed");
+        throw new Error('AsyncParser closed')
       } else {
-        return cb.apply(null, arguments);
+        return cb.apply(null, arguments)
       }
-    };
+    }
   }
   var handle = {
-    done: errIfDone(function() {
-      done = true;
-      buffer = "";
-      while(exec()){}
-      return handle;
+    done: errIfDone(function () {
+      done = true
+      buffer = ''
+      while (exec()) {}
+      return handle
     }),
-    data: errIfDone(function(data) {
-      buffer += data;
-      while(exec()){}
-      return handle;
+    data: errIfDone(function (data) {
+      buffer += data
+      while (exec()) {}
+      return handle
     }),
-    error: errIfDone(function(error) {
-      done = true;
-      callback(error);
-      return handle;
+    error: errIfDone(function (error) {
+      done = true
+      callback(error)
+      return handle
     })
-  };
-  return handle;
+  }
+  return handle
 }
 
 /**
@@ -145,10 +142,10 @@ function parseAsync(parser, callback, opts) {
  * @memberof module:mona/api
  * @instance
  */
-function SourcePosition(name, line, column) {
-  this.name = name;
-  this.line = line || 1;
-  this.column = column || 0;
+function SourcePosition (name, line, column) {
+  this.name = name
+  this.line = line || 1
+  this.column = column || 0
 }
 
 /**
@@ -159,23 +156,22 @@ function SourcePosition(name, line, column) {
  * @property {String} type - The type of parsing error.
  * @memberof module:mona/api
  */
-function ParserError(pos, messages, type, wasEof) {
+function ParserError (pos, messages, type, wasEof) {
   if (Error.captureStackTrace) {
     // For pretty-printing errors on node.
-    Error.captureStackTrace(this, this);
+    Error.captureStackTrace(this, this)
   }
-  this.position = pos;
-  this.messages = messages;
-  this.type = type;
-  this.wasEof = wasEof;
-  this.message = ("(line "+ this.position.line +
-                  ", column "+this.position.column+") "+
-                  this.messages.join("\n"));
+  this.position = pos
+  this.messages = messages
+  this.type = type
+  this.wasEof = wasEof
+  this.message = ('(line ' + this.position.line +
+                  ', column ' + this.position.column + ') ' +
+                  this.messages.join('\n'))
 }
-ParserError.prototype = new Error();
-ParserError.prototype.constructor = ParserError;
-ParserError.prototype.name = "ParserError";
-
+ParserError.prototype = new Error()
+ParserError.prototype.constructor = ParserError
+ParserError.prototype.name = 'ParserError'
 
 /**
  * Core parsers
@@ -200,14 +196,14 @@ ParserError.prototype.name = "ParserError";
  * @instance
  *
  * @example
- * parse(value("foo"), ""); // => "foo"
+ * parse(value('foo'), '') // => 'foo'
  */
-function value(val) {
-  return function(parserState) {
-    var newState = copy(parserState);
-    newState.value = val;
-    return newState;
-  };
+function value (val) {
+  return function (parserState) {
+    var newState = copy(parserState)
+    newState.value = val
+    return newState
+  }
 }
 
 /**
@@ -222,18 +218,18 @@ function value(val) {
  * @instance
  *
  * @example
- * parse(bind(token(), function(x) { return value(x+"!"); }), "a"); // => "a!"
+ * parse(bind(token(), function(x) { return value(x+'!') }), 'a') // => 'a!'
  */
-function bind(parser, fun) {
-  return function(parserState) {
-    var newParserState = invokeParser(parser, parserState);
+function bind (parser, fun) {
+  return function (parserState) {
+    var newParserState = invokeParser(parser, parserState)
     if (newParserState.failed) {
-      return newParserState;
+      return newParserState
     } else {
       return fun.call(newParserState.userState,
-                      newParserState.value)(newParserState);
+                      newParserState.value)(newParserState)
     }
-  };
+  }
 }
 
 /**
@@ -245,17 +241,17 @@ function bind(parser, fun) {
  * @memberof module:mona/core
  * @instance
  */
-function fail(msg, type) {
-  msg = msg || "parser error";
-  type = type || "failure";
-  return function(parserState) {
-    parserState = copy(parserState);
-    parserState.failed = true;
+function fail (msg, type) {
+  msg = msg || 'parser error'
+  type = type || 'failure'
+  return function (parserState) {
+    parserState = copy(parserState)
+    parserState.failed = true
     var newError = new ParserError(parserState.position, [msg],
-                                   type, type === "eof");
-    parserState.error = mergeErrors(parserState.error, newError);
-    return parserState;
-  };
+                                   type, type === 'eof')
+    parserState.error = mergeErrors(parserState.error, newError)
+    return parserState
+  }
 }
 
 /**
@@ -268,21 +264,21 @@ function fail(msg, type) {
  * @instance
  *
  * @example
- * parse(token(), ""); // => unexpected eof
- * parse(label(token(), "thing"), ""); // => expected thing
+ * parse(token(), '') // => unexpected eof
+ * parse(label(token(), 'thing'), '') // => expected thing
  */
-function label(parser, msg) {
-  return function(parserState) {
-    var newState = invokeParser(parser, parserState);
+function label (parser, msg) {
+  return function (parserState) {
+    var newState = invokeParser(parser, parserState)
     if (newState.failed) {
-      newState = copy(newState);
+      newState = copy(newState)
       newState.error = new ParserError(newState.error.position,
-                                       ["expected "+msg],
-                                       "expectation",
-                                       newState.error.wasEof);
+                                       ['expected ' + msg],
+                                       'expectation',
+                                       newState.error.wasEof)
     }
-    return newState;
-  };
+    return newState
+  }
 }
 
 /**
@@ -294,33 +290,33 @@ function label(parser, msg) {
  * @instance
  *
  * @example
- * parse(token(), "a"); // => "a"
+ * parse(token(), 'a') // => 'a'
  */
-function token(count) {
-  count = count || 1; // force 0 to 1, as well.
-  return function(parserState) {
-    var input = parserState.input,
-        offset = parserState.offset,
-        newOffset = offset + count,
-        newParserState = copy(parserState),
-        newPosition = copy(parserState.position);
-    newParserState.position = newPosition;
+function token (count) {
+  count = count || 1 // force 0 to 1, as well.
+  return function (parserState) {
+    var input = parserState.input
+    var offset = parserState.offset
+    var newOffset = offset + count
+    var newParserState = copy(parserState)
+    var newPosition = copy(parserState.position)
+    newParserState.position = newPosition
     for (var i = offset; i < newOffset && input.length >= i; i++) {
-      if (input.charAt(i) === "\n") {
-        newPosition.column = 0;
-        newPosition.line += 1;
+      if (input.charAt(i) === '\n') {
+        newPosition.column = 0
+        newPosition.line += 1
       } else {
-        newPosition.column += 1;
+        newPosition.column += 1
       }
     }
-    newParserState.offset = newOffset;
+    newParserState.offset = newOffset
     if (input.length >= newOffset) {
-      newParserState.value = input.slice(offset, newOffset);
-      return newParserState;
+      newParserState.value = input.slice(offset, newOffset)
+      return newParserState
     } else {
-      return fail("unexpected eof", "eof")(newParserState);
+      return fail('unexpected eof', 'eof')(newParserState)
     }
-  };
+  }
 }
 
 /**
@@ -331,16 +327,16 @@ function token(count) {
  * @instance
  *
  * @example
- * parse(eof(), ""); // => true
+ * parse(eof(), '') // => true
  */
-function eof() {
-  return function(parserState) {
+function eof () {
+  return function (parserState) {
     if (parserState.input.length === parserState.offset) {
-      return value(true)(parserState);
+      return value(true)(parserState)
     } else {
-      return fail("expected end of input", "expectation")(parserState);
+      return fail('expected end of input', 'expectation')(parserState)
     }
-  };
+  }
 }
 
 /**
@@ -355,18 +351,18 @@ function eof() {
  * @example
  * // The following would usually result in an infinite loop:
  * function foo() {
- *   return or(x(), foo());
+ *   return or(x(), foo())
  * }
  * // But you can use delay() to remedy this...
  * function foo() {
- *   return or(x(), delay(foo));
+ *   return or(x(), delay(foo))
  * }
  */
-function delay(constructor) {
-  var args = [].slice.call(arguments, 1);
-  return function(parserState) {
-    return constructor.apply(null, args)(parserState);
-  };
+function delay (constructor) {
+  var args = [].slice.call(arguments, 1)
+  return function (parserState) {
+    return constructor.apply(null, args)(parserState)
+  }
 }
 
 /**
@@ -374,17 +370,17 @@ function delay(constructor) {
  *
  * @param {Parser} parser - Parser to wrap.
  * @param {String} tag - Tag to use when logging messages.
- * @param {String} [level="log"] - 'log', 'info', 'debug', 'warn', 'error'.
+ * @param {String} [level='log'] - 'log', 'info', 'debug', 'warn', 'error'.
  * @memberof module:mona/core
  * @instance
  */
-function log(parser, tag, level) {
-  level = level || "log";
-  return function(parserState) {
-    var newParserState = invokeParser(parser, parserState);
-    console[level](tag+" :: ", parserState, " => ", newParserState);
-    return newParserState;
-  };
+function log (parser, tag, level) {
+  level = level || 'log'
+  return function (parserState) {
+    var newParserState = invokeParser(parser, parserState)
+    console[level](tag + ' :: ', parserState, ' => ', newParserState)
+    return newParserState
+  }
 }
 
 /**
@@ -401,12 +397,12 @@ function log(parser, tag, level) {
  * @instance
  *
  * @example
- * parse(map(parseFloat, text()), "1234.5"); // => 1234.5
+ * parse(map(parseFloat, text()), '1234.5') // => 1234.5
  */
-function map(transformer, parser) {
-  return bind(parser, function(result) {
-    return value(transformer.call(this, result));
-  });
+function map (transformer, parser) {
+  return bind(parser, function (result) {
+    return value(transformer.call(this, result))
+  })
 }
 
 /**
@@ -419,10 +415,14 @@ function map(transformer, parser) {
  * @instance
  *
  * @example
- * parse(tag(token(), "myToken"), "a"); // => {myToken: "a"}
+ * parse(tag(token(), 'myToken'), 'a') // => {myToken: 'a'}
  */
-function tag(parser, key) {
-  return map(function(x) { var ret = {}; ret[key] = x; return ret; }, parser);
+function tag (parser, key) {
+  return map(function (x) {
+    var ret = {}
+    ret[key] = x
+    return ret
+  }, parser)
 }
 
 /**
@@ -434,15 +434,15 @@ function tag(parser, key) {
  * @instance
  *
  * @example
- * parse(and(lookAhead(token()), token()), "a"); // => "a"
+ * parse(and(lookAhead(token()), token()), 'a') // => 'a'
  */
-function lookAhead(parser) {
-  return function(parserState) {
-    var newState = invokeParser(parser, parserState);
-    newState.offset = parserState.offset;
-    newState.position = parserState.position;
-    return newState;
-  };
+function lookAhead (parser) {
+  return function (parserState) {
+    var newState = invokeParser(parser, parserState)
+    newState.offset = parserState.offset
+    newState.position = parserState.position
+    return newState
+  }
 }
 
 /**
@@ -455,12 +455,12 @@ function lookAhead(parser) {
  * @instance
  *
  * @example
- * parse(is(function(x) { return x === "a"; }), "a"); // => "a"
+ * parse(is(function(x) { return x === 'a' }), 'a') // => 'a'
  */
-function is(predicate, parser) {
-  return bind(parser || token(), function(x) {
-    return predicate(x) ? value(x) : fail();
-  });
+function is (predicate, parser) {
+  return bind(parser || token(), function (x) {
+    return predicate(x) ? value(x) : fail()
+  })
 }
 
 /**
@@ -473,10 +473,10 @@ function is(predicate, parser) {
  * @instance
  *
  * @example
- * parse(isNot(function(x) { return x === "a"; }), "b"); // => "b"
+ * parse(isNot(function(x) { return x === 'a' }), 'b') // => 'b'
  */
-function isNot(predicate, parser) {
-  return is(function(x) { return !predicate(x); }, parser);
+function isNot (predicate, parser) {
+  return is(function (x) { return !predicate(x) }, parser)
 }
 
 /**
@@ -494,26 +494,26 @@ function isNot(predicate, parser) {
  * @instance
  *
  * @example
- * parse(and(token(), token()), "ab"); // => "b"
+ * parse(and(token(), token()), 'ab') // => 'b'
  */
-function and(firstParser) {
+function and (firstParser) {
   if (!firstParser) {
-    throw new Error("and() requires at least one parser");
+    throw new Error('and() requires at least one parser')
   }
-  return andHelper(arguments);
+  return andHelper(arguments)
 }
 
-function andHelper(parsers) {
+function andHelper (parsers) {
   return function (parserState) {
-    var res = parserState, i;
-    for (i = 0; i < parsers.length; i++) {
-      res = invokeParser(parsers[i], res);
+    var res = parserState
+    for (var i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], res)
       if (res.failed) {
-        return res;
+        return res
       }
     }
-    return res;
-  };
+    return res
+  }
 }
 
 /**
@@ -526,36 +526,37 @@ function andHelper(parsers) {
  * @instance
  *
  * @example
- * parse(or(string("foo"), string("bar")), "bar"); // => "bar"
+ * parse(or(string('foo'), string('bar')), 'bar') // => 'bar'
  */
-function or() {
-  var labelMsg = (typeof arguments[arguments.length-1] === "string" &&
-                  arguments[arguments.length-1]),
-      args = labelMsg ?
-        [].slice.call(arguments, 0, arguments.length-1) : arguments,
-      parser = orHelper(args);
+function or () {
+  var labelMsg = (typeof arguments[arguments.length - 1] === 'string' &&
+                  arguments[arguments.length - 1])
+  var args = (labelMsg
+              ? [].slice.call(arguments, 0, arguments.length - 1) : arguments)
+  var parser = orHelper(args)
   if (labelMsg) {
-    return label(parser, labelMsg);
+    return label(parser, labelMsg)
   } else {
-    return parser;
+    return parser
   }
 }
 
-function orHelper(parsers) {
-  return function(parserState) {
-    var errors = [], res, i;
-    for (i = 0; i < parsers.length; i++) {
-      res = invokeParser(parsers[i], parserState);
+function orHelper (parsers) {
+  return function (parserState) {
+    var errors = []
+    var res
+    for (var i = 0; i < parsers.length; i++) {
+      res = invokeParser(parsers[i], parserState)
       if (res.failed) {
-        errors.push(res.error);
+        errors.push(res.error)
       } else {
-        return res;
+        return res
       }
     }
-    var finalState = copy(res);
-    finalState.error = errors.reduce(mergeErrors);
-    return finalState;
-  };
+    var finalState = copy(res)
+    finalState.error = errors.reduce(mergeErrors)
+    return finalState
+  }
 }
 
 /**
@@ -567,10 +568,10 @@ function orHelper(parsers) {
  * @instance
  *
  * @example
- * parse(maybe(token()), ""); // => undefined
+ * parse(maybe(token()), '') // => undefined
  */
-function maybe(parser) {
-  return or(parser, value());
+function maybe (parser) {
+  return or(parser, value())
 }
 
 /**
@@ -581,14 +582,15 @@ function maybe(parser) {
  * @instance
  *
  * @example
- * parse(and(not(string("a")), token()), "b"); // => "b"
+ * parse(and(not(string('a')), token()), 'b') // => 'b'
  */
-function not(parser) {
-  return function(parserState) {
-    return invokeParser(parser, parserState).failed ?
-      invokeParser(value(true), parserState) :
-      invokeParser(fail("expected parser to fail", "expectation"), parserState);
-  };
+function not (parser) {
+  return function (parserState) {
+    return invokeParser(parser, parserState).failed
+      ? invokeParser(value(true), parserState)
+      : invokeParser(fail('expected parser to fail', 'expectation'),
+                     parserState)
+  }
 }
 
 /**
@@ -602,11 +604,11 @@ function not(parser) {
  * @instance
  *
  * @example
- * parse(unless(string("a"), token()), "b"); // => "b"
+ * parse(unless(string('a'), token()), 'b') // => 'b'
  */
-function unless(parser) {
-  var moreParsers = [].slice.call(arguments, 1);
-  return and.apply(null, [not(parser)].concat(moreParsers));
+function unless (parser) {
+  var moreParsers = [].slice.call(arguments, 1)
+  return and.apply(null, [not(parser)].concat(moreParsers))
 }
 
 /**
@@ -628,40 +630,41 @@ function unless(parser) {
  *
  * @example
  * mona.sequence(function(s) {
- *  var x = s(mona.token());
- *  var y = s(mona.string('b'));
- *  return mona.value(x+y);
- * });
+ *  var x = s(mona.token())
+ *  var y = s(mona.string('b'))
+ *  return mona.value(x+y)
+ * })
  */
-function sequence(fun) {
-  return function(parserState) {
-    var state = parserState, failwhale = {};
-    function s(parser) {
-      state = invokeParser(parser, state);
+function sequence (fun) {
+  return function (parserState) {
+    var state = parserState
+    var failwhale = {}
+    function s (parser) {
+      state = invokeParser(parser, state)
       if (state.failed) {
-        throw failwhale;
+        throw failwhale
       } else {
-        return state.value;
+        return state.value
       }
     }
     try {
-      var ret = fun(s);
-      if (typeof ret !== "function") {
-        throw new Error("sequence function must return a parser");
+      var ret = fun(s)
+      if (typeof ret !== 'function') {
+        throw new Error('sequence function must return a parser')
       }
-      var newState = ret(state);
+      var newState = ret(state)
       if (!(newState instanceof ParserState)) {
-        throw new Error("sequence function must return a parser");
+        throw new Error('sequence function must return a parser')
       }
-      return newState;
-    } catch(x) {
+      return newState
+    } catch (x) {
       if (x === failwhale) {
-        return state;
+        return state
       } else {
-        throw x;
+        throw x
       }
     }
-  };
+  }
 }
 
 /**
@@ -673,28 +676,29 @@ function sequence(fun) {
  * @instance
  *
  * @example
- * parse(join(alpha(), integer()), "a1"); // => ["a", 1]
+ * parse(join(alpha(), integer()), 'a1') // => ['a', 1]
  */
-function join(firstParser) {
+function join (firstParser) {
   if (!firstParser) {
-    throw new Error("join() requires at least one parser");
+    throw new Error('join() requires at least one parser')
   }
-  return joinHelper(arguments);
+  return joinHelper(arguments)
 }
 
-function joinHelper(parsers) {
+function joinHelper (parsers) {
   return function (parserState) {
-    var s = parserState, res = [], i;
-    for (i = 0; i < parsers.length; i++) {
-      s = invokeParser(parsers[i], s);
+    var s = parserState
+    var res = []
+    for (var i = 0; i < parsers.length; i++) {
+      s = invokeParser(parsers[i], s)
       if (s.failed) {
-        return s;
+        return s
       } else {
-        res.push(s.value);
+        res.push(s.value)
       }
     }
-    return value(res)(s);
-  };
+    return value(res)(s)
+  }
 }
 
 /**
@@ -717,7 +721,6 @@ function joinHelper(parsers) {
  * @memberof module:mona/combinators
  */
 
-
 /**
  * Returns a parser that returns the result of its first parser if it succeeds,
  * but fails if any of the following parsers fail.
@@ -730,15 +733,15 @@ function joinHelper(parsers) {
  * @instance
  *
  * @example
- * parse(followedBy(string("a"), string("b")), "ab"); // => "a"
+ * parse(followedBy(string('a'), string('b')), 'ab') // => 'a'
  */
-function followedBy(parser) {
-  var parsers = [].slice.call(arguments, 1);
-  return bind(parser, function(result) {
-    return bind(and.apply(null, parsers), function() {
-      return value(result);
-    });
-  });
+function followedBy (parser) {
+  var parsers = [].slice.call(arguments, 1)
+  return bind(parser, function (result) {
+    return bind(and.apply(null, parsers), function () {
+      return value(result)
+    })
+  })
 }
 
 /**
@@ -754,23 +757,23 @@ function followedBy(parser) {
  * @instance
  *
  * @example
- * parse(split(token(), space()), "a b c d"); // => ["a","b","c","d"]
+ * parse(split(token(), space()), 'a b c d') // => ['a','b','c','d']
  */
-function split(parser, separator, opts) {
-  opts = opts || {};
+function split (parser, separator, opts) {
+  opts = opts || {}
   if (!opts.min) {
     return or(split(parser, separator, {min: 1, max: opts.max}),
-              value([]));
+              value([]))
   } else {
-    opts = copy(opts);
-    opts.min = opts.min && opts.min-1;
-    opts.max = opts.max && opts.max-1;
-    return sequence(function(s) {
-      var x = s(parser);
-      var xs = s(collect(and(separator, parser), opts));
-      var result = [x].concat(xs);
-      return value(result);
-    });
+    opts = copy(opts)
+    opts.min = opts.min && opts.min - 1
+    opts.max = opts.max && opts.max - 1
+    return sequence(function (s) {
+      var x = s(parser)
+      var xs = s(collect(and(separator, parser), opts))
+      var result = [x].concat(xs)
+      return value(result)
+    })
   }
 }
 
@@ -789,36 +792,37 @@ function split(parser, separator, opts) {
  * @instance
  *
  * @example
- * parse(splitEnd(token(), space()), "a b c "); // => ["a", "b", "c"]
+ * parse(splitEnd(token(), space()), 'a b c ') // => ['a', 'b', 'c']
  */
-function splitEnd(parser, separator, opts){
-  opts = opts || {};
-  var enforceEnd = typeof opts.enforceEnd === "undefined" ?
-        true :
-        opts.enforceEnd;
+function splitEnd (parser, separator, opts) {
+  opts = opts || {}
+  var enforceEnd = typeof opts.enforceEnd === 'undefined'
+    ? true : opts.enforceEnd
   if (enforceEnd) {
-    return collect(followedBy(parser, separator), opts);
+    return collect(followedBy(parser, separator), opts)
   } else {
     // TODO - This is bloody terrible and should die a horrible, painful death,
     //        but at least the tests seem to pass. :\
-    return sequence(function(s) {
-      var min = opts.min || 0,
-          max = opts.max || Infinity,
-          last;
-      var results = s(splitEnd(parser, separator, {min: opts.min && min-1,
-                                                   max: opts.max && max-1}));
+    return sequence(function (s) {
+      var min = opts.min || 0
+      var max = opts.max || Infinity
+      var last
+      var results = s(splitEnd(parser, separator, {
+        min: opts.min && min - 1,
+        max: opts.max && max - 1
+      }))
       if (opts.min > results.length || opts.max) {
-        last = s(followedBy(parser, maybe(separator)));
-        return value(results.concat([last]));
+        last = s(followedBy(parser, maybe(separator)))
+        return value(results.concat([last]))
       } else {
-        last = s(maybe(parser));
+        last = s(maybe(parser))
         if (last) {
-          return value(results.concat([last]));
+          return value(results.concat([last]))
         } else {
-          return value(results);
+          return value(results)
         }
       }
-    });
+    })
   }
 }
 
@@ -834,29 +838,30 @@ function splitEnd(parser, separator, opts){
  * @instance
  *
  * @example
- * parse(collect(token()), "abcd"); // => ["a", "b", "c", "d"]
+ * parse(collect(token()), 'abcd') // => ['a', 'b', 'c', 'd']
  */
-function collect(parser, opts) {
-  opts = opts || {};
-  var min = opts.min || 0,
-      max = typeof opts.max === "undefined" ? Infinity : opts.max;
-  if (min > max) { throw new Error("min must be less than or equal to max"); }
-  return function(parserState) {
-    var prev = parserState,
-        s = parserState,
-        res = [],
-        i = 0;
-    while(s = invokeParser(parser, s), i < max && !s.failed) {
-      res.push(s.value);
-      i++;
-      prev = s;
+function collect (parser, opts) {
+  opts = opts || {}
+  var min = opts.min || 0
+  var max = typeof opts.max === 'undefined' ? Infinity : opts.max
+  if (min > max) {
+    throw new Error('min must be less than or equal to max')
+  }
+  return function (parserState) {
+    var prev = parserState
+    var s = invokeParser(parser, parserState)
+    var res = []
+    for (var i = 0;
+         i < max && !s.failed;
+         prev = s, i++, s = invokeParser(parser, s)) {
+      res.push(s.value)
     }
     if (min && (res.length < min)) {
-      return s;
+      return s
     } else {
-      return value(res)(prev);
+      return value(res)(prev)
     }
-  };
+  }
 }
 
 /**
@@ -869,10 +874,10 @@ function collect(parser, opts) {
  * @instance
  *
  * @example
- * parse(exactly(token(), 4), "abcd"); // => ["a", "b", "c", "d"]
+ * parse(exactly(token(), 4), 'abcd') // => ['a', 'b', 'c', 'd']
  */
-function exactly(parser, n) {
-  return collect(parser, {min: n, max: n});
+function exactly (parser, n) {
+  return collect(parser, {min: n, max: n})
 }
 
 /**
@@ -886,10 +891,10 @@ function exactly(parser, n) {
  * @instance
  *
  * @example
- * parse(between(string("("), string(")"), token()), "(a)"); // => "a"
+ * parse(between(string('('), string(')'), token()), '(a)') // => 'a'
  */
-function between(open, close, parser) {
-  return and(open, followedBy(parser, close));
+function between (open, close, parser) {
+  return and(open, followedBy(parser, close))
 }
 
 /**
@@ -900,10 +905,10 @@ function between(open, close, parser) {
  * @instance
  *
  * @example
- * parse(and(skip(string("a")), token()), "aaaab"); // => "b"
+ * parse(and(skip(string('a')), token()), 'aaaab') // => 'b'
  */
-function skip(parser) {
-  return and(collect(parser), value());
+function skip (parser) {
+  return and(collect(parser), value())
 }
 
 /**
@@ -913,23 +918,23 @@ function skip(parser) {
  * @param {*} start - lower bound of the range to accept.
  * @param {*} end - higher bound of the range to accept.
  * @param {Parser} [parser=token()] - parser whose results to test
- * @param {Function} [predicate=function(x,y){return x<=y; }] - Tests range
+ * @param {Function} [predicate=function(x,y){return x<=y }] - Tests range
  * @memberof module:mona/combinators
  * @instance
  *
  * @example
- * parse(range("a", "z"), "d"); // => "d"
+ * parse(range('a', 'z'), 'd') // => 'd'
  */
-function range(start, end, parser, predicate) {
-  parser = parser || token();
-  predicate = predicate || function(x,y) { return x <= y; };
-  return label(bind(parser, function(result) {
+function range (start, end, parser, predicate) {
+  parser = parser || token()
+  predicate = predicate || function (x, y) { return x <= y }
+  return label(bind(parser, function (result) {
     if (predicate(start, result) && predicate(result, end)) {
-      return value(result);
+      return value(result)
     } else {
-      return fail();
+      return fail()
     }
-  }), "value between {"+start+"} and {"+end+"}");
+  }), 'value between {' + start + '} and {' + end + '}')
 }
 
 /**
@@ -948,17 +953,16 @@ function range(start, end, parser, predicate) {
  * @instance
  *
  * @example
- * parse(stringOf(collect(token())), "aaa"); // => "aaa"
+ * parse(stringOf(collect(token())), 'aaa') // => 'aaa'
  */
-function stringOf(parser) {
-  return bind(parser, function(xs) {
-    if (xs.hasOwnProperty("length") &&
-        xs.join) {
-      return value(xs.join(""));
+function stringOf (parser) {
+  return bind(parser, function (xs) {
+    if (xs.hasOwnProperty('length') && xs.join) {
+      return value(xs.join(''))
     } else {
-      return fail();
+      return fail()
     }
-  });
+  })
 }
 
 /**
@@ -967,21 +971,21 @@ function stringOf(parser) {
  *
  * @param {String|Array} matches - Characters or strings to match. If this
  *                                 argument is a string, it will be treated as
- *                                 if matches.split("") were passed in.
+ *                                 if matches.split('') were passed in.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @memberof module:mona/strings
  * @instance
  *
  * @example
- * parse(oneOf("abcd"), "c"); // => "c"
- * parse(oneOf(["foo", "bar", "baz"]), "bar"); // => "bar"
+ * parse(oneOf('abcd'), 'c') // => 'c'
+ * parse(oneOf(['foo', 'bar', 'baz']), 'bar') // => 'bar'
  */
-function oneOf(_matches, caseSensitive) {
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  var matches = typeof _matches === "string" ? _matches.split("") : _matches;
-  return or.apply(null, matches.map(function(m) {
-    return string(m, caseSensitive);
-  }).concat(["one of {"+matches+"}"]));
+function oneOf (_matches, caseSensitive) {
+  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
+  var matches = typeof _matches === 'string' ? _matches.split('') : _matches
+  return or.apply(null, matches.map(function (m) {
+    return string(m, caseSensitive)
+  }).concat(['one of {' + matches + '}']))
 }
 
 /**
@@ -991,7 +995,7 @@ function oneOf(_matches, caseSensitive) {
  *
  * @param {String|Array} matches - Characters or strings to match. If this
  *                                 argument is a string, it will be treated as
- *                                 if matches.split("") were passed in.
+ *                                 if matches.split('') were passed in.
  * @param {Boolean} [caseSensitive=true] - Whether to match char case exactly.
  * @param {Parser} [parser=token()] - What to actually parse if none of the
  *                                    given matches succeed.
@@ -999,16 +1003,16 @@ function oneOf(_matches, caseSensitive) {
  * @instance
  *
  * @example
- * parse(noneOf("abc"), "d"); // => "d"
- * parse(noneOf(["foo", "bar", "baz"]), "frob"); // => "f"
- * parse(noneOf(["foo", "bar", "baz"], true, text()), "frob"); // => "frob"
+ * parse(noneOf('abc'), 'd') // => 'd'
+ * parse(noneOf(['foo', 'bar', 'baz']), 'frob') // => 'f'
+ * parse(noneOf(['foo', 'bar', 'baz'], true, text()), 'frob') // => 'frob'
  */
-function noneOf(_matches, caseSensitive, parser) {
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  var matches = typeof _matches === "string" ? _matches.split("") : _matches;
-  return label(and(not(or.apply(null, matches.map(function(m) {
-    return string(m, caseSensitive);
-  }))), parser || token()), "none of {"+matches+"}");
+function noneOf (_matches, caseSensitive, parser) {
+  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
+  var matches = typeof _matches === 'string' ? _matches.split('') : _matches
+  return label(and(not(or.apply(null, matches.map(function (m) {
+    return string(m, caseSensitive)
+  }))), parser || token()), 'none of {' + matches + '}')
 }
 
 /**
@@ -1021,19 +1025,19 @@ function noneOf(_matches, caseSensitive, parser) {
  * @instance
  *
  * @example
- * parse(string("foo"), "foo"); // => "foo"
+ * parse(string('foo'), 'foo') // => 'foo'
  */
-function string(str, caseSensitive) {
-  caseSensitive = typeof caseSensitive === "undefined" ? true : caseSensitive;
-  str = caseSensitive ? str : str.toLowerCase();
-  return label(sequence(function(s) {
-    var x = s(is(function(x) {
-      x = caseSensitive ? x : x.toLowerCase();
-      return  x === str.charAt(0);
-    }));
-    var xs = (str.length > 1)?s(string(str.slice(1), caseSensitive)):"";
-    return value(x+xs);
-  }), "string matching {"+str+"}");
+function string (str, caseSensitive) {
+  caseSensitive = typeof caseSensitive === 'undefined' ? true : caseSensitive
+  str = caseSensitive ? str : str.toLowerCase()
+  return label(sequence(function (s) {
+    var x = s(is(function (x) {
+      x = caseSensitive ? x : x.toLowerCase()
+      return x === str.charAt(0)
+    }))
+    var xs = (str.length > 1) ? s(string(str.slice(1), caseSensitive)) : ''
+    return value(x + xs)
+  }), 'string matching {' + str + '}')
 }
 
 /**
@@ -1044,10 +1048,10 @@ function string(str, caseSensitive) {
  * @instance
  *
  * @example
- * parse(alphaUpper(), "D"); // => "D"
+ * parse(alphaUpper(), 'D') // => 'D'
  */
-function alphaUpper() {
-  return label(range("A", "Z"), "uppercase alphabetical character");
+function alphaUpper () {
+  return label(range('A', 'Z'), 'uppercase alphabetical character')
 }
 
 /**
@@ -1058,10 +1062,10 @@ function alphaUpper() {
  * @instance
  *
  * @example
- * parse(alphaLower(), "d"); // => "d"
+ * parse(alphaLower(), 'd') // => 'd'
  */
-function alphaLower() {
-  return label(range("a", "z"), "lowercase alphabetical character");
+function alphaLower () {
+  return label(range('a', 'z'), 'lowercase alphabetical character')
 }
 
 /**
@@ -1071,11 +1075,11 @@ function alphaLower() {
  * @instance
  *
  * @example
- * parse(alpha(), "a"); // => "a"
- * parse(alpha(), "A"); // => "A"
+ * parse(alpha(), 'a') // => 'a'
+ * parse(alpha(), 'A') // => 'A'
  */
-function alpha() {
-  return or(alphaLower(), alphaUpper(), "alphabetical character");
+function alpha () {
+  return or(alphaLower(), alphaUpper(), 'alphabetical character')
 }
 
 /**
@@ -1086,12 +1090,12 @@ function alpha() {
  * @instance
  *
  * @example
- * parse(digit(), "5"); // => "5"
+ * parse(digit(), '5') // => '5'
  */
-function digit(base) {
-  base = base || 10;
-  return label(is(function(x) { return !isNaN(parseInt(x, base)); }),
-               "digit");
+function digit (base) {
+  base = base || 10
+  return label(is(function (x) { return !isNaN(parseInt(x, base)) }),
+               'digit')
 }
 
 /**
@@ -1102,12 +1106,12 @@ function digit(base) {
  * @instance
  *
  * @example
- * parse(alphanum(), "1"); // => "1"
- * parse(alphanum(), "a"); // => "a"
- * parse(alphanum(), "A"); // => "A"
+ * parse(alphanum(), '1') // => '1'
+ * parse(alphanum(), 'a') // => 'a'
+ * parse(alphanum(), 'A') // => 'A'
  */
-function alphanum(base) {
-  return label(or(alpha(), digit(base)), "alphanum");
+function alphanum (base) {
+  return label(or(alpha(), digit(base)), 'alphanum')
 }
 
 /**
@@ -1117,10 +1121,10 @@ function alphanum(base) {
  * @instance
  *
  * @example
- * parse(space(), "\r"); // => "\r"
+ * parse(space(), '\r') // => '\r'
  */
-function space() {
-  return label(oneOf(" \t\n\r"), "space");
+function space () {
+  return label(oneOf(' \t\n\r'), 'space')
 }
 
 /**
@@ -1132,10 +1136,10 @@ function space() {
  * @instance
  *
  * @example
- * parse(spaces(), "   \r\n\t \r \n"); // => " "
+ * parse(spaces(), '   \r\n\t \r \n') // => ' '
  */
-function spaces() {
-  return label(and(space(), skip(space()), value(" ")), "spaces");
+function spaces () {
+  return label(and(space(), skip(space()), value(' ')), 'spaces')
 }
 
 /**
@@ -1151,13 +1155,13 @@ function spaces() {
  * @instance
  *
  * @example
- * parse(text(), "abcde"); // => "abcde"
- * parse(text(noneOf("a")), "bcde"); // => "bcde"
+ * parse(text(), 'abcde') // => 'abcde'
+ * parse(text(noneOf('a')), 'bcde') // => 'bcde'
  */
-function text(parser, opts) {
-  parser = parser || token();
-  opts = opts || {};
-  return stringOf(collect(parser, opts));
+function text (parser, opts) {
+  parser = parser || token()
+  opts = opts || {}
+  return stringOf(collect(parser, opts))
 }
 
 /**
@@ -1168,12 +1172,12 @@ function text(parser, opts) {
  * @instance
  *
  * @example
- * parse(trim(token()), "    \r\n  a   \t"); // => "a"
+ * parse(trim(token()), '    \r\n  a   \t') // => 'a'
  */
-function trim(parser) {
+function trim (parser) {
   return between(maybe(spaces()),
                  maybe(spaces()),
-                 parser);
+                 parser)
 }
 
 /**
@@ -1184,10 +1188,10 @@ function trim(parser) {
  * @instance
  *
  * @example
- * parse(trimLeft(token()), "    \r\n  a"); // => "a"
+ * parse(trimLeft(token()), '    \r\n  a') // => 'a'
  */
-function trimLeft(parser) {
-  return and(maybe(spaces()), parser);
+function trimLeft (parser) {
+  return and(maybe(spaces()), parser)
 }
 
 /**
@@ -1198,10 +1202,10 @@ function trimLeft(parser) {
  * @instance
  *
  * @example
- * parse(trimRight(token()), "a   \r\n"); // => "a"
+ * parse(trimRight(token()), 'a   \r\n') // => 'a'
  */
-function trimRight(parser) {
-  return followedBy(parser, maybe(spaces()));
+function trimRight (parser) {
+  return followedBy(parser, maybe(spaces()))
 }
 
 /**
@@ -1219,18 +1223,17 @@ function trimRight(parser) {
  * @instance
  *
  * @example
- * parse(natural(), "1234"); // => 1234
+ * parse(natural(), '1234') // => 1234
  */
-function natural(base) {
-  base = base || 10;
-  return map(function(str) { return parseInt(str, base); },
-             text(digit(base), {min: 1}));
+function natural (base) {
+  base = base || 10
+  return map(function (str) { return parseInt(str, base) },
+             text(digit(base), {min: 1}))
 }
 
-
-function sign() {
-  return or(and(string("+"), value(1)),
-            and(string("-"), value(-1)));
+function sign () {
+  return or(and(string('+'), value(1)),
+            and(string('-'), value(-1)))
 }
 
 /**
@@ -1241,15 +1244,15 @@ function sign() {
  * @instance
  *
  * @example
- * parse(integer(), "-1234"); // => -1234
+ * parse(integer(), '-1234') // => -1234
  */
-function integer(base) {
-  base = base || 10;
-  return sequence(function(s) {
-    var sig = s(or(sign(), value(1))),
-        num = s(natural(base));
-    return value(num * sig);
-  });
+function integer (base) {
+  base = base || 10
+  return sequence(function (s) {
+    var sig = s(or(sign(), value(1)))
+    var num = s(natural(base))
+    return value(num * sig)
+  })
 }
 
 /**
@@ -1259,32 +1262,33 @@ function integer(base) {
  * @instance
  *
  * @example
- * parse(real(), "-1234e-10"); // => -1.234e-7
+ * parse(real(), '-1234e-10') // => -1.234e-7
  */
-function real() {
-  return sequence(function(s) {
-    var sig = s(or(sign(), value(1)));
-    var leftSide = s(or(natural(), value(null)));
-    var hasDecimal = s(maybe(string(".")));
-    var zeros = hasDecimal ? s(text(string("0"))).length : 0;
-    var rightSide = s(or(natural(), value(null)));
+function real () {
+  return sequence(function (s) {
+    var sig = s(or(sign(), value(1)))
+    var leftSide = s(or(natural(), value(null)))
+    var hasDecimal = s(maybe(string('.')))
+    var zeros = hasDecimal ? s(text(string('0'))).length : 0
+    var rightSide = s(or(natural(), value(null)))
     if (leftSide === null && rightSide === null) {
-      return fail();
+      return fail()
     }
     leftSide = leftSide || 0
     rightSide = rightSide || 0
     while (rightSide >= 1) {
-      rightSide = rightSide / 10;
+      rightSide = rightSide / 10
     }
     for (var i = 0; i < zeros; i++) {
-      rightSide = rightSide / 10;
+      rightSide = rightSide / 10
     }
-    rightSide = leftSide >= 0 ? rightSide : (rightSide*-1);
-    var e = s(or(and(string("e", false),
+    rightSide = leftSide >= 0 ? rightSide : (rightSide * -1)
+    var e = s(or(and(string('e', false),
                      integer()),
-                 value(0)));
-    return value(sig * (leftSide + rightSide) * (Math.pow(10, e)));
-  });
+                 value(0)))
+    // TODO: get rid of zeros loop, do e - zeros instead!
+    return value(sig * (leftSide + rightSide) * (Math.pow(10, e)))
+  })
 }
 
 /**
@@ -1295,11 +1299,11 @@ function real() {
  * @instance
  *
  * @example
- * parse(cardinal(), "two thousand"); // => 2000
+ * parse(cardinal(), 'two thousand') // => 2000
  */
-function cardinal() {
+function cardinal () {
   return or(numeralUpToVeryBig(),
-            "cardinal");
+            'cardinal')
 }
 
 /**
@@ -1310,11 +1314,11 @@ function cardinal() {
  * @instance
  *
  * @example
- * parse(ordinal(), "one-hundred thousand and fifth"); // 100005
+ * parse(ordinal(), 'one-hundred thousand and fifth') // 100005
  */
-function ordinal() {
+function ordinal () {
   return or(numeralUpToVeryBig(true),
-            "ordinal");
+            'ordinal')
 }
 
 /**
@@ -1328,162 +1332,162 @@ function ordinal() {
  * @instance
  *
  * @example
- * parse(shortOrdinal(), "5th"); // 5
+ * parse(shortOrdinal(), '5th') // 5
  */
-function shortOrdinal(strict) {
-  strict = typeof strict === "undefined" ? true : strict;
+function shortOrdinal (strict) {
+  strict = typeof strict === 'undefined' ? true : strict
   if (strict) {
-    return sequence(function(s) {
-      var num = s(integer());
-      switch ((""+num).substr(-1)) {
-      case "1":
-        s(string("st"));
-        break;
-      case "2":
-        s(oneOf(["nd", "d"]));
-        break;
-      case "3":
-        s(oneOf(["rd", "d"]));
-        break;
-      default:
-        s(string("th"));
-        break;
+    return sequence(function (s) {
+      var num = s(integer())
+      switch (('' + num).substr(-1)) {
+        case '1':
+          s(string('st'))
+          break
+        case '2':
+          s(oneOf(['nd', 'd']))
+          break
+        case '3':
+          s(oneOf(['rd', 'd']))
+          break
+        default:
+          s(string('th'))
+          break
       }
-      return value(num);
-    });
+      return value(num)
+    })
   } else {
-    return followedBy(integer(), oneOf(["th", "st", "nd", "rd"]));
+    return followedBy(integer(), oneOf(['th', 'st', 'nd', 'rd']))
   }
 }
 
 /*
  * English numbers support
  */
-function numeralUpToVeryBig(ordinalMode) {
-  return or(sequence(function(s) {
-    var numOfBigs = s(numeralUpToThreeNines());
-    s(numeralSeparator());
-    var bigUnit = s(oneOf(CARDINALS["evenBigger sorted"], false));
-    var bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase());
-    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex+1)*3);
-    var lesserUnit = s(is(function(x) {
-      return x < bigUnitMultiplier;
-    }, or(and(or(and(string(","), spaces()),
+function numeralUpToVeryBig (ordinalMode) {
+  return or(sequence(function (s) {
+    var numOfBigs = s(numeralUpToThreeNines())
+    s(numeralSeparator())
+    var bigUnit = s(oneOf(CARDINALS['evenBigger sorted'], false))
+    var bigUnitIndex = CARDINALS.evenBigger.indexOf(bigUnit.toLowerCase())
+    var bigUnitMultiplier = Math.pow(10, (bigUnitIndex + 1) * 3)
+    var lesserUnit = s(is(function (x) {
+      return x < bigUnitMultiplier
+    }, or(and(or(and(string(','), spaces()),
                  numeralSeparator()),
               numeralUpToVeryBig(ordinalMode)),
-          and(numeralSeparator(), string("and"), numeralSeparator(),
+          and(numeralSeparator(), string('and'), numeralSeparator(),
               numeralUpToThreeNines(ordinalMode)),
-          value(null))));
+          value(null))))
     if (lesserUnit === null && ordinalMode) {
-      s(string("th"));
-      lesserUnit = 0;
+      s(string('th'))
+      lesserUnit = 0
     }
-    return value((numOfBigs * bigUnitMultiplier) + lesserUnit);
-  }), numeralUpToThreeNines(ordinalMode));
+    return value((numOfBigs * bigUnitMultiplier) + lesserUnit)
+  }), numeralUpToThreeNines(ordinalMode))
 }
 
-function numeralUpToThreeNines(ordinalMode) {
+function numeralUpToThreeNines (ordinalMode) {
   return or(numeralHundreds(numeralUpToNinetyNine(ordinalMode),
-                             1, ordinalMode),
-            numeralUpToNinetyNine(ordinalMode));
+                            1, ordinalMode),
+            numeralUpToNinetyNine(ordinalMode))
 }
 
-function numeralSeparator() {
-  return or(spaces(), string("-"));
+function numeralSeparator () {
+  return or(spaces(), string('-'))
 }
 
-function numeralHundreds(nextParser, multiplier, ordinalMode) {
-  return sequence(function(s) {
-    var numOfHundreds = s(numeralOneThroughNine());
-    s(numeralSeparator());
-    s(string("hundred"));
+function numeralHundreds (nextParser, multiplier, ordinalMode) {
+  return sequence(function (s) {
+    var numOfHundreds = s(numeralOneThroughNine())
+    s(numeralSeparator())
+    s(string('hundred'))
     var smallNum = s(or(
       and(numeralSeparator(),
-          multiplier > 1 ?
-          value() :
-          maybe(and(string("and"), numeralSeparator())),
+          (multiplier > 1
+           ? value()
+           : maybe(and(string('and'), numeralSeparator()))),
           nextParser),
-      value(null)));
+      value(null)))
     if (smallNum === null && ordinalMode) {
-      s(string("th"));
-      smallNum = 0;
+      s(string('th'))
+      smallNum = 0
     }
-    return value(((numOfHundreds * 100) + smallNum) * multiplier);
-  });
+    return value(((numOfHundreds * 100) + smallNum) * multiplier)
+  })
 }
 
-function numeralUpToNinetyNine(ordinalMode) {
-  return or(sequence(function(s) {
-    var ten = s(oneOf(CARDINALS["tens sorted"], false));
-    var tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase());
+function numeralUpToNinetyNine (ordinalMode) {
+  return or(sequence(function (s) {
+    var ten = s(oneOf(CARDINALS['tens sorted'], false))
+    var tenIndex = CARDINALS.tens.indexOf(ten.toLowerCase())
     var small = s(or(and(numeralSeparator(),
                          numeralOneThroughNine(ordinalMode)),
-                     value(0)));
-    return value(((tenIndex + 2) * 10) + small);
-  }), !ordinalMode?fail():sequence(function(s) {
-    var ten = s(oneOf(ORDINALS["tens sorted"], false));
-    var tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase());
-    return value((tenIndex + 2) * 10);
-  }), numeralUpToNineteen(ordinalMode));
+                     value(0)))
+    return value(((tenIndex + 2) * 10) + small)
+  }), !ordinalMode ? fail() : sequence(function (s) {
+    var ten = s(oneOf(ORDINALS['tens sorted'], false))
+    var tenIndex = ORDINALS.tens.indexOf(ten.toLowerCase())
+    return value((tenIndex + 2) * 10)
+  }), numeralUpToNineteen(ordinalMode))
 }
 
-function numeralOneThroughNine(ordinalMode) {
-  var source = ordinalMode ? ORDINALS : CARDINALS;
-  return map(function(x) {
-    return source["1-9"].indexOf(x.toLowerCase()) + 1;
-  }, oneOf(source["1-9 sorted"], false));
+function numeralOneThroughNine (ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS
+  return map(function (x) {
+    return source['1-9'].indexOf(x.toLowerCase()) + 1
+  }, oneOf(source['1-9 sorted'], false))
 }
 
-function numeralUpToNineteen(ordinalMode) {
-  var source = ordinalMode ? ORDINALS : CARDINALS;
-  return map(function(x) {
-    return source["0-19"].indexOf(x.toLowerCase());
-  }, oneOf(source["0-19 sorted"], false));
+function numeralUpToNineteen (ordinalMode) {
+  var source = ordinalMode ? ORDINALS : CARDINALS
+  return map(function (x) {
+    return source['0-19'].indexOf(x.toLowerCase())
+  }, oneOf(source['0-19 sorted'], false))
 }
 
 var CARDINALS = {
-  "1-9": ["one", "two", "three", "four", "five", "six",
-          "seven", "eight", "nine"],
-  "0-19": ["zero", "one", "two", "three", "four", "five", "six",
-           "seven", "eight", "nine", "ten", "eleven", "twelve",
-           "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
-           "eighteen", "nineteen"],
-  tens: ["twenty", "thirty", "forty", "fifty", "sixty",
-         "seventy", "eighty", "ninety"],
-  evenBigger: ["thousand", "million", "billion", "trillion",
-               "quadrillion", "quintillion", "sextillion", "septillion",
-               "octillion", "nonillion", "decillion", "undecillion",
-               "duodecillion", "tredecillion"] // At this point, wikipedia ran
+  '1-9': ['one', 'two', 'three', 'four', 'five', 'six',
+          'seven', 'eight', 'nine'],
+  '0-19': ['zero', 'one', 'two', 'three', 'four', 'five', 'six',
+           'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+           'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+           'eighteen', 'nineteen'],
+  tens: ['twenty', 'thirty', 'forty', 'fifty', 'sixty',
+         'seventy', 'eighty', 'ninety'],
+  evenBigger: ['thousand', 'million', 'billion', 'trillion',
+               'quadrillion', 'quintillion', 'sextillion', 'septillion',
+               'octillion', 'nonillion', 'decillion', 'undecillion',
+               'duodecillion', 'tredecillion'] // At this point, wikipedia ran
                                                // out of numbers until the
                                                // googol and googelplex
-};
+}
 
 var ORDINALS = {
-  "1-9": ["first", "second", "third", "fourth", "fifth", "sixth",
-          "seventh", "eighth", "ninth"],
-  "0-19": ["zeroeth", "first", "second", "third", "fourth", "fifth",
-           "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh",
-           "twelfth", "thirteenth", "fourteenth", "fifteenth",
-           "sixteenth", "seventeenth", "eighteenth", "nineteenth"],
-  tens: ["twentieth", "thirtieth", "fortieth", "fiftieth",
-         "sixtieth", "seventieth", "eightieth", "ninetieth"]
-};
+  '1-9': ['first', 'second', 'third', 'fourth', 'fifth', 'sixth',
+          'seventh', 'eighth', 'ninth'],
+  '0-19': ['zeroeth', 'first', 'second', 'third', 'fourth', 'fifth',
+           'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh',
+           'twelfth', 'thirteenth', 'fourteenth', 'fifteenth',
+           'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth'],
+  tens: ['twentieth', 'thirtieth', 'fortieth', 'fiftieth',
+         'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
+}
 
 // We need a sorted version because we need the longest strings to show up
 // first.
-function _sortByLength(a, b) {
-  return b.length - a.length;
+function _sortByLength (a, b) {
+  return b.length - a.length
 }
 for (var group in CARDINALS) {
   if (CARDINALS.hasOwnProperty(group)) {
-    CARDINALS[group + " sorted"] = CARDINALS[group].slice();
-    CARDINALS[group + " sorted"].sort(_sortByLength);
+    CARDINALS[group + ' sorted'] = CARDINALS[group].slice()
+    CARDINALS[group + ' sorted'].sort(_sortByLength)
   }
 }
 for (group in ORDINALS) {
   if (ORDINALS.hasOwnProperty(group)) {
-    ORDINALS[group + " sorted"] = ORDINALS[group].slice();
-    ORDINALS[group + " sorted"].sort(_sortByLength);
+    ORDINALS[group + ' sorted'] = ORDINALS[group].slice()
+    ORDINALS[group + ' sorted'].sort(_sortByLength)
   }
 }
 
@@ -1541,88 +1545,88 @@ module.exports = {
   // Numbers
   natural: natural,
   integer: integer,
-  "float": real, // For compatibility
+  'float': real, // For compatibility
   real: real,
   cardinal: cardinal,
   ordinal: ordinal,
   shortOrdinal: shortOrdinal
-};
+}
 
 /*
  * Internals
  */
-function copy(obj) {
-  var newObj = Object.create(Object.getPrototypeOf(obj));
+function copy (obj) {
+  var newObj = Object.create(Object.getPrototypeOf(obj))
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
-      newObj[key] = obj[key];
+      newObj[key] = obj[key]
     }
   }
-  return newObj;
+  return newObj
 }
 
-function invokeParser(parser, parserState) {
-  if (typeof parser !== "function") {
-    throw new Error("Parser needs to be a function, but got " +
-                    parser + " instead");
+function invokeParser (parser, parserState) {
+  if (typeof parser !== 'function') {
+    throw new Error('Parser needs to be a function, but got ' +
+                    parser + ' instead')
   }
   if (!(parserState instanceof ParserState)) {
-    throw new Error("Expected parserState to be a ParserState");
+    throw new Error('Expected parserState to be a ParserState')
   }
-  var newParserState = parser(parserState);
+  var newParserState = parser(parserState)
   if (!(newParserState instanceof ParserState)) {
-    throw new Error("Parsers must return a parser state object");
+    throw new Error('Parsers must return a parser state object')
   }
-  return newParserState;
+  return newParserState
 }
 
-function mergeErrors(err1, err2) {
+function mergeErrors (err1, err2) {
   if (!err1 || (!err1.messages.length && err2.messages.length)) {
-    return err2;
+    return err2
   } else if (!err2 || (!err2.messages.length && err1.messages.length)) {
-    return err1;
+    return err1
   } else {
     switch (comparePositions(err1.position, err2.position)) {
-    case "gt":
-      return err1;
-    case "lt":
-      return err2;
-    case "eq":
-      var newMessages =
-        (err1.messages.concat(err2.messages)).reduce(function(acc, x) {
-          return (~acc.indexOf(x)) ? acc : acc.concat([x]);
-        }, []);
-      return new ParserError(err2.position,
-                             newMessages,
-                             err2.type,
-                             err2.wasEof || err1.wasEof);
-    default:
-      throw new Error("This should never happen");
+      case 'gt':
+        return err1
+      case 'lt':
+        return err2
+      case 'eq':
+        var newMessages =
+          (err1.messages.concat(err2.messages)).reduce(function (acc, x) {
+            return (~acc.indexOf(x)) ? acc : acc.concat([x])
+          }, [])
+        return new ParserError(err2.position,
+                               newMessages,
+                               err2.type,
+                               err2.wasEof || err1.wasEof)
+      default:
+        throw new Error('This should never happen')
     }
   }
 }
 
-function comparePositions(pos1, pos2) {
+function comparePositions (pos1, pos2) {
   if (pos1.line < pos2.line) {
-    return "lt";
+    return 'lt'
   } else if (pos1.line > pos2.line) {
-    return "gt";
+    return 'gt'
   } else if (pos1.column < pos2.column) {
-    return "lt";
+    return 'lt'
   } else if (pos1.column > pos2.column) {
-    return "gt";
+    return 'gt'
   } else {
-    return "eq";
+    return 'eq'
   }
 }
 
-function ParserState(value, input, offset, userState,
+function ParserState (value, input, offset, userState,
                      position, hasConsumed, error, failed) {
-  this.value = value;
-  this.input = input;
-  this.offset = offset;
-  this.position = position;
-  this.userState = userState;
-  this.failed = failed;
-  this.error = error;
+  this.value = value
+  this.input = input
+  this.offset = offset
+  this.position = position
+  this.userState = userState
+  this.failed = failed
+  this.error = error
 }

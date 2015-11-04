@@ -7,7 +7,7 @@ uglify = $(module-root)/uglify-js/bin/uglifyjs
 browserify = $(module-root)/browserify/bin/cmd.js
 jsdoc = $(module-root)/jsdoc/jsdoc
 mocha = $(module-root)/mocha/bin/mocha $(mocha-opts)
-linter = $(module-root)/jshint/bin/jshint $(linter-opts)
+linter = $(module-root)/.bin/standard $(linter-opts)
 semver = $(module-root)/semver/bin/semver
 
 #
@@ -30,7 +30,7 @@ min-file = $(build-dir)/mona.min.js
 source-map-filename = mona.js.src
 source-map = $(build-dir)/$(source-map-filename)
 jsdoc-config = jsdoc.conf.json
-linter-config = jshint.conf.json
+linter-config =
 readme = README.md
 test-files = $(shell find src/ -type f -iname "*test.js") \
              $(shell find examples/ -type f -iname "*test.js")
@@ -97,8 +97,8 @@ test-watch: $(source-files) $(test-files)
 	$(mocha) --reporter min --watch $(test-files)
 
 .PHONY: lint
-lint: $(source-files) $(linter-config)
-	$(linter) --config $(linter-config) $(source-files)
+lint: $(source-files)
+	$(linter) $(source-files)
 
 .PHONY: example-%
 example-%: $(examples-dir)/*.js $(browserify-bundle)
