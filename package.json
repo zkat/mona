@@ -34,6 +34,6 @@
   "scripts": {
     "build": "babel --presets es2015 src/mona.js > index.js",
     "prepublish": "npm run build",
-    "test": "standard src/mona*.js && npm run build && mocha --reporter spec src/mona-test.js"
+    "test": "standard src/mona*.js test/* && npm run build && mocha --reporter spec test/* test/**/*"
   }
 }

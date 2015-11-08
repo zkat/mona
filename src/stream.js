@@ -38,56 +38,56 @@ util.inherits(StreamParser, Transform);
  *           fs.readFileSync("/tmp/final-dest.txt"));
  * // => true
  */
-function parseStream(parser, opts) {
+function parseStream (parser, opts) {
   return new StreamParser(parser, {
     decodeStrings: false,
-    encoding: "utf8",
+    encoding: 'utf8',
     parseOpts: opts
-  });
+  })
 }
 
-function StreamParser(parser, options) {
+function StreamParser (parser, options) {
   if (!(this instanceof StreamParser)) {
-    return new StreamParser(options);
+    return new StreamParser(options)
   }
-  Transform.call(this, options);
+  Transform.call(this, options)
   this._transformOutput = (options.parseOpts &&
-                           options.parseOpts.transformOutput);
+                           options.parseOpts.transformOutput)
   this._handle = mona.parseAsync(parser,
                                  this._onParse.bind(this),
-                                 options.parseOpts);
+                                 options.parseOpts)
 }
 
-StreamParser.prototype._transform = function(chunk, encoding, done) {
-  if (typeof chunk !== "string") {
-    done(new Error("parseStream only supports strings for now"));
+StreamParser.prototype._transform = function (chunk, encoding, done) {
+  if (typeof chunk !== 'string') {
+    done(new Error('parseStream only supports strings for now'))
   }
   try {
-    this._handle.data(chunk);
+    this._handle.data(chunk)
     if (!this._transformOutput) {
-      this.push(chunk);
+      this.push(chunk)
     }
-    done();
+    done()
   } catch (e) {
-    done(e);
+    done(e)
   }
-};
+}
 
-StreamParser.prototype._flush = function(done) {
+StreamParser.prototype._flush = function (done) {
   try {
-    this._handle.done();
-    done();
+    this._handle.done()
+    done()
   } catch (e) {
-    done(e);
+    done(e)
   }
-};
+}
 
-StreamParser.prototype._onParse = function(err, parsed) {
-  if (err) { throw err; }
-  this.emit("parse", parsed);
+StreamParser.prototype._onParse = function (err, parsed) {
+  if (err) { throw err }
+  this.emit('parse', parsed)
   if (this._transformOutput) {
-    this.push(parsed);
+    this.push(parsed)
   }
-};
+}
 
-module.exports.parseStream = parseStream;
+module.exports.parseStream = parseStream
