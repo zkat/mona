@@ -1,9 +1,7 @@
-"use strict";
-
-var Transform = require("stream").Transform,
-    util = require("util"),
-    mona = require("./mona");
-util.inherits(StreamParser, Transform);
+import {Transform} from 'stream'
+import util from 'util'
+import mona from '..'
+util.inherits(StreamParser, Transform)
 
 /**
  * Implements node.js' transformer stream API. That is, it implements the

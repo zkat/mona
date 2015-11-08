@@ -1,0 +1,7 @@
+export const VERSION = '0.8.2'
+export * from './parse'
+export * from './parseAsync'
+export * from './core'
+export * from './combinators'
+export * from './numbers'
+export * from './strings'

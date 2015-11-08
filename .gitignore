@@ -1,6 +1,4 @@
 *~
-node_modules/
-build/
-docs/
+/node_modules/
 .tern-port
-index.js
+/lib
