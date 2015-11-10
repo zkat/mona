@@ -23,20 +23,27 @@
   "files": [
     "README.md",
     "lib/*",
-    "examples/*"
+    "browser/*"
   ],
   "devDependencies": {
     "babel-cli": "^6.1.1",
     "babel-preset-es2015": "^6.0.15",
-    "documentation": "^3.0.3",
     "mocha": "^2.3.3",
-    "moment": "^2.10.6",
-    "standard": "^5.3.1"
+    "standard": "^5.3.1",
+    "webpack": "^1.12.3"
   },
   "readmeFilename": "README.md",
   "scripts": {
-    "build": "babel --presets es2015 src --out-dir lib",
+    "build": "babel --presets es2015 src --out-dir lib && webpack --progress --colors -d --output-library mona --output-library-target umd lib/index.js browser/mona.js && webpack -d -p --progress --colors --output-library mona --output-library-target umd lib/index.js browser/mona.min.js",
     "prepublish": "npm run build",
-    "test": "standard src/* test/* && npm run build && mocha --reporter spec test/* test/**/*"
+    "test": "standard src/* test/* && npm run build && mocha --reporter spec"
+  },
+  "dependencies": {
+    "@mona/combinators": "^1.0.4",
+    "@mona/core": "^1.0.3",
+    "@mona/numbers": "^1.0.2",
+    "@mona/parse": "^1.0.4",
+    "@mona/parse-async": "^1.0.0",
+    "@mona/strings": "^1.0.0"
   }
 }
