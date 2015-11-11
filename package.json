@@ -1,6 +1,6 @@
 {
   "name": "mona",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Composable parsers",
   "main": "lib/index.js",
   "license": "CC0-1.0",
