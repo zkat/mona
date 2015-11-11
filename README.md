@@ -76,6 +76,7 @@ the right place. :)
         * [`trim`](#mona-trim)
         * [`trimLeft`](#mona-trimLeft)
         * [`trimRight`](#mona-trimRight)
+        * [`eol`](#mona-eol)
     * [@mona/numbers](#monanumbers)
         * [`natural`](#mona-natural)
         * [`integer`](#mona-integer)
@@ -110,47 +111,32 @@ mona.parse(commaInts(), '1,2,3,49829,49,139')
 // => [1, 2, 3, 49829, 49, 139]
 ```
 
-### A simple, readable CSV parser in ~50 lines
+### A simple, readable CSV parser in ~25 lines
 
 ```javascript
 function parseCSV (text) {
   return mona.parse(csv(), text)
 }
-
 function csv () {
-  return mona.splitEnd(line(), eol())
+  return mona.splitEnd(line(), mona.eol())
 }
-
 function line () {
   return mona.split(cell(), mona.string(','))
 }
-
 function cell () {
   return mona.or(quotedCell(),
                  mona.text(mona.noneOf(',\n\r')))
 }
-
 function quotedCell () {
   return mona.between(mona.string('"'),
                       mona.string('"'),
                       mona.text(quotedChar()))
 }
-
 function quotedChar () {
   return mona.or(mona.noneOf('"'),
                  mona.and(mona.string('""'),
                           mona.value('"')))
 }
-
-function eol () {
-  var str = mona.string
-  return mona.or(str('\n\r'),
-                 str('\r\n'),
-                 str('\n'),
-                 str('\r'),
-                 'end of line')
-}
-
 parseCSV('foo,"bar"\n"b""az",quux\n')
 // => [['foo', 'bar'], ['b"az', 'quux']]
 ```
@@ -766,6 +752,14 @@ Trims any _trailing_ whitespace before `parser`, and returns `parser`'s result.
 
 ```javascript
 parse(trimRight(token()), 'a   \r\n') // => 'a'
+```
+
+#### <a name="mona-eol"></a>`> eol() -> Parser<String>`
+
+Parses the end of a line.
+
+```javascript
+parse(eol(), '\n') // => '\n'
 ```
 
 ### `@mona/numbers`
