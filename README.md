@@ -27,11 +27,63 @@ the right place. :)
 * [Examples](#examples)
 * [API](#api)
     * [@mona/parse](#monaparse)
+        * [`parse`](#mona-parse)
     * [@mona/parse-async](#monaparse-async)
+        * [`parseAsync`](#mona-parseAsync)
     * [@mona/core](#monacore)
+        * [`value`](#mona-value)
+        * [`bind`](#mona-bind)
+        * [`fail`](#mona-fail)
+        * [`label`](#mona-label)
+        * [`token`](#mona-token)
+        * [`eof`](#mona-eof)
+        * [`delay`](#mona-delay)
+        * [`log`](#mona-log)
+        * [`map`](#mona-map)
+        * [`tag`](#mona-tag)
+        * [`lookAhead`](#mona-lookAhead)
+        * [`is`](#mona-is)
+        * [`isNot`](#mona-isNot)
     * [@mona/combinators](#monacombinators)
+        * [`and`](#mona-and)
+        * [`or`](#mona-or)
+        * [`maybe`](#mona-maybe)
+        * [`not`](#mona-not)
+        * [`unless`](#mona-unless)
+        * [`sequence`](#mona-sequence)
+        * [`join`](#mona-join)
+        * [`followedBy`](#mona-followedBy)
+        * [`split`](#mona-split)
+        * [`splitEnd`](#mona-splitEnd)
+        * [`collect`](#mona-collect)
+        * [`exactly`](#mona-exactly)
+        * [`between`](#mona-between)
+        * [`skip`](#mona-skip)
+        * [`range`](#mona-range)
     * [@mona/strings](#monastrings)
+        * [`stringOf`](#mona-stringOf)
+        * [`oneOf`](#mona-oneOf)
+        * [`noneOf`](#mona-noneOf)
+        * [`string`](#mona-string)
+        * [`alphaUpper`](#mona-alphaUpper)
+        * [`alphaLower`](#mona-alphaLower)
+        * [`alpha`](#mona-alpha)
+        * [`digit`](#mona-digit)
+        * [`alphanum`](#mona-alphanum)
+        * [`space`](#mona-space)
+        * [`spaces`](#mona-spaces)
+        * [`text`](#mona-text)
+        * [`trim`](#mona-trim)
+        * [`trimLeft`](#mona-trimLeft)
+        * [`trimRight`](#mona-trimRight)
     * [@mona/numbers](#monanumbers)
+        * [`natural`](#mona-natural)
+        * [`integer`](#mona-integer)
+        * [`real`](#mona-real)
+        * [`float`](#mona-real)
+        * [`cardinal`](#mona-cardinal)
+        * [`ordinal`](#mona-ordinal)
+        * [`shortOrdinal`](#mona-shortOrdinal)
 * [Gentle Introduction to Monadic Parser Combinators](#gentle-intro-to-monadic-parser-combinators)
 
 ## Install
@@ -119,7 +171,7 @@ This module or one of its siblings is needed in order to actually execute
 defined parsers. Currently, it exports only a single function: a synchronous
 parser runner.
 
-#### `> parse(parser, string[, opts]) -> T`
+#### <a name="mona-parse"></a>`> parse(parser, string[, opts]) -> T`
 
 Synchronously executes a parser on a given string, and returns the resulting
 value.
@@ -140,7 +192,7 @@ parse(integer(), '123') // => 123
 This module exports only a single function: an asynchronous parser runner. You
 need this module or something similar in order to actually execute your parsers.
 
-#### `> parseAsync(parser, callback[, opts]) -> Handle`
+#### <a name="mona-parseAsync"></a>`> parseAsync(parser, callback[, opts]) -> Handle`
 
 Executes a parser asynchronously, returning an object that can be used to
 manage the parser state.
@@ -174,7 +226,7 @@ intended to be the core of the rest of the parser libraries. Some of these are
 very low level, such as `bind()`. Others are not necessarily meant to be used in
 production, but can help with debugging, such as `log()`.
 
-#### `> value(val) -> Parser<T>`
+#### <a name="mona-value"></a>`> value(val) -> Parser<T>`
 
 Always succeeds with `val` as its value, without consuming any input.
 
@@ -184,7 +236,7 @@ Always succeeds with `val` as its value, without consuming any input.
  parse(value('foo'), '') // => 'foo'
  ```
 
-#### `> bind(parser, fun) -> Parser<U>`
+#### <a name="mona-bind"></a>`> bind(parser, fun) -> Parser<U>`
 
 Calls `fun` on the value from `parser`. Fails without executing `fun` if
 `parser` fails.
@@ -200,7 +252,7 @@ parse(bind(token(), function (x) {
 }), 'a') // => 'a!'
 ```
 
-#### `> fail([msg[, type]]) -> Parser<Fail>`
+#### <a name="mona-fail"></a>`> fail([msg[, type]]) -> Parser<Fail>`
 
 Always fails without consuming input. Automatically includes the line and column
 positions in the final `ParserError`.
@@ -208,7 +260,7 @@ positions in the final `ParserError`.
 * `{String} [msg='parser error']` - Message to report with the failure.
 * `{String} [type='failure']` - A type to apply to the ParserError.
 
-#### `> label(parser, msg) -> Parser<T>`
+#### <a name="mona-label"></a>`> label(parser, msg) -> Parser<T>`
 
 Label a `parser` failure by replacing its error messages with `msg`.
 
@@ -220,7 +272,7 @@ parse(token(), '') // => unexpected eof
 parse(label(token(), 'thing'), '') // => expected thing
 ```
 
-#### `> token([count]) -> Parser<String>`
+#### <a name="mona-token"></a>`> token([count]) -> Parser<String>`
 
 Consumes a single item from the input, or fails with an unexpected eof error if
 there is no input left.
@@ -231,7 +283,7 @@ there is no input left.
 parse(token(), 'a') // => 'a'
 ```
 
-#### `> eof() -> Parser<true>`
+#### <a name="mona-eof"></a>`> eof() -> Parser<true>`
 
 Succeeds with a value of `true` if there is no more input to consume.
 
@@ -239,7 +291,7 @@ Succeeds with a value of `true` if there is no more input to consume.
 parse(eof(), '') // => true
 ```
 
-#### `> delay(constructor, ...args) -> Parser<T>`
+#### <a name="mona-delay"></a>`> delay(constructor, ...args) -> Parser<T>`
 
 Delays calling of a parser constructor function until parse-time. Useful for
 recursive parsers that would otherwise blow the stack at construction time.
@@ -259,7 +311,7 @@ function foo() {
 }
 ```
 
-#### `> log(parser, label[, level]) -> Parser<T>`
+#### <a name="mona-log"></a>`>log(parser, label[, level]) -> Parser<T>`
 
 Logs the `ParserState` resulting from `parser` with a `label`.
 
@@ -267,7 +319,7 @@ Logs the `ParserState` resulting from `parser` with a `label`.
 * `{String} tag` - Tag to use when logging messages.
 * `{String} [level='log']` - 'log', 'info', 'debug', 'warn', 'error'.
 
-#### `> map(fun, parser) -> Parser<T>`
+#### <a name="mona-map"></a>`>map(fun, parser) -> Parser<T>`
 
 Transforms the resulting value of a successful application of its given parser.
 This function is a lot like `bind`, except it always succeeds if its parser
@@ -281,7 +333,7 @@ parser.
 parse(map(parseFloat, text()), '1234.5') // => 1234.5
 ```
 
-#### `> tag(parser, tag) -> Parser<Object<T>>`
+#### <a name="mona-tag"></a>`>tag(parser, tag) -> Parser<Object<T>>`
 
 Results in an object with a single key whose value is the result of the given
 parser. This can be useful for when you want to build ASTs or otherwise do some
@@ -294,7 +346,7 @@ tagged tree structure.
 parse(tag(token(), 'myToken'), 'a') // => {myToken: 'a'}
 ```
 
-#### `> lookAhead(parser) -> Parser<T>`
+#### <a name="mona-lookAhead"></a>`>lookAhead(parser) -> Parser<T>`
 
 Runs a given parser without consuming input, while still returning a success or
 failure.
@@ -305,7 +357,7 @@ failure.
 parse(and(lookAhead(token()), token()), 'a') // => 'a'
 ```
 
-#### `> is(predicate[, parser]) -> Parser<T>`
+#### <a name="mona-is"></a>`>is(predicate[, parser]) -> Parser<T>`
 
 Succeeds if `predicate` returns a truthy value when called on `parser`'s result.
 
@@ -316,7 +368,7 @@ Succeeds if `predicate` returns a truthy value when called on `parser`'s result.
 parse(is(function (x) { return x === 'a' }), 'a') // => 'a'
 ```
 
-#### `> isNot(predicate[, parser]) -> Parser<T>`
+#### <a name="mona-isNot"></a>`> isNot(predicate[, parser]) -> Parser<T>`
 
 Succeeds if `predicate` returns a falsy value when called on `parser`'s result.
 
@@ -340,7 +392,7 @@ increasingly more intricate parsers.
 This package contains things like `collect()`, `split()`, and the `or()`/`and()`
 pair.
 
-#### `> and(...parsers, lastParser) -> Parser<T>`
+#### <a name="mona-and"></a>`> and(...parsers, lastParser) -> Parser<T>`
 
 Succeeds if all the parsers given to it succeed, using the value of the last
 executed parser as its return value.
@@ -352,7 +404,7 @@ executed parser as its return value.
 parse(and(token(), token()), 'ab') // => 'b'
 ```
 
-#### `> or(...parsers[, label]) -> Parser<T>`
+#### <a name="mona-or"></a>`> or(...parsers[, label]) -> Parser<T>`
 
 Succeeds if one of the parsers given to it succeeds, using the value of the
 first successful parser as its result.
@@ -364,7 +416,7 @@ first successful parser as its result.
 parse(or(string('foo'), string('bar')), 'bar') // => 'bar'
 ```
 
-#### `> maybe(parser) -> Parser<T> | Parser<undefined>`
+#### <a name="mona-maybe"></a>`> maybe(parser) -> Parser<T> | Parser<undefined>`
 
 Returns the result of `parser` if it succeeds, otherwise succeeds with a value
 of `undefined` without consuming any input.
@@ -376,7 +428,7 @@ parse(maybe(token()), 'a') // => 'a'
 parse(maybe(token()), '') // => undefined
 ```
 
-#### `> not(parser) -> Parser<undefined>`
+#### <a name="mona-not"></a>`> not(parser) -> Parser<undefined>`
 
 Succeeds if `parser` fails. Does not consume.
 
@@ -386,7 +438,7 @@ Succeeds if `parser` fails. Does not consume.
 parse(and(not(string('a')), token()), 'b') // => 'b'
 ```
 
-#### `> unless(notParser, ...moreParsers, lastParser) -> Parser<T>`
+#### <a name="mona-unless"></a>`> unless(notParser, ...moreParsers, lastParser) -> Parser<T>`
 
 Works like `and`, but fails if the first parser given to it succeeds. Like
 `and`, it returns the value of the last successful parser.
@@ -399,7 +451,7 @@ Works like `and`, but fails if the first parser given to it succeeds. Like
 parse(unless(string('a'), token()), 'b') // => 'b'
 ```
 
-#### `> sequence(fun) -> Parser<T>`
+#### <a name="mona-sequence"></a>`> sequence(fun) -> Parser<T>`
 
 Put simply, this parser provides a way to write complex parsers while letting
 your code look like regular procedural code. You just wrap your parsers with
@@ -427,7 +479,7 @@ mona.sequence(function (s) {
 })
 ```
 
-#### `> join(...parsers) -> Parser<Array<T>>`
+#### <a name="mona-join"></a>`> join(...parsers) -> Parser<Array<T>>`
 
 Succeeds if all the parsers given to it succeed, and results in an array of all
 the resulting values, in order.
@@ -438,7 +490,7 @@ the resulting values, in order.
 parse(join(alpha(), integer()), 'a1') // => ['a', 1]
 ```
 
-#### `> followedBy(parser, ...moreParsers) -> Parser<T>`
+#### <a name="mona-followedBy"></a>`> followedBy(parser, ...moreParsers) -> Parser<T>`
 
 Returns the result of its first parser if it succeeds, but fails if any of the
 following parsers fail.
@@ -453,7 +505,7 @@ parse(followedBy(string('a'), string('b'), string('c')), 'abc') // => 'a'
 parse(followedBy(string('a'), string('a')), 'abc') // => expected {a}
 ```
 
-#### `> split(parser, separator[, opts]) -> Parser<Array<T>>`
+#### <a name="mona-split"></a>`> split(parser, separator[, opts]) -> Parser<Array<T>>`
 
 Results in an array of successful results of `parser`, divided by the
 `separator` parser.
@@ -468,7 +520,7 @@ Results in an array of successful results of `parser`, divided by the
 parse(split(token(), space()), 'a b c d') // => ['a','b','c','d']
 ```
 
-#### `> splitEnd(parser, separator[, opts]) -> Parser<Array<T>>`
+#### <a name="mona-splitEnd"></a>`> splitEnd(parser, separator[, opts]) -> Parser<Array<T>>`
 
 Results in an array of results that have been successfully parsed by `parser`,
 separated *and ended* by `separator`.
@@ -484,7 +536,7 @@ separated *and ended* by `separator`.
 parse(splitEnd(token(), space()), 'a b c ') // => ['a', 'b', 'c']
 ```
 
-#### `> collect(parser[, opts]) -> Parser<Array<T>>`
+#### <a name="mona-collect"></a>`> collect(parser[, opts]) -> Parser<Array<T>>`
 
 Results in an array of `min` to `max` number of matches of `parser`
 
@@ -496,7 +548,7 @@ Results in an array of `min` to `max` number of matches of `parser`
 parse(collect(token()), 'abcd') // => ['a', 'b', 'c', 'd']
 ```
 
-#### `> exactly(parser, n) -> Parser<Array<T>>`
+#### <a name="mona-exactly"></a>`> exactly(parser, n) -> Parser<Array<T>>`
 
 Results in an array of exactly `n` results for `parser`.
 
@@ -507,7 +559,7 @@ Results in an array of exactly `n` results for `parser`.
 parse(exactly(token(), 4), 'abcd') // => ['a', 'b', 'c', 'd']
 ```
 
-#### `> between(open, close, parser) -> Parser<V>`
+#### <a name="mona-between"></a>`> between(open, close, parser) -> Parser<V>`
 
 Results in a value between an opening and closing parser.
 
@@ -519,7 +571,7 @@ Results in a value between an opening and closing parser.
 parse(between(string('('), string(')'), token()), '(a)') // => 'a'
 ```
 
-#### `> skip(parser) -> Parser<undefined>`
+#### <a name="mona-skip"></a>`> skip(parser) -> Parser<undefined>`
 
 Skips input until `parser` stops matching.
 
@@ -529,7 +581,7 @@ Skips input until `parser` stops matching.
 parse(and(skip(string('a')), token()), 'aaaab') // => 'b'
 ```
 
-#### `> range(start, end[, parser[, predicate]]) -> Parser<T>`
+#### <a name="mona-range"></a>`> range(start, end[, parser[, predicate]]) -> Parser<T>`
 
 Accepts a parser if its result is within range of `start` and `end`.
 
@@ -552,7 +604,7 @@ manipulate strings themselves.
 Here, you'll find the likes of `string()` (the exact-string matching parser),
 `spaces()`, and `trim()`.
 
-#### `> stringOf(parser) -> Parser<String>`
+#### <a name="mona-stringOf"></a>`> stringOf(parser) -> Parser<String>`
 
 Results in a string containing the concatenated results of applying `parser`.
 `parser` must be a combinator that returns an array of string parse results.
@@ -563,7 +615,7 @@ Results in a string containing the concatenated results of applying `parser`.
 parse(stringOf(collect(token())), 'aaa') // => 'aaa'
 ```
 
-#### `> oneOf(matches[, caseSensitive]) -> Parser<String>`
+#### <a name="mona-oneOf"></a>`> oneOf(matches[, caseSensitive]) -> Parser<String>`
 
 Succeeds if the next token or string matches one of the given inputs.
 
@@ -577,7 +629,7 @@ parse(oneOf('abcd'), 'c') // => 'c'
 parse(oneOf(['foo', 'bar', 'baz']), 'bar') // => 'bar'
 ```
 
-#### `> noneOf(matches[, caseSensitive[, other]]) -> Parser<T>`
+#### <a name="mona-noneOf"></a>`> noneOf(matches[, caseSensitive[, other]]) -> Parser<T>`
 
 Fails if the next token or string matches one of the given inputs. If the third
 `parser` argument is given, that parser will be used to collect the actual value
@@ -595,7 +647,7 @@ parse(noneOf(['foo', 'bar', 'baz']), 'frob') // => 'f'
 parse(noneOf(['foo', 'bar', 'baz'], true, text()), 'frob') // => 'frob'
 ```
 
-#### `> string(str[, caseSensitive]) -> Parser<String>`
+#### <a name="mona-string"></a>`> string(str[, caseSensitive]) -> Parser<String>`
 
 Succeeds if `str` matches the next `str.length` inputs,
 consuming the string and returning it as a value.
@@ -607,7 +659,7 @@ consuming the string and returning it as a value.
 parse(string('foo'), 'foo') // => 'foo'
 ```
 
-#### `> alphaUpper() -> Parser<String>`
+#### <a name="mona-alphaUpper"></a>`> alphaUpper() -> Parser<String>`
 
 Matches a single non-unicode uppercase alphabetical character.
 
@@ -615,7 +667,7 @@ Matches a single non-unicode uppercase alphabetical character.
 parse(alphaUpper(), 'D') // => 'D'
 ```
 
-#### `> alphaLower() -> Parser<String>`
+#### <a name="mona-alphaLower"></a>`> alphaLower() -> Parser<String>`
 
 Matches a single non-unicode lowercase alphabetical character.
 
@@ -623,7 +675,7 @@ Matches a single non-unicode lowercase alphabetical character.
 parse(alphaLower(), 'd') // => 'd'
 ```
 
-#### `> alpha() -> Parser<String>`
+#### <a name="mona-alpha"></a>`> alpha() -> Parser<String>`
 
 Matches a single non-unicode alphabetical character.
 
@@ -632,7 +684,7 @@ parse(alpha(), 'd') // => 'd'
 parse(alpha(), 'D') // => 'D'
 ```
 
-#### `> digit(base) -> Parser<String>`
+#### <a name="mona-digit"></a>`> digit(base) -> Parser<String>`
 
 Parses a single digit character token from the input.
 
@@ -642,7 +694,7 @@ Parses a single digit character token from the input.
 parse(digit(), '5') // => '5'
 ```
 
-#### `> alphanum(base) -> Parser<String>`
+#### <a name="mona-alphanum"></a>`> alphanum(base) -> Parser<String>`
 
 Matches an alphanumeric character.
 
@@ -654,7 +706,7 @@ parse(alphanum(), 'a') // => 'a'
 parse(alphanum(), 'A') // => 'A'
 ```
 
-#### `> space() -> Parser<String>`
+#### <a name="mona-space"></a>`> space() -> Parser<String>`
 
 Matches one whitespace character.
 
@@ -662,7 +714,7 @@ Matches one whitespace character.
 parse(space(), '\r') // => '\r'
 ```
 
-#### `> spaces() -> Parser<String>`
+#### <a name="mona-spaces"></a>`> spaces() -> Parser<String>`
 
 Matches one or more whitespace characters. Returns a single space character as
 its result, regardless of which whitespace characters and how many were matched.
@@ -671,7 +723,7 @@ its result, regardless of which whitespace characters and how many were matched.
 parse(spaces(), '   \r\n\t \r \n') // => ' '
 ```
 
-#### `> text([parser[, opts]]) -> Parser<String>`
+#### <a name="mona-text"></a>`> text([parser[, opts]]) -> Parser<String>`
 
 Collects between `min` and `max` number of matches for `parser`. The result is
 returned as a single string. This parser is essentially `collect()` for strings.
@@ -686,7 +738,7 @@ returned as a single string. This parser is essentially `collect()` for strings.
 * parse(text(noneOf('a')), 'bcde') // => 'bcde'
 ```
 
-#### `> trim(parser) -> Parser<T>`
+#### <a name="mona-trim"></a>`> trim(parser) -> Parser<T>`
 
 Trims any whitespace surrounding `parser`, and returns `parser`'s result.
 
@@ -696,7 +748,7 @@ Trims any whitespace surrounding `parser`, and returns `parser`'s result.
 parse(trim(token()), '    \r\n  a   \t') // => 'a'
 ```
 
-#### `> trimLeft(parser) -> Parser<T>`
+#### <a name="mona-trimLeft"></a>`> trimLeft(parser) -> Parser<T>`
 
 Trims any _leading_ whitespace before `parser`, and returns `parser`'s result.
 
@@ -706,7 +758,7 @@ Trims any _leading_ whitespace before `parser`, and returns `parser`'s result.
 parse(trimLeft(token()), '    \r\n  a') // => 'a'
 ```
 
-#### `> trimRight(parser) -> Parser<T>`
+#### <a name="mona-trimRight"></a>`> trimRight(parser) -> Parser<T>`
 
 Trims any _trailing_ whitespace before `parser`, and returns `parser`'s result.
 
@@ -723,7 +775,7 @@ you want the to be, this is the place to look. Parsers in this package include
 `integer()`, `float()`, and `ordinal()` (which parses English ordinals (`first`,
 `second`, `third`) into numbers).
 
-#### `> natural(base) -> Parser<Integer>`
+#### <a name="mona-natural"></a>`> natural(base) -> Parser<Integer>`
 
 Matches a natural number. That is, a number without a positive/negative sign or
 decimal places, and returns a positive integer.
@@ -734,7 +786,7 @@ decimal places, and returns a positive integer.
 * parse(natural(), '1234') // => 1234
 ```
 
-#### `> integer(base) -> Parser<Integer>`
+#### <a name="mona-integer"></a>`> integer(base) -> Parser<Integer>`
 
 Matches an integer, with an optional + or - sign.
 
@@ -744,7 +796,7 @@ Matches an integer, with an optional + or - sign.
 parse(integer(), '-1234') // => -1234
 ```
 
-#### `> real() -> Parser<Float>`
+#### <a name="mona-real"></a>`> real() -> Parser<Float>`
 
 Parses a floating point number.
 
@@ -752,7 +804,7 @@ Parses a floating point number.
 parse(real(), '-1234e-10') // => -1.234e-7
 ```
 
-#### `> cardinal() -> Parser<Integer>`
+#### <a name="mona-cardinal"></a>`> cardinal() -> Parser<Integer>`
 
 Parses english cardinal numbers into their numerical counterparts
 
@@ -760,7 +812,7 @@ Parses english cardinal numbers into their numerical counterparts
 parse(cardinal(), 'two thousand') // => 2000
 ```
 
-#### `> ordinal() -> Parser<Integer>`
+#### <a name="mona-ordinal"></a>`> ordinal() -> Parser<Integer>`
 
 Parses English ordinal numbers into their numerical counterparts.
 
@@ -768,7 +820,7 @@ Parses English ordinal numbers into their numerical counterparts.
 parse(ordinal(), 'one-hundred thousand and fifth') // 100005
 ```
 
-#### `> shortOrdinal() -> Parser<Integer>`
+#### <a name="mona-shortOrdinal"></a>`> shortOrdinal() -> Parser<Integer>`
 
 Parses shorthand english ordinal numbers into their numerical counterparts.
 Optionally allows you to remove correct suffix checks and allow any apparent
