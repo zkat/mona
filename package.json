@@ -34,7 +34,10 @@
   },
   "readmeFilename": "README.md",
   "scripts": {
-    "build": "babel --presets es2015 src --out-dir lib && webpack --progress --colors -d --output-library mona --output-library-target umd lib/index.js browser/mona.js && webpack -d -p --progress --colors --output-library mona --output-library-target umd lib/index.js browser/mona.min.js",
+    "minbundle": "webpack --progress --colors -d -p --output-library mona --output-library-target umd lib/index.js browser/mona.js",
+    "bundle": "webpack --progress --colors -d --output-library mona --output-library-target umd lib/index.js browser/mona.js",
+    "babel": "babel --presets es2015 src --out-dir lib",
+    "build": "npm run babel && npm run bundle && npm run minbundle",
     "prepublish": "npm run build",
     "test": "standard src/* test/* && npm run build && mocha --reporter spec"
   },
