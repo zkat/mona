@@ -42,11 +42,11 @@
     "test": "standard src/* test/* && npm run build && mocha --reporter spec"
   },
   "dependencies": {
-    "@mona/combinators": "^1.0.4",
-    "@mona/core": "^1.0.3",
-    "@mona/numbers": "^1.0.2",
-    "@mona/parse": "^1.0.4",
+    "@mona/combinators": "^1.0.5",
+    "@mona/core": "^1.0.4",
+    "@mona/numbers": "^1.0.3",
+    "@mona/parse": "^1.0.5",
     "@mona/parse-async": "^1.0.0",
-    "@mona/strings": "^1.0.0"
+    "@mona/strings": "^1.1.1"
   }
 }
